@@ -7,73 +7,79 @@ session. For session-by-session state, see HANDOFF.md.
 
 ## Goal
 
-Build a Power BI dashboard (.pbix) that adds interactive value beyond
-the Excel workbook — drill-through, cross-filtering, trend lines,
-and dynamic slicing that Excel can't do well.
+Write the narrative walkthrough that ties the diagnostic deliverables
+together. This is the portfolio piece — the document a prospect reads
+to understand what a trade spend diagnostic looks like, what it finds,
+and what a real engagement would add.
 
 ## Why this arc, why now
 
-The workbook is the static diagnostic. The dashboard is the interactive
-companion — same data, different affordances. The SQL query library
-(Arc 3) provides clean source queries for the data model, so the
-Power BI data layer doesn't start from scratch. Building the dashboard
-now, while the workbook is fresh, makes it easy to identify where
-Power BI should diverge rather than replicate.
+Four arcs of technical work are done: data, workbook, SQL library,
+dashboard. The deliverables exist but nothing explains them as a
+coherent story. The walkthrough is the front door — it frames the
+problem, walks through the methodology and findings, and positions
+the deliverables as evidence. Without it, the portfolio is a pile
+of files.
 
 ## Business question this arc answers
 
-Same core question, interactive interface: where is the money going,
-which promotions created value, and what's the addressable improvement —
-with the ability to filter by retailer, time period, category, and
-promo type dynamically.
+What does a trade spend diagnostic actually reveal, and why should
+a CPG company in the $15M–$30M revenue band care?
 
 ## Tasks
 
-- [x] Design the dashboard page structure — which pages, what each
-      shows, and how it differs from the corresponding workbook tab.
-      Produce `powerbi/DESIGN.md` with page layouts, visual types,
-      field mappings, and the specific value-add over Excel for each
-- [x] Export data files for Power BI consumption — CSV or parquet
-      files in `powerbi/data/` with clean column names, proper types,
-      and a data dictionary. One file per logical table (not one per
-      SQL query). Include any calculated fields that are easier to
-      compute in Python than DAX
-- [x] Write DAX measures document — `powerbi/DAX_MEASURES.md` with
-      every measure needed, organized by page. Include measure name,
-      DAX formula, what it calculates, and which visual uses it
-- [x] Write the build guide — `powerbi/BUILD_GUIDE.md` with
-      step-by-step instructions to assemble the .pbix from the data
-      files and DAX measures. Include relationship diagram, slicer
-      config, conditional formatting rules, drill-through setup,
-      and bookmark navigation
-- [x] Create a `powerbi/README.md` documenting the data model,
-      the 3+ value-add examples over Excel, and how to refresh data
+- [x] Define the walkthrough structure in a brief outline — sections
+      follow the diagnostic narrative arc from problem to engagement
+- [x] Write `walkthrough.md` — full narrative, Economist style (sober,
+      declarative, data-forward), with specific Cinderhaven numbers
+- [x] Write project-level `README.md` — positioning, repo structure,
+      quick start, links to all deliverables
 
 ## Out of scope for this arc
 
-- Written walkthrough (next arc)
-- Power BI Service deployment or refresh schedules
-- Row-level security
-- Custom visuals beyond built-in and standard marketplace visuals
-- Generating the .pbix file (assembled manually in Power BI Desktop)
+- Video walkthrough or slide deck
+- Client-facing proposal template
+- Additional data generation or workbook changes
+- Power BI visual assembly (documented in BUILD_GUIDE.md, done manually)
 
 ## Definition of done for this arc
 
-- [x] `powerbi/DESIGN.md` specifies 4 pages with visual types, field
-      mappings, and Excel value-add rationale per page
-- [x] `powerbi/data/` contains clean data files loadable into Power BI
-      with a data dictionary
-- [x] `powerbi/DAX_MEASURES.md` contains all measures with formulas
-      and usage context
-- [x] `powerbi/BUILD_GUIDE.md` is detailed enough to assemble the
-      dashboard without improvisation
-- [x] At least 3 clear "Power BI adds value here" examples documented
-- [x] All data files produce numbers consistent with workbook locked
-      numbers
+- [x] `walkthrough.md` covers problem, methodology, findings,
+      deliverables, and real-engagement upsell — with specific numbers
+- [x] Voice is consistent: declarative, data-forward, no marketing
+      language ("unlocking value", "driving insights", "leveraging")
+- [x] Project-level `README.md` orients a cold reader to the repo
+- [x] All numbers in the walkthrough match verified actuals from the
+      data foundation
 
 ---
 
 ## Arc history
+
+### Arc 5: Written walkthrough (completed 2026-05-10)
+- **Goal:** Write the narrative walkthrough and project README that
+  tie the deliverables together as a portfolio piece
+- **Outcome:** 2,276-word walkthrough covering problem, methodology,
+  findings, deliverables, and real-engagement upsell — Economist
+  voice, every paragraph data-forward with specific Cinderhaven
+  numbers. Project README (76 lines) orients a cold visitor in
+  under 60 seconds. All numbers verified against DB actuals.
+- **Key decisions:** None — this arc was execution against the voice
+  and structure decisions already in DECISIONS.md.
+
+### Arc 4: Power BI dashboard preparation (completed 2026-05-10)
+- **Goal:** Prepare everything needed to assemble the Power BI dashboard
+  — data exports, DAX measures, build guide, automation tooling
+- **Outcome:** 4-page dashboard fully specified. 7 CSV data exports
+  (star schema: 3 dimensions, 4 facts, 601K scan rows). 49 DAX measures
+  documented with formulas and cross-references. `generate_pbix_model.py`
+  automates measure injection via pbi-tools (extract → inject JSON →
+  compile). BUILD_GUIDE.md covers automated data model setup and manual
+  visual assembly. 6 specific Power BI value-adds over Excel documented.
+  All export numbers validated against locked actuals.
+- **Key decisions:** pbi-tools for measure automation, visual layout
+  stays manual (report page JSON is undocumented/brittle). Channel-average
+  trade rate methodology (AVG across SKUs per channel, not per-SKU rates).
 
 ### Arc 3: SQL diagnostic query library (completed 2026-05-10)
 - **Goal:** Extract and document standalone SQL queries from the

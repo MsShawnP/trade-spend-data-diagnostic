@@ -9,6 +9,57 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## [2026-05-10] Session Wrap-Up — Arc 5 complete, all arcs done
+
+**Session focus:** Complete Arc 5 (written walkthrough) — the final arc. Write
+the full narrative walkthrough and project README.
+
+**Completed:**
+- Updated PLAN.md: archived Arc 4, defined Arc 5 (goal, tasks, done criteria)
+- Wrote `walkthrough.md` — 2,276-word narrative in 5 sections: the problem
+  (trade spend opacity at $15M–$30M), methodology (two-bucket framing, data
+  architecture), findings (all Cinderhaven numbers with tab/query references),
+  deliverables (workbook, SQL, dashboard orientation), real-engagement upsell
+- Verified all walkthrough numbers against live database queries (waste by
+  category, promo ROI distribution, retailer margins, ghost promos, recovery)
+- Caught and replaced one instance of banned word "leverage"
+- Wrote project-level `README.md` — 76 lines: punchline, directory map,
+  quick start with submodule note, deliverable links, stack
+- Marked all Arc 5 tasks and definition-of-done items complete
+
+**Current state:** All five arcs are **complete**. The project is a finished
+portfolio piece with no in-progress work:
+- Arc 1: Data generation (cinderhaven-data, 21 tables, verified numbers)
+- Arc 2: Workbook build (7 tabs, 43 validation checks passing)
+- Arc 3: SQL query library (25 queries, 36 verification checks)
+- Arc 4: Power BI preparation (design, 7 CSVs, 49 DAX measures, build guide)
+- Arc 5: Written walkthrough + project README
+
+**Key files changed:**
+- `walkthrough.md` — created (full diagnostic narrative, 2,276 words)
+- `README.md` — created (project-level orientation for cold visitors)
+- `PLAN.md` — Arc 4 archived, Arc 5 defined and completed
+
+**Next steps:**
+1. Assemble the .pbix in Power BI Desktop following `powerbi/BUILD_GUIDE.md`
+   (manual visual layout — the data model and measures are pre-generated)
+2. Push cinderhaven-data deduction pipeline scripts to GitHub (unblocks
+   submodule-based builds without the DB copy workaround)
+3. Decide on a license
+4. Consider: video walkthrough, slide deck, or client-facing proposal template
+
+**Blockers:** None — all planned work is complete.
+
+**Context for next session:** No arcs remain in PLAN.md. The project is
+shippable as-is. The only infrastructure gap is that cinderhaven-data's
+deduction pipeline scripts haven't been pushed to the remote (the build_db.py
+fallback works, but a fresh clone would need the pre-built DB copied manually).
+The Power BI dashboard exists as documentation and pre-generated measures but
+has not been assembled in Power BI Desktop — that's a manual step following
+BUILD_GUIDE.md § 4.
+
+---
+
 ## [2026-05-10] Session Wrap-Up — Workbook-level features and end-to-end validation
 
 **Session focus:** Add workbook-level polish (named ranges, print areas, active
