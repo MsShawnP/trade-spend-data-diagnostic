@@ -61,6 +61,32 @@ is listed as the natural next step.
 
 ---
 
+## 2026-05-10 — Arc 2 complete: 7-tab workbook
+
+**Started from:** Arc 2 beginning. Project structure not set up. Data
+foundation complete from Arc 1.
+
+**Did:** Built the full 7-tab diagnostic workbook end-to-end. Project
+structure (submodule, build script, entry point), shared styles module,
+all 7 tabs (Executive Pulse, Leak Diagnostic, Promo Efficacy, Retailer
+Risk, Deduction Ledger, Deduction Code Crosswalk, Methodology & Logic),
+workbook-level features (8 named ranges, print areas, data validation,
+conditional formatting), and validation script (43 checks, all passing).
+Key findings surfaced during build: 137 ghost promo deductions ($95,826),
+292 unmapped deduction codes, 11-retailer P&L including KeHE deduction-only
+and DTC zero-trade benchmark.
+
+**State:** Arc 2 complete. `python build_workbook.py` produces workbook
+from submodule. `python validate_workbook.py` passes all 43 checks.
+Minor DB rebuild nondeterminism: waste rate ~$1,500 variance ($1,012,455
+vs locked $1,010,940), disputes 1,410 vs locked 1,409. Validation
+tolerances handle both.
+
+**Next:** Choose next arc — Power BI dashboard, SQL diagnostic query
+library, or written walkthrough.
+
+---
+
 ## [2026-05-10] Session Wrap-Up — Project setup and database wiring
 **Session focus:** Set up project structure (submodule, build script, DB),
 explore schema, prepare for workbook generation.
