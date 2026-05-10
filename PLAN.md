@@ -29,24 +29,24 @@ promo type dynamically.
 
 ## Tasks
 
-- [ ] Design the dashboard page structure — which pages, what each
+- [x] Design the dashboard page structure — which pages, what each
       shows, and how it differs from the corresponding workbook tab.
       Produce `powerbi/DESIGN.md` with page layouts, visual types,
       field mappings, and the specific value-add over Excel for each
-- [ ] Export data files for Power BI consumption — CSV or parquet
+- [x] Export data files for Power BI consumption — CSV or parquet
       files in `powerbi/data/` with clean column names, proper types,
       and a data dictionary. One file per logical table (not one per
       SQL query). Include any calculated fields that are easier to
       compute in Python than DAX
-- [ ] Write DAX measures document — `powerbi/DAX_MEASURES.md` with
+- [x] Write DAX measures document — `powerbi/DAX_MEASURES.md` with
       every measure needed, organized by page. Include measure name,
       DAX formula, what it calculates, and which visual uses it
-- [ ] Write the build guide — `powerbi/BUILD_GUIDE.md` with
+- [x] Write the build guide — `powerbi/BUILD_GUIDE.md` with
       step-by-step instructions to assemble the .pbix from the data
       files and DAX measures. Include relationship diagram, slicer
       config, conditional formatting rules, drill-through setup,
       and bookmark navigation
-- [ ] Create a `powerbi/README.md` documenting the data model,
+- [x] Create a `powerbi/README.md` documenting the data model,
       the 3+ value-add examples over Excel, and how to refresh data
 
 ## Out of scope for this arc
