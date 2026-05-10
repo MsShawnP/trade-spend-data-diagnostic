@@ -70,7 +70,7 @@ of related tabs) that can be reviewed before moving to the next.
 - [x] Build Tab 6: Deduction Code Crosswalk (gray) — retailer codes
       mapped to plain English and standardized categories, verified
       vs. inferred flags
-- [ ] Build Tab 7: Methodology & Logic (gray) — two-bucket
+- [x] Build Tab 7: Methodology & Logic (gray) — two-bucket
       definitions, data lineage, ROI methodology, net-net margin
       methodology, build date timestamp, SQL logic summary
 - [ ] Workbook-level features — named ranges for KPIs, conditional
