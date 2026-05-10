@@ -7,64 +7,86 @@ session. For session-by-session state, see HANDOFF.md.
 
 ## Goal
 
-Build a documented SQL diagnostic query library that a controller or
-analyst can run against the cinderhaven-data SQLite database to
-investigate trade spend, deduction patterns, and promo performance.
+Build a Power BI dashboard (.pbix) that adds interactive value beyond
+the Excel workbook — drill-through, cross-filtering, trend lines,
+and dynamic slicing that Excel can't do well.
 
 ## Why this arc, why now
 
-The workbook build scripts already contain most of the query logic —
-this arc extracts, cleans, and documents them as standalone .sql files.
-The formalized queries also feed directly into the Power BI data model
-(next arc), avoiding duplicate work in DAX.
+The workbook is the static diagnostic. The dashboard is the interactive
+companion — same data, different affordances. The SQL query library
+(Arc 3) provides clean source queries for the data model, so the
+Power BI data layer doesn't start from scratch. Building the dashboard
+now, while the workbook is fresh, makes it easy to identify where
+Power BI should diverge rather than replicate.
 
 ## Business question this arc answers
 
-Same core question, different interface: where is the money going,
+Same core question, interactive interface: where is the money going,
 which promotions created value, and what's the addressable improvement —
-answered via composable SQL that an analyst can modify and extend.
+with the ability to filter by retailer, time period, category, and
+promo type dynamically.
 
 ## Tasks
 
-- [x] Inventory the queries already embedded in the workbook build
-      scripts — list each, note what tab it feeds, and whether it's
-      reusable as-is or needs cleanup
-- [x] Extract and clean queries into standalone .sql files, one per
-      diagnostic question, in a `sql/` directory
-- [x] Organize files by category: trade_rate, deductions, promo_roi,
-      retailer, crosswalk, reconciliation
-- [x] Add a header comment block to each .sql file: what it answers,
-      which tables it touches, expected output columns, any parameters
-      (date range, retailer filter) as placeholder variables
-- [x] Write a `sql/README.md` documenting the full query library —
-      one-line description per file, suggested execution order for a
-      new analyst, and how to run against the SQLite database
-- [x] Verify every query runs clean against the current database and
-      produces results consistent with the workbook's locked numbers
+- [ ] Design the dashboard page structure — which pages, what each
+      shows, and how it differs from the corresponding workbook tab
+      (the DECISIONS.md rule: "Power BI must add value beyond Excel")
+- [ ] Build the Power BI data model — import tables from SQLite,
+      define relationships, create calculated columns and measures
+      using the SQL query library as reference
+- [ ] Build Page 1: Executive overview — KPI cards, waterfall visual,
+      trade rate trend line (if time-series data supports it),
+      cross-filtering by retailer
+- [ ] Build Page 2: Deduction deep-dive — category breakdown with
+      drill-through to individual deductions, time-based filtering,
+      retailer slicer
+- [ ] Build Page 3: Promo performance — scatter plot (cost vs. lift),
+      ROI distribution, drill-through to promo detail, ghost promo
+      callout
+- [ ] Build Page 4: Retailer comparison — net-net margin comparison,
+      revenue vs. deduction share, what-if parameter for trade rate
+      scenarios
+- [ ] Add bookmarks or navigation for guided walkthrough
+- [ ] Export .pbix file and document any DAX measures in a
+      `powerbi/README.md`
 
 ## Out of scope for this arc
 
-- Power BI dashboard (next arc — consumes these queries)
-- Written walkthrough (future arc)
-- Query optimization or indexing (dataset is small)
-- Stored procedures or views (SQLite doesn't support stored procs;
-  views are optional and only if they simplify downstream consumption)
+- Written walkthrough (next arc)
+- Power BI Service deployment or refresh schedules
+- Row-level security
+- Custom visuals beyond built-in and standard marketplace visuals
 
 ## Definition of done for this arc
 
-- [x] `sql/` directory contains standalone .sql files covering all
-      key diagnostics from the workbook
-- [x] Each file has a header comment block documenting purpose, tables,
-      output columns, and parameters
-- [x] `sql/README.md` documents the library with descriptions and
-      execution guidance
-- [x] All queries execute without error against the current database
-- [x] Key query outputs match workbook locked numbers (within DB
-      rebuild tolerances)
+- [ ] .pbix file opens and connects to the cinderhaven-data SQLite
+      database (or exported CSV/parquet if SQLite connector is
+      problematic)
+- [ ] Dashboard has 4 pages with interactive filtering and
+      drill-through
+- [ ] KPI figures match workbook locked numbers
+- [ ] At least 3 clear examples of "Power BI adds value here that
+      Excel can't" (documented in README)
+- [ ] No replicated Excel charts — every visual justifies its
+      existence in the interactive medium
+- [ ] `powerbi/README.md` documents the data model, key DAX measures,
+      and the value-add rationale
 
 ---
 
 ## Arc history
+
+### Arc 3: SQL diagnostic query library (completed 2026-05-10)
+- **Goal:** Extract and document standalone SQL queries from the
+  workbook build scripts
+- **Outcome:** 25 .sql files across 6 categories (trade_rate,
+  deductions, promo_roi, retailer, crosswalk, reconciliation). 17
+  extracted from workbook scripts, 6 new gap queries written, 2
+  duplicates consolidated, 3 cleaned up. All execute without error.
+  36/36 verification checks pass. sql/README.md provides query index,
+  10-step analyst walkthrough, and locked numbers reference.
+- **Key decisions:** None — this arc was execution, not architecture.
 
 ### Arc 2: Workbook build (completed 2026-05-10)
 - **Goal:** Build the 7-tab diagnostic Excel workbook
