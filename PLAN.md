@@ -73,11 +73,11 @@ of related tabs) that can be reviewed before moving to the next.
 - [x] Build Tab 7: Methodology & Logic (gray) — two-bucket
       definitions, data lineage, ROI methodology, net-net margin
       methodology, build date timestamp, SQL logic summary
-- [ ] Workbook-level features — named ranges for KPIs, conditional
+- [x] Workbook-level features — named ranges for KPIs, conditional
       formatting, no gridlines on green/gray tabs, print areas,
       data validation on input cells, yellow fill on adjustable
       cells with cell comments
-- [ ] Validate end-to-end — numbers on Tab 1 match locked numbers,
+- [x] Validate end-to-end — numbers on Tab 1 match locked numbers,
       interactive cells recalculate correctly, vlookup across tabs
       returns clean results, all auto-filters work
 
@@ -94,24 +94,24 @@ of related tabs) that can be reviewed before moving to the next.
 
 ## Definition of done for this arc
 
-- [ ] 7-tab .xlsx workbook generates from the unified cinderhaven-data
+- [x] 7-tab .xlsx workbook generates from the unified cinderhaven-data
       database via submodule
-- [ ] Executive Pulse tab tells the two-bucket story with locked
+- [x] Executive Pulse tab tells the two-bucket story with locked
       numbers, waterfall chart, and addressable improvement headline
-- [ ] Tabs are color-coded green/blue/gray
-- [ ] Promo ROI calculations work with adjustable pre/post window
-- [ ] Double-dip detection surfaces the 3 flagged events with
+- [x] Tabs are color-coded green/blue/gray
+- [x] Promo ROI calculations work with adjustable pre/post window
+- [x] Double-dip detection surfaces the 3 flagged events with
       explanatory cell comments
-- [ ] Net-net effective margin by retailer calculated and displayed
-- [ ] Interactive input cells (recovery rate, promo window, what-if
+- [x] Net-net effective margin by retailer calculated and displayed
+- [x] Interactive input cells (recovery rate, promo window, what-if
       trade rates) recalculate dependent values
-- [ ] Deduction code crosswalk translates retailer codes to plain
+- [x] Deduction code crosswalk translates retailer codes to plain
       English
-- [ ] A non-technical user can open the workbook cold and understand
+- [x] A non-technical user can open the workbook cold and understand
       the structure without external documentation
-- [ ] All numbers trace back to TRADE_SPEND_VERIFICATION.md actuals
-- [ ] No raw scan data in the workbook — all aggregated
-- [ ] Join keys consistent across all tabs (no vlookup #N/A errors)
+- [x] All numbers trace back to TRADE_SPEND_VERIFICATION.md actuals
+- [x] No raw scan data in the workbook — all aggregated
+- [x] Join keys consistent across all tabs (no vlookup #N/A errors)
 
 ---
 
