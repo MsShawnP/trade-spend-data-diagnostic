@@ -67,7 +67,7 @@ of related tabs) that can be reviewed before moving to the next.
 - [x] Build Tab 5: Deduction Ledger (blue) — trailing-365 deductions
       (2,365 rows), translated codes from crosswalk, auto-filters,
       freeze panes, consistent join keys
-- [ ] Build Tab 6: Deduction Code Crosswalk (gray) — retailer codes
+- [x] Build Tab 6: Deduction Code Crosswalk (gray) — retailer codes
       mapped to plain English and standardized categories, verified
       vs. inferred flags
 - [ ] Build Tab 7: Methodology & Logic (gray) — two-bucket
