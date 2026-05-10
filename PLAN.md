@@ -48,7 +48,7 @@ of related tabs) that can be reviewed before moving to the next.
       generation entry point
 - [x] Design tab list, ordering, and color-coding scheme — 7 tabs
       confirmed (down from original 13)
-- [ ] Build Tab 1: Executive Pulse (green) — two-bucket framing,
+- [x] Build Tab 1: Executive Pulse (green) — two-bucket framing,
       waterfall chart, KPI trio, addressable improvement headline,
       responsibility matrix (waste → department), dynamic action
       items, hyperlinked navigation, instructional callout
