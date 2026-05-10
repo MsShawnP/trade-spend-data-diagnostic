@@ -9,6 +9,45 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## [2026-05-10] Session Wrap-Up — Permission config and session prep
+**Session focus:** Configure bypassPermissions for autonomous operation,
+orient on project state before workbook build.
+
+**Completed:**
+- Read all tracking files (HANDOFF.md, PLAN.md, DECISIONS.md, FAILURES.md)
+- Confirmed DB exists in active cinderhaven-data repo but not yet copied
+  into this worktree
+- Set `permissions.defaultMode: "bypassPermissions"` in
+  `.claude/settings.local.json` — requires new session to take effect
+
+**Current state:** Same as prior session. No workbook code written yet.
+Database needs to be copied from active repo into worktree submodule path
+(`cinderhaven-data/data/`). bypassPermissions configured but not yet active.
+
+**Key files changed:**
+- `.claude/settings.local.json` — added `defaultMode: "bypassPermissions"`
+
+**Next steps (unchanged from prior session):**
+1. Copy DB into worktree: `cinderhaven-data/data/cinderhaven_product_master.db`
+2. Verify locked numbers against the DB (run SQL checks)
+3. Build Tab 7 (Methodology & Logic) — defines all calculations
+4. Build Tab 6 → Tab 1 per the task spec
+5. Workbook-level features (named ranges, formatting, validation)
+6. End-to-end validation
+
+**Blockers:** None — bypassPermissions is set, new session will have
+full autonomy.
+
+**Context for next session:** Start fresh so bypassPermissions takes
+effect. First action: run `scripts/build_db.py` or manually copy
+the pre-built DB from `C:\Users\mssha\projects\active\cinderhaven-data\data\cinderhaven_product_master.db`
+into `cinderhaven-data/data/`. Then verify locked numbers, then begin
+`scripts/generate_workbook.py` starting with Tab 7. Build order:
+Tab 7 → 6 → 5 → 4 → 3 → 2 → 1. Delete `scripts/explore_db.py`
+(one-off tool, no longer needed).
+
+---
+
 ## [2026-05-10] Session Wrap-Up — Project setup and database wiring
 **Session focus:** Set up project structure (submodule, build script, DB),
 explore schema, prepare for workbook generation.

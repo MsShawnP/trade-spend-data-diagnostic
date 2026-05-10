@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"C:\\\\Users\\\\mssha\\\\projects\\\\active\\\\cinderhaven-data\\\\data\\\\\" 2>&1 | head -20)",
+      "Bash(git submodule *)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(git add *)"
+    ],
+    "defaultMode": "bypassPermissions"
+  }
+}
