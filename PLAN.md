@@ -30,26 +30,24 @@ promo type dynamically.
 ## Tasks
 
 - [ ] Design the dashboard page structure — which pages, what each
-      shows, and how it differs from the corresponding workbook tab
-      (the DECISIONS.md rule: "Power BI must add value beyond Excel")
-- [ ] Build the Power BI data model — import tables from SQLite,
-      define relationships, create calculated columns and measures
-      using the SQL query library as reference
-- [ ] Build Page 1: Executive overview — KPI cards, waterfall visual,
-      trade rate trend line (if time-series data supports it),
-      cross-filtering by retailer
-- [ ] Build Page 2: Deduction deep-dive — category breakdown with
-      drill-through to individual deductions, time-based filtering,
-      retailer slicer
-- [ ] Build Page 3: Promo performance — scatter plot (cost vs. lift),
-      ROI distribution, drill-through to promo detail, ghost promo
-      callout
-- [ ] Build Page 4: Retailer comparison — net-net margin comparison,
-      revenue vs. deduction share, what-if parameter for trade rate
-      scenarios
-- [ ] Add bookmarks or navigation for guided walkthrough
-- [ ] Export .pbix file and document any DAX measures in a
-      `powerbi/README.md`
+      shows, and how it differs from the corresponding workbook tab.
+      Produce `powerbi/DESIGN.md` with page layouts, visual types,
+      field mappings, and the specific value-add over Excel for each
+- [ ] Export data files for Power BI consumption — CSV or parquet
+      files in `powerbi/data/` with clean column names, proper types,
+      and a data dictionary. One file per logical table (not one per
+      SQL query). Include any calculated fields that are easier to
+      compute in Python than DAX
+- [ ] Write DAX measures document — `powerbi/DAX_MEASURES.md` with
+      every measure needed, organized by page. Include measure name,
+      DAX formula, what it calculates, and which visual uses it
+- [ ] Write the build guide — `powerbi/BUILD_GUIDE.md` with
+      step-by-step instructions to assemble the .pbix from the data
+      files and DAX measures. Include relationship diagram, slicer
+      config, conditional formatting rules, drill-through setup,
+      and bookmark navigation
+- [ ] Create a `powerbi/README.md` documenting the data model,
+      the 3+ value-add examples over Excel, and how to refresh data
 
 ## Out of scope for this arc
 
@@ -57,21 +55,21 @@ promo type dynamically.
 - Power BI Service deployment or refresh schedules
 - Row-level security
 - Custom visuals beyond built-in and standard marketplace visuals
+- Generating the .pbix file (assembled manually in Power BI Desktop)
 
 ## Definition of done for this arc
 
-- [ ] .pbix file opens and connects to the cinderhaven-data SQLite
-      database (or exported CSV/parquet if SQLite connector is
-      problematic)
-- [ ] Dashboard has 4 pages with interactive filtering and
-      drill-through
-- [ ] KPI figures match workbook locked numbers
-- [ ] At least 3 clear examples of "Power BI adds value here that
-      Excel can't" (documented in README)
-- [ ] No replicated Excel charts — every visual justifies its
-      existence in the interactive medium
-- [ ] `powerbi/README.md` documents the data model, key DAX measures,
-      and the value-add rationale
+- [ ] `powerbi/DESIGN.md` specifies 4 pages with visual types, field
+      mappings, and Excel value-add rationale per page
+- [ ] `powerbi/data/` contains clean data files loadable into Power BI
+      with a data dictionary
+- [ ] `powerbi/DAX_MEASURES.md` contains all measures with formulas
+      and usage context
+- [ ] `powerbi/BUILD_GUIDE.md` is detailed enough to assemble the
+      dashboard without improvisation
+- [ ] At least 3 clear "Power BI adds value here" examples documented
+- [ ] All data files produce numbers consistent with workbook locked
+      numbers
 
 ---
 
