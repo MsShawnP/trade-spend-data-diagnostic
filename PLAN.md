@@ -60,7 +60,7 @@ of related tabs) that can be reviewed before moving to the next.
       by lift vs. cost, adjustable pre/post window (default 4wk),
       data quality indicator per promo, ghost promo flags, honest
       coverage disclosure
-- [ ] Build Tab 4: Retailer Risk (green) — revenue share vs.
+- [x] Build Tab 4: Retailer Risk (green) — revenue share vs.
       deduction share, net-net effective margin by retailer (gross
       margin → structural trade → operational waste → effective),
       what-if trade rate input cells per retailer
