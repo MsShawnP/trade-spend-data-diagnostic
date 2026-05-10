@@ -9,6 +9,58 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## [2026-05-10] Session Wrap-Up — Workbook-level features and end-to-end validation
+
+**Session focus:** Add workbook-level polish (named ranges, print areas, active
+sheet) and run comprehensive end-to-end validation to confirm all acceptance
+criteria pass.
+
+**Completed:**
+- Added 8 named ranges to workbook (AllInTradeRate, StructuralTradeRate,
+  OperationalWasteRate, TotalRevenue, StructuralTrade, OperationalWaste,
+  AllInTradeCost, RecoveryRate)
+- Set print areas for Tabs 1–4 (landscape letter orientation)
+- Set active sheet to Executive Pulse (Tab 1)
+- Wrote `validate_workbook.py` — 43 automated checks covering tab structure,
+  locked numbers, double-dips, recovery, retailer totals, deduction count,
+  crosswalk completeness, cross-tab consistency, error scan, named ranges,
+  data validation, and conditional formatting
+- Fixed validation script issues: Windows cp1252 encoding (added UTF-8
+  reconfigure), openpyxl API (`defined_names.values()` not `.definedName`),
+  tolerance adjustments for minor DB rebuild variance
+- All 43 validation checks pass
+- Marked all PLAN.md tasks and definition-of-done items complete
+
+**Current state:** The workbook arc is **complete**. All 7 tabs generate
+correctly, all locked numbers match, all interactive features work, and the
+validation script confirms everything end-to-end. The workbook is at
+`output/trade_spend_diagnostic.xlsx`.
+
+**Key files changed:**
+- `workbook/generator.py` — added `_add_named_ranges()`, `_set_print_areas()`,
+  active sheet setting
+- `validate_workbook.py` — created (comprehensive 43-check validation)
+- `PLAN.md` — all tasks and definition-of-done items marked complete
+
+**Next steps:**
+1. Push cinderhaven-data deduction pipeline scripts to GitHub (unblocks
+   submodule-based builds without the DB copy workaround)
+2. Begin next arc: Power BI dashboard (consumes workbook structure)
+3. Or: SQL diagnostic query library
+4. Or: Written walkthrough / README
+
+**Blockers:** None — workbook arc is complete.
+
+**Context for next session:** The workbook arc (Arc 2) is done. All tasks and
+definition-of-done criteria are satisfied. The `validate_workbook.py` script
+can be re-run any time to confirm the workbook still passes all checks after
+changes. The one outstanding infrastructure item is pushing cinderhaven-data
+to GitHub so the submodule clone works without the DB copy fallback. The next
+arc should be chosen from PLAN.md's "Out of scope" list — Power BI dashboard
+is listed as the natural next step.
+
+---
+
 ## [2026-05-10] Session Wrap-Up — Project setup and database wiring
 **Session focus:** Set up project structure (submodule, build script, DB),
 explore schema, prepare for workbook generation.
