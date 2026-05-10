@@ -3,7 +3,8 @@
 from pathlib import Path
 
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill
+
+from workbook.tab_executive_pulse import build_executive_pulse
 
 
 TAB_SPEC = [
@@ -24,6 +25,8 @@ def generate_workbook(db_path: Path, output_path: Path) -> Path:
     for name, color in TAB_SPEC:
         ws = wb.create_sheet(title=name)
         ws.sheet_properties.tabColor = color
+
+    build_executive_pulse(wb["Executive Pulse"], db_path)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(output_path)
