@@ -56,7 +56,7 @@ of related tabs) that can be reviewed before moving to the next.
       category, double-dip alert with cell comments explaining
       mechanism, adjustable target recovery rate input cell,
       recoverability score
-- [ ] Build Tab 3: Promo Efficacy (green) — top/bottom performers
+- [x] Build Tab 3: Promo Efficacy (green) — top/bottom performers
       by lift vs. cost, adjustable pre/post window (default 4wk),
       data quality indicator per promo, ghost promo flags, honest
       coverage disclosure
