@@ -36,10 +36,10 @@ answered via composable SQL that an analyst can modify and extend.
 - [x] Add a header comment block to each .sql file: what it answers,
       which tables it touches, expected output columns, any parameters
       (date range, retailer filter) as placeholder variables
-- [ ] Write a `sql/README.md` documenting the full query library —
+- [x] Write a `sql/README.md` documenting the full query library —
       one-line description per file, suggested execution order for a
       new analyst, and how to run against the SQLite database
-- [ ] Verify every query runs clean against the current database and
+- [x] Verify every query runs clean against the current database and
       produces results consistent with the workbook's locked numbers
 
 ## Out of scope for this arc
@@ -52,14 +52,14 @@ answered via composable SQL that an analyst can modify and extend.
 
 ## Definition of done for this arc
 
-- [ ] `sql/` directory contains standalone .sql files covering all
+- [x] `sql/` directory contains standalone .sql files covering all
       key diagnostics from the workbook
-- [ ] Each file has a header comment block documenting purpose, tables,
+- [x] Each file has a header comment block documenting purpose, tables,
       output columns, and parameters
-- [ ] `sql/README.md` documents the library with descriptions and
+- [x] `sql/README.md` documents the library with descriptions and
       execution guidance
-- [ ] All queries execute without error against the current database
-- [ ] Key query outputs match workbook locked numbers (within DB
+- [x] All queries execute without error against the current database
+- [x] Key query outputs match workbook locked numbers (within DB
       rebuild tolerances)
 
 ---
