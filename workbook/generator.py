@@ -4,6 +4,7 @@ from pathlib import Path
 
 from openpyxl import Workbook
 
+from workbook.tab_code_crosswalk import build_code_crosswalk
 from workbook.tab_deduction_ledger import build_deduction_ledger
 from workbook.tab_executive_pulse import build_executive_pulse
 from workbook.tab_leak_diagnostic import build_leak_diagnostic
@@ -35,6 +36,7 @@ def generate_workbook(db_path: Path, output_path: Path) -> Path:
     build_promo_efficacy(wb["Promo Efficacy"], db_path)
     build_retailer_risk(wb["Retailer Risk"], db_path)
     build_deduction_ledger(wb["Deduction Ledger"], db_path)
+    build_code_crosswalk(wb["Deduction Code Crosswalk"], db_path)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(output_path)
