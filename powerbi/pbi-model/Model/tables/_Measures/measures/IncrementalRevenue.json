@@ -1,0 +1,6 @@
+{
+  "name": "IncrementalRevenue",
+  "expression": "SUM(dim_promo[incremental_revenue])",
+  "formatString": "$#,##0",
+  "displayFolder": "Promo Performance"
+}

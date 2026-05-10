@@ -1,0 +1,6 @@
+{
+  "name": "NoPOSCount",
+  "expression": "CALCULATE(\n    COUNTROWS(dim_promo),\n    dim_promo[data_quality] = \"No POS\"\n)",
+  "formatString": "#,##0",
+  "displayFolder": "Promo Performance"
+}

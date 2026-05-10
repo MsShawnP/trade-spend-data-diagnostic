@@ -1,0 +1,6 @@
+{
+  "name": "AvgROI",
+  "expression": "AVERAGEX(\n    FILTER(dim_promo, NOT(ISBLANK(dim_promo[roi]))),\n    dim_promo[roi]\n)",
+  "formatString": "0.00",
+  "displayFolder": "Promo Performance"
+}

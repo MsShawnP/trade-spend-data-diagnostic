@@ -1,0 +1,6 @@
+{
+  "name": "PromoROIDynamic",
+  "expression": "DIVIDE([IncrementalRevenueDynamic], [PromoCost], BLANK())",
+  "formatString": "0.00",
+  "displayFolder": "Promo Performance"
+}

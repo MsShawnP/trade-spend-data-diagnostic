@@ -1,0 +1,13 @@
+{
+  "name": "TargetAllInRate",
+  "partitions": [
+    {
+      "name": "TargetAllInRate",
+      "mode": "import",
+      "source": {
+        "type": "calculated",
+        "expression": "GENERATESERIES(0, 0.50, 0.01)"
+      }
+    }
+  ]
+}

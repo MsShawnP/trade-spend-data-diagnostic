@@ -1,0 +1,6 @@
+{
+  "name": "UnmappedCodeCount",
+  "expression": "CALCULATE(\n    COUNTROWS(fact_deductions),\n    fact_deductions[translated_code] = \"Unmapped\"\n)",
+  "formatString": "#,##0",
+  "displayFolder": "Deduction Deep-Dive"
+}

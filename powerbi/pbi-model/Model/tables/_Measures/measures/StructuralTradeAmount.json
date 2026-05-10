@@ -1,0 +1,6 @@
+{
+  "name": "StructuralTradeAmount",
+  "expression": "SUM(fact_structural_trade[structural_trade_dollars])",
+  "formatString": "$#,##0",
+  "displayFolder": "Global"
+}

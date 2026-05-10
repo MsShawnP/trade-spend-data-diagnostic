@@ -1,0 +1,14 @@
+{
+  "name": "_Measures",
+  "isHidden": true,
+  "partitions": [
+    {
+      "name": "_Measures",
+      "mode": "import",
+      "source": {
+        "type": "calculated",
+        "expression": "ROW(\"x\", 0)"
+      }
+    }
+  ]
+}

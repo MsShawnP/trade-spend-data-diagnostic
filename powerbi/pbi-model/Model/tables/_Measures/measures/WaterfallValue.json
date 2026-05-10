@@ -1,0 +1,5 @@
+{
+  "name": "WaterfallValue",
+  "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"Revenue\", [TotalRevenue],\n    \"Structural Trade\", -[StructuralTradeAmount],\n    \"Operational Waste\", -[OperationalWasteAmount],\n    \"Net After Trade\", [TotalRevenue] - [StructuralTradeAmount] - [OperationalWasteAmount]\n)",
+  "displayFolder": "Executive Overview"
+}

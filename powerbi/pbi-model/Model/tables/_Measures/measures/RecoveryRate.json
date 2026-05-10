@@ -1,0 +1,6 @@
+{
+  "name": "RecoveryRate",
+  "expression": "DIVIDE(\n    [TotalRecovered],\n    SUM(fact_disputes[deduction_amount]),\n    0\n)",
+  "formatString": "0.0%",
+  "displayFolder": "Global"
+}

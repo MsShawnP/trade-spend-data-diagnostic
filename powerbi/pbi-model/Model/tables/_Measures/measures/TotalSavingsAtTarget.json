@@ -1,0 +1,6 @@
+{
+  "name": "TotalSavingsAtTarget",
+  "expression": "SUMX(\n    dim_retailer,\n    VAR CurrentAllIn =\n        CALCULATE([StructuralRate]) +\n        CALCULATE([OpDedRate]) +\n        CALCULATE([PromoBBRate])\n    VAR Target = [TargetAllInRate Value]\n    VAR Rev = dim_retailer[revenue]\n    RETURN\n    IF(CurrentAllIn > Target, (CurrentAllIn - Target) * Rev, 0)\n)",
+  "formatString": "$#,##0",
+  "displayFolder": "Retailer Comparison"
+}

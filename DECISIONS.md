@@ -141,7 +141,18 @@ off-invoice, $4.5M total trade, 42/38/20 category split.~~
 
 ## Visualization
 
-[No entries yet]
+### 2026-05-10 — Automate DAX measure injection via pbi-tools, keep visual layout manual
+- **Why:** The dashboard has 49 measures — entering them by hand is
+  tedious and error-prone. pbi-tools can extract a .pbix into a folder
+  structure, inject measure JSON files, and recompile. This automates
+  the data model layer. Visual layout (positioning, slicers, formatting)
+  cannot be reliably automated via pbi-tools — the report page JSON
+  is undocumented and brittle. Honest split: measures automated,
+  visuals manual.
+- **Scope:** Power BI dashboard build workflow
+- **Do not:** Attempt to generate visual layout JSON via pbi-tools.
+  If pbi-tools is unavailable, measures can be created manually using
+  `DAX_MEASURES.md` formulas.
 
 ---
 

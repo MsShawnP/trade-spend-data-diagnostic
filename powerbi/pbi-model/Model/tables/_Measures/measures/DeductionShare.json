@@ -1,0 +1,6 @@
+{
+  "name": "DeductionShare",
+  "expression": "DIVIDE(\n    SUM(fact_deductions[amount]),\n    CALCULATE(SUM(fact_deductions[amount]), ALL(dim_retailer)),\n    0\n)",
+  "formatString": "0.0%",
+  "displayFolder": "Retailer Comparison"
+}

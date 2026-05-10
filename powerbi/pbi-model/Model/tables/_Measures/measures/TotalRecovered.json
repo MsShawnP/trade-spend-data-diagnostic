@@ -1,0 +1,6 @@
+{
+  "name": "TotalRecovered",
+  "expression": "SUM(fact_disputes[recovered_amount])",
+  "formatString": "$#,##0",
+  "displayFolder": "Global"
+}

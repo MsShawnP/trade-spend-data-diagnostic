@@ -1,0 +1,13 @@
+{
+  "name": "dim_date",
+  "partitions": [
+    {
+      "name": "dim_date",
+      "mode": "import",
+      "source": {
+        "type": "calculated",
+        "expression": "VAR MinDate = MIN(fact_deductions[deduction_date])\nVAR MaxDate = MAX(fact_scan_data[week_ending])\nRETURN\nADDCOLUMNS(\n    CALENDAR(MinDate, MaxDate),\n    \"year\", YEAR([Date]),\n    \"month\", MONTH([Date]),\n    \"year_month\", FORMAT([Date], \"YYYY-MM\"),\n    \"week_ending\",\n        [Date] + (6 - WEEKDAY([Date], 2)),\n    \"month_name\", FORMAT([Date], \"MMM YYYY\")\n)"
+      }
+    }
+  ]
+}

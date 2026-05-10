@@ -1,0 +1,6 @@
+{
+  "name": "GrossMarginPct",
+  "expression": "SELECTEDVALUE(dim_retailer[gross_margin], 0)",
+  "formatString": "0.0%",
+  "displayFolder": "Retailer Comparison"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "RetailerRevenue",
+  "expression": "SUM(fact_scan_data[dollars_sold])",
+  "formatString": "$#,##0",
+  "displayFolder": "Executive Overview"
+}

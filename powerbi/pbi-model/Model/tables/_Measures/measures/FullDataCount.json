@@ -1,0 +1,6 @@
+{
+  "name": "FullDataCount",
+  "expression": "CALCULATE(\n    COUNTROWS(dim_promo),\n    dim_promo[data_quality] = \"Full\"\n)",
+  "formatString": "#,##0",
+  "displayFolder": "Promo Performance"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "AvgDaysToResolve",
+  "expression": "AVERAGE(fact_deductions[days_outstanding])",
+  "formatString": "0",
+  "displayFolder": "Deduction Deep-Dive"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "WindowWeeks Value",
+  "expression": "SELECTEDVALUE(WindowWeeks[WindowWeeks Value], 4)",
+  "formatString": "#,##0",
+  "displayFolder": "What-If Parameters"
+}

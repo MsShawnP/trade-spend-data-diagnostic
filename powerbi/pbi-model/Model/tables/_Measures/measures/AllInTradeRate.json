@@ -1,0 +1,6 @@
+{
+  "name": "AllInTradeRate",
+  "expression": "DIVIDE([AllInTradeCost], [TotalRevenue], 0)",
+  "formatString": "0.0%",
+  "displayFolder": "Global"
+}

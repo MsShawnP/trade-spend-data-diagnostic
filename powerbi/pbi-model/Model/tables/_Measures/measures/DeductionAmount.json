@@ -1,0 +1,6 @@
+{
+  "name": "DeductionAmount",
+  "expression": "SUM(fact_deductions[amount])",
+  "formatString": "$#,##0",
+  "displayFolder": "Deduction Deep-Dive"
+}

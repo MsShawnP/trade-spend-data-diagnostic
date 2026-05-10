@@ -1,0 +1,6 @@
+{
+  "name": "PromoCount",
+  "expression": "COUNTROWS(dim_promo)",
+  "formatString": "#,##0",
+  "displayFolder": "Promo Performance"
+}
