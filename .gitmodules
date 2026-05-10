@@ -1,0 +1,3 @@
+[submodule "cinderhaven-data"]
+	path = cinderhaven-data
+	url = https://github.com/MsShawnP/cinderhaven-data.git
