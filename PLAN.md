@@ -59,16 +59,16 @@ promo type dynamically.
 
 ## Definition of done for this arc
 
-- [ ] `powerbi/DESIGN.md` specifies 4 pages with visual types, field
+- [x] `powerbi/DESIGN.md` specifies 4 pages with visual types, field
       mappings, and Excel value-add rationale per page
-- [ ] `powerbi/data/` contains clean data files loadable into Power BI
+- [x] `powerbi/data/` contains clean data files loadable into Power BI
       with a data dictionary
-- [ ] `powerbi/DAX_MEASURES.md` contains all measures with formulas
+- [x] `powerbi/DAX_MEASURES.md` contains all measures with formulas
       and usage context
-- [ ] `powerbi/BUILD_GUIDE.md` is detailed enough to assemble the
+- [x] `powerbi/BUILD_GUIDE.md` is detailed enough to assemble the
       dashboard without improvisation
-- [ ] At least 3 clear "Power BI adds value here" examples documented
-- [ ] All data files produce numbers consistent with workbook locked
+- [x] At least 3 clear "Power BI adds value here" examples documented
+- [x] All data files produce numbers consistent with workbook locked
       numbers
 
 ---
