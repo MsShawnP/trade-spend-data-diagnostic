@@ -26,14 +26,14 @@ answered via composable SQL that an analyst can modify and extend.
 
 ## Tasks
 
-- [ ] Inventory the queries already embedded in the workbook build
+- [x] Inventory the queries already embedded in the workbook build
       scripts — list each, note what tab it feeds, and whether it's
       reusable as-is or needs cleanup
-- [ ] Extract and clean queries into standalone .sql files, one per
+- [x] Extract and clean queries into standalone .sql files, one per
       diagnostic question, in a `sql/` directory
-- [ ] Organize files by category: trade_rate, deductions, promo_roi,
+- [x] Organize files by category: trade_rate, deductions, promo_roi,
       retailer, crosswalk, reconciliation
-- [ ] Add a header comment block to each .sql file: what it answers,
+- [x] Add a header comment block to each .sql file: what it answers,
       which tables it touches, expected output columns, any parameters
       (date range, retailer filter) as placeholder variables
 - [ ] Write a `sql/README.md` documenting the full query library —
