@@ -44,7 +44,7 @@ the addressable improvement?
 Work in vertical slices. Each task produces a working tab (or group
 of related tabs) that can be reviewed before moving to the next.
 
-- [ ] Set up project structure — submodule, build script, workbook
+- [x] Set up project structure — submodule, build script, workbook
       generation entry point
 - [x] Design tab list, ordering, and color-coding scheme — 7 tabs
       confirmed (down from original 13)
