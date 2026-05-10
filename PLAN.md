@@ -64,7 +64,7 @@ of related tabs) that can be reviewed before moving to the next.
       deduction share, net-net effective margin by retailer (gross
       margin → structural trade → operational waste → effective),
       what-if trade rate input cells per retailer
-- [ ] Build Tab 5: Deduction Ledger (blue) — trailing-365 deductions
+- [x] Build Tab 5: Deduction Ledger (blue) — trailing-365 deductions
       (2,365 rows), translated codes from crosswalk, auto-filters,
       freeze panes, consistent join keys
 - [ ] Build Tab 6: Deduction Code Crosswalk (gray) — retailer codes
