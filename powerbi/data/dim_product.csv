@@ -1,0 +1,91 @@
+sku,product_name,product_line,subcategory,cogs_per_unit,wholesale_price,wholesale_walmart,wholesale_costco,wholesale_whole_foods,wholesale_regional,wholesale_unfi,wholesale_dtc
+CHP-0001,Roasted Tomato Basil Marinara,Artisan Sauces,sauce,4.1493,6.93,6.26,6.51,6.93,7.14,6.02,10.46
+CHP-0002,Spicy Arrabbiata,Artisan Sauces,sauce,4.0109,6.81,6.38,6.43,6.7,7.04,6.08,10.26
+CHP-0003,Wild Mushroom Ragu,Artisan Sauces,sauce,3.7361,6.63,6.12,6.35,6.51,6.89,5.79,9.78
+CHP-0004,Garlic & Herb Alfredo,Artisan Sauces,sauce,4.2182,7.09,6.56,6.76,7.0,7.51,6.16,10.58
+CHP-0005,Fire Roasted Red Pepper,Artisan Sauces,sauce,3.8965,6.86,6.25,6.44,6.98,7.31,5.99,10.35
+CHP-0006,Smoky Chipotle Marinara,Artisan Sauces,sauce,3.3921,6.12,5.61,5.75,6.24,6.43,5.3,9.01
+CHP-0007,Lemon Caper Piccata,Artisan Sauces,sauce,3.2753,5.76,5.38,5.37,5.81,6.09,5.08,8.56
+CHP-0008,Vodka Cream Sauce,Artisan Sauces,sauce,4.2739,7.19,6.72,6.93,7.13,7.59,6.35,10.64
+CHP-0009,Classic Bolognese,Artisan Sauces,sauce,4.2175,7.36,6.86,6.94,7.23,7.84,6.59,10.86
+CHP-0010,Heirloom Tomato & Olive,Artisan Sauces,sauce,3.7164,6.23,5.71,5.85,6.24,6.6,5.42,9.27
+CHP-0011,Calabrian Chili Marinara,Artisan Sauces,sauce,3.8988,6.87,6.25,6.41,6.91,7.14,6.14,10.45
+CHP-0012,Roasted Garlic Pomodoro,Artisan Sauces,sauce,3.6286,6.17,5.75,5.79,6.07,6.46,5.41,9.24
+CHP-0013,Sun-Dried Tomato Pesto,Artisan Sauces,sauce,3.8454,6.79,6.23,6.43,6.73,7.06,6.08,10.16
+CHP-0014,Basil Walnut Pesto,Artisan Sauces,sauce,3.9845,6.96,6.4,6.54,6.93,7.18,6.1,10.64
+CHP-0015,Romesco Sauce,Artisan Sauces,sauce,3.6059,6.43,5.87,6.22,6.45,6.76,5.71,9.47
+CHP-0016,Green Goddess Pesto,Artisan Sauces,sauce,4.3804,7.62,6.94,7.13,7.74,7.92,6.73,11.48
+CHP-0017,Arugula & Pistachio Pesto,Artisan Sauces,sauce,3.6475,6.39,5.83,6.03,6.45,6.59,5.61,9.78
+CHP-0018,Putanesca,Artisan Sauces,sauce,4.5858,7.69,7.17,7.36,7.72,8.23,6.81,11.31
+CHP-0019,Fra Diavolo,Artisan Sauces,sauce,4.0426,6.91,6.38,6.62,6.83,7.29,6.02,10.36
+CHP-0020,Truffle Mushroom Cream,Artisan Sauces,sauce,3.915,7.02,6.52,6.68,7.0,7.23,6.07,10.69
+CHP-0021,Balsamic Onion Marinara,Artisan Sauces,sauce,3.8659,6.75,6.3,6.51,6.67,7.02,5.85,10.24
+CHP-0022,San Marzano Marinara,Artisan Sauces,sauce,4.365,7.53,6.8,7.22,7.48,8.04,6.71,11.46
+CHP-0023,Roasted Poblano Verde,Artisan Sauces,sauce,4.3589,7.43,6.78,7.14,7.35,7.65,6.46,11.07
+CHP-0024,Charred Tomato & Basil,Artisan Sauces,sauce,3.845,6.97,6.53,6.54,7.1,7.25,6.04,10.43
+CHP-0025,Spicy Vodka Rigatoni Sauce,Artisan Sauces,sauce,3.9675,6.79,6.35,6.46,6.85,7.2,6.02,10.13
+CHP-0026,Garden Herb Marinara,Artisan Sauces,sauce,3.3667,5.94,5.44,5.6,5.85,6.22,5.32,8.97
+CHP-0027,Artichoke & Lemon Cream,Artisan Sauces,sauce,3.8423,6.75,6.2,6.4,6.67,7.08,6.04,10.24
+CHP-0028,Tuscan White Bean Ragu,Artisan Sauces,sauce,4.1703,7.0,6.36,6.52,6.93,7.34,6.25,10.32
+CHP-0029,Red Pepper Romesco,Artisan Sauces,sauce,4.1899,7.37,6.85,6.89,7.35,7.64,6.6,11.06
+CHP-0030,Smoked Tomato Bisque Sauce,Artisan Sauces,sauce,3.3431,5.69,5.32,5.43,5.74,5.98,5.07,8.55
+CHP-0061,Artisan Breadcrumbs - Italian Herb,Pantry Staples,dry,3.1381,4.94,4.56,4.69,5.02,5.14,4.4,7.44
+CHP-0062,Artisan Breadcrumbs - Garlic Parmesan,Pantry Staples,dry,2.5469,4.12,3.81,3.88,4.11,4.34,3.66,6.08
+CHP-0063,Everything Bagel Seasoning,Pantry Staples,dry,2.4934,4.07,3.71,3.92,4.07,4.33,3.62,6.07
+CHP-0064,Smoked Paprika & Garlic Rub,Pantry Staples,dry,2.2208,3.69,3.38,3.55,3.62,3.88,3.24,5.57
+CHP-0065,Tuscan Herb Blend,Pantry Staples,dry,2.8866,4.65,4.35,4.37,4.57,4.95,4.16,6.92
+CHP-0066,Chile Lime Seasoning,Pantry Staples,dry,2.8357,4.41,4.08,4.23,4.49,4.62,3.92,6.52
+CHP-0067,Olive Oil - Extra Virgin Reserve,Pantry Staples,oil,5.3862,8.35,7.79,7.81,8.41,8.78,7.49,12.45
+CHP-0068,Olive Oil - Everyday Blend,Pantry Staples,oil,5.329,8.32,7.74,7.82,8.2,8.76,7.2,12.61
+CHP-0069,Infused Oil - Lemon Herb,Pantry Staples,oil,5.1136,8.0,7.25,7.52,7.9,8.45,6.91,11.77
+CHP-0070,Infused Oil - Roasted Garlic,Pantry Staples,oil,5.7365,8.99,8.36,8.55,8.85,9.44,8.05,13.24
+CHP-0071,Balsamic Vinegar - Aged 12yr,Pantry Staples,vinegar,6.4062,10.56,9.71,10.2,10.38,10.9,9.33,15.56
+CHP-0072,Red Wine Vinegar - Reserve,Pantry Staples,vinegar,3.8337,6.2,5.75,5.97,6.24,6.58,5.5,9.19
+CHP-0073,White Wine Vinegar,Pantry Staples,vinegar,3.4738,5.44,4.94,5.26,5.35,5.79,4.71,8.03
+CHP-0074,Apple Cider Vinegar - Raw,Pantry Staples,vinegar,4.1501,6.81,6.33,6.56,6.87,7.28,6.02,10.15
+CHP-0075,Artisan Breadcrumbs - Panko Style,Pantry Staples,dry,2.7557,4.31,4.01,4.15,4.39,4.58,3.81,6.5
+CHP-0076,Za'atar Seasoning Blend,Pantry Staples,dry,2.4564,4.07,3.8,3.88,4.05,4.21,3.6,5.99
+CHP-0077,Herbes de Provence,Pantry Staples,dry,3.0172,4.72,4.26,4.42,4.74,4.99,4.12,7.13
+CHP-0078,Smoked Sea Salt Flake,Pantry Staples,dry,2.499,3.98,3.69,3.71,3.96,4.2,3.43,5.92
+CHP-0079,Truffle Salt,Pantry Staples,dry,2.5726,4.0,3.68,3.85,4.05,4.13,3.57,5.89
+CHP-0080,Black Garlic Powder,Pantry Staples,dry,2.1802,3.61,3.3,3.47,3.63,3.84,3.23,5.33
+CHP-0081,Champagne Vinegar,Pantry Staples,vinegar,4.4266,6.94,6.39,6.49,6.94,7.41,6.07,10.5
+CHP-0082,Sherry Vinegar - Aged,Pantry Staples,vinegar,4.2099,6.91,6.43,6.56,6.98,7.33,6.07,10.54
+CHP-0083,Infused Oil - Chili Garlic,Pantry Staples,oil,4.6924,7.59,6.92,7.08,7.59,7.91,6.67,11.18
+CHP-0084,Infused Oil - Basil,Pantry Staples,oil,5.8542,9.06,8.47,8.59,9.17,9.57,7.92,13.58
+CHP-0085,Olive Oil - Single Estate Greek,Pantry Staples,oil,4.5089,6.97,6.4,6.61,6.98,7.22,6.1,10.36
+CHP-0086,Toasted Sesame Oil - Cold Pressed,Pantry Staples,oil,5.2799,8.34,7.74,7.97,8.48,8.89,7.29,12.55
+CHP-0087,Artisan Croutons - Sourdough,Pantry Staples,dry,2.3466,3.71,3.45,3.57,3.74,3.95,3.3,5.61
+CHP-0088,Artisan Croutons - Herb & Butter,Pantry Staples,dry,2.792,4.52,4.11,4.23,4.44,4.81,3.91,6.85
+CHP-0089,Mediterranean Spice Blend,Pantry Staples,dry,2.7443,4.53,4.21,4.36,4.47,4.74,3.97,6.84
+CHP-0090,Coffee & Cocoa Rub,Pantry Staples,dry,2.6744,4.26,3.97,4.03,4.34,4.56,3.74,6.33
+CHP-0031,Stone Ground Mustard,Specialty Condiments,condiment,2.9944,6.47,5.9,6.04,6.41,6.73,5.65,9.72
+CHP-0032,Bourbon Onion Jam,Specialty Condiments,condiment,2.491,5.1,4.68,4.92,5.12,5.4,4.55,7.73
+CHP-0033,Smoked Peach Chutney,Specialty Condiments,condiment,2.1937,4.39,4.06,4.12,4.34,4.6,3.79,6.54
+CHP-0034,Pickled Jalapeno Relish,Specialty Condiments,condiment,2.2358,4.66,4.21,4.45,4.59,4.89,4.03,6.96
+CHP-0035,Fig & Balsamic Spread,Specialty Condiments,condiment,2.96,6.12,5.64,5.93,6.08,6.46,5.45,9.24
+CHP-0036,Roasted Garlic Aioli,Specialty Condiments,condiment,2.3757,5.25,4.87,5.04,5.18,5.54,4.67,7.75
+CHP-0037,Spicy Honey Mustard,Specialty Condiments,condiment,2.1594,4.78,4.32,4.58,4.8,4.94,4.25,7.27
+CHP-0038,Cherry Pepper Mostarda,Specialty Condiments,condiment,2.771,5.61,5.23,5.4,5.52,6.0,4.96,8.53
+CHP-0039,Herb Garden Hot Sauce,Specialty Condiments,hot_sauce,2.7355,5.72,5.31,5.38,5.8,6.09,4.95,8.71
+CHP-0040,Habanero Mango Hot Sauce,Specialty Condiments,hot_sauce,2.2599,4.74,4.33,4.57,4.78,4.93,4.09,7.24
+CHP-0041,Smoky Ghost Pepper Sauce,Specialty Condiments,condiment,1.9117,4.12,3.75,3.94,4.09,4.34,3.62,6.19
+CHP-0042,Everyday Sriracha,Specialty Condiments,hot_sauce,2.7346,5.91,5.44,5.67,5.84,6.14,5.2,8.94
+CHP-0043,Cranberry Mostarda,Specialty Condiments,condiment,2.8521,6.02,5.49,5.83,6.03,6.37,5.22,9.16
+CHP-0044,Charred Scallion Relish,Specialty Condiments,condiment,2.5009,5.48,5.11,5.19,5.39,5.78,4.74,8.1
+CHP-0045,Maple Dijon Mustard,Specialty Condiments,condiment,2.2059,4.55,4.18,4.31,4.62,4.87,3.97,6.86
+CHP-0046,Gochujang Aioli,Specialty Condiments,condiment,2.8382,6.13,5.53,5.81,6.15,6.38,5.34,9.27
+CHP-0047,Umami Chili Crisp,Specialty Condiments,hot_sauce,2.7301,5.72,5.27,5.47,5.81,6.08,4.95,8.47
+CHP-0048,Green Tomato Chutney,Specialty Condiments,condiment,2.4423,5.28,4.86,4.93,5.18,5.53,4.61,7.84
+CHP-0049,Roasted Beet Horseradish,Specialty Condiments,condiment,2.6934,5.96,5.54,5.66,6.0,6.36,5.18,8.97
+CHP-0050,Black Garlic Aioli,Specialty Condiments,condiment,2.6813,5.64,5.14,5.45,5.71,5.93,4.95,8.4
+CHP-0051,Carolina Gold BBQ,Specialty Condiments,condiment,2.1762,4.82,4.41,4.63,4.84,5.11,4.19,7.24
+CHP-0052,Smoked Chipotle Ketchup,Specialty Condiments,condiment,2.8542,5.97,5.5,5.58,6.09,6.37,5.25,8.82
+CHP-0053,Fermented Hot Sauce,Specialty Condiments,hot_sauce,2.5322,5.33,4.88,5.15,5.33,5.68,4.76,7.92
+CHP-0054,Miso Ginger Glaze,Specialty Condiments,condiment,2.5305,5.28,4.86,4.95,5.29,5.51,4.66,7.93
+CHP-0055,Thai Chili Lime Sauce,Specialty Condiments,hot_sauce,2.1534,4.45,4.13,4.28,4.43,4.7,3.97,6.8
+CHP-0056,Tamarind Date Chutney,Specialty Condiments,condiment,2.7348,5.49,5.1,5.2,5.52,5.68,4.83,8.39
+CHP-0057,Harissa Paste,Specialty Condiments,condiment,2.6991,5.8,5.39,5.59,5.69,5.98,5.13,8.85
+CHP-0058,Preserved Lemon Relish,Specialty Condiments,condiment,2.7945,6.04,5.46,5.81,5.99,6.31,5.24,9.07
+CHP-0059,Everything Bagel Aioli,Specialty Condiments,condiment,2.7945,6.07,5.58,5.71,6.01,6.25,5.41,9.25
+CHP-0060,Calabrian Chili Honey,Specialty Condiments,condiment,3.0559,6.21,5.64,5.87,6.21,6.45,5.48,9.34
