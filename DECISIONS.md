@@ -48,6 +48,23 @@ Each entry:
 - **Scope:** Global
 - **Do not:** Over-engineer the schema for a dataset this size.
 
+### 2026-05-10 — Validate deliverables with a separate verification script, not inline assertions
+- **Why:** `validate_workbook.py` reopens the generated .xlsx and checks it
+  as a reader would — locked numbers, cross-tab consistency, tab structure,
+  no formula errors. Separate from the build so validation runs against the
+  actual output file, not in-memory state. Also serves as living documentation
+  of acceptance criteria. Tolerances (±$2,000 on dollar amounts, ±2 on counts)
+  handle DB rebuild nondeterminism.
+- **Scope:** Workbook generation, future deliverables (dashboard, SQL queries)
+- **Do not:** Embed validation in the build script. Keep build and verify as
+  separate steps.
+
+### 2026-05-10 — Use rapidfuzz, not fuzzywuzzy, for fuzzy matching
+- **Why:** Faster, MIT-licensed (fuzzywuzzy is GPL), drop-in compatible API.
+  No reason to use fuzzywuzzy unless rapidfuzz hits a blocking issue.
+- **Scope:** requirements.txt, any fuzzy matching code
+- **Do not:** Use fuzzywuzzy unless rapidfuzz has a specific incompatibility.
+
 ### 2026-05-09 — Consume cinderhaven-data via git submodule, do not duplicate data
 - **Why:** cinderhaven-data is the single source of truth (21 tables,
   unified build pipeline). Three downstream repos consume it via
