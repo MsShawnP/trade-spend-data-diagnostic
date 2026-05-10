@@ -52,7 +52,7 @@ of related tabs) that can be reviewed before moving to the next.
       waterfall chart, KPI trio, addressable improvement headline,
       responsibility matrix (waste → department), dynamic action
       items, hyperlinked navigation, instructional callout
-- [ ] Build Tab 2: Leak Diagnostic (green) — operational waste by
+- [x] Build Tab 2: Leak Diagnostic (green) — operational waste by
       category, double-dip alert with cell comments explaining
       mechanism, adjustable target recovery rate input cell,
       recoverability score
