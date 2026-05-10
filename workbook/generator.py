@@ -5,6 +5,7 @@ from pathlib import Path
 from openpyxl import Workbook
 
 from workbook.tab_executive_pulse import build_executive_pulse
+from workbook.tab_leak_diagnostic import build_leak_diagnostic
 
 
 TAB_SPEC = [
@@ -27,6 +28,7 @@ def generate_workbook(db_path: Path, output_path: Path) -> Path:
         ws.sheet_properties.tabColor = color
 
     build_executive_pulse(wb["Executive Pulse"], db_path)
+    build_leak_diagnostic(wb["Leak Diagnostic"], db_path)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(output_path)
