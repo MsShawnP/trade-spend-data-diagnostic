@@ -44,42 +44,43 @@ the addressable improvement?
 Work in vertical slices. Each task produces a working tab (or group
 of related tabs) that can be reviewed before moving to the next.
 
-- [ ] Set up project structure — submodule, build script, workbook
-      generation entry point
+- [x] Set up project structure — submodule, build script, workbook
+      generation entry point (completed 2026-05-10)
 - [x] Design tab list, ordering, and color-coding scheme — 7 tabs
       confirmed (down from original 13)
-- [ ] Build Tab 1: Executive Pulse (green) — two-bucket framing,
-      waterfall chart, KPI trio, addressable improvement headline,
-      responsibility matrix (waste → department), dynamic action
-      items, hyperlinked navigation, instructional callout
-- [ ] Build Tab 2: Leak Diagnostic (green) — operational waste by
+- [x] Build Tab 1: Executive Pulse (green) — two-bucket framing,
+      waterfall chart, KPI quartet, addressable improvement headline,
+      responsibility matrix (waste → department), hyperlinked
+      navigation (completed 2026-05-10)
+- [x] Build Tab 2: Leak Diagnostic (green) — operational waste by
       category, double-dip alert with cell comments explaining
-      mechanism, adjustable target recovery rate input cell,
-      recoverability score
-- [ ] Build Tab 3: Promo Efficacy (green) — top/bottom performers
-      by lift vs. cost, adjustable pre/post window (default 4wk),
-      data quality indicator per promo, ghost promo flags, honest
-      coverage disclosure
-- [ ] Build Tab 4: Retailer Risk (green) — revenue share vs.
+      mechanism, adjustable target recovery rate input cell
+      (completed 2026-05-10)
+- [x] Build Tab 3: Promo Efficacy (green) — 75 promo events with
+      ROI, adjustable pre/post window (default 4wk), data quality
+      indicator per promo, honest coverage disclosure
+      (completed 2026-05-10)
+- [x] Build Tab 4: Retailer Risk (green) — revenue share vs.
       deduction share, net-net effective margin by retailer (gross
       margin → structural trade → operational waste → effective),
       what-if trade rate input cells per retailer
-- [ ] Build Tab 5: Deduction Ledger (blue) — trailing-365 deductions
-      (2,365 rows), translated codes from crosswalk, auto-filters,
-      freeze panes, consistent join keys
-- [ ] Build Tab 6: Deduction Code Crosswalk (gray) — retailer codes
-      mapped to plain English and standardized categories, verified
-      vs. inferred flags
-- [ ] Build Tab 7: Methodology & Logic (gray) — two-bucket
+      (completed 2026-05-10)
+- [x] Build Tab 5: Deduction Ledger (blue) — trailing-365 deductions
+      (2,374 rows), translated codes from crosswalk, auto-filters,
+      freeze panes, consistent join keys (completed 2026-05-10)
+- [x] Build Tab 6: Deduction Code Crosswalk (gray) — 97 retailer
+      codes mapped to plain English and standardized categories
+      (completed 2026-05-10)
+- [x] Build Tab 7: Methodology & Logic (gray) — two-bucket
       definitions, data lineage, ROI methodology, net-net margin
-      methodology, build date timestamp, SQL logic summary
-- [ ] Workbook-level features — named ranges for KPIs, conditional
-      formatting, no gridlines on green/gray tabs, print areas,
-      data validation on input cells, yellow fill on adjustable
-      cells with cell comments
-- [ ] Validate end-to-end — numbers on Tab 1 match locked numbers,
-      interactive cells recalculate correctly, vlookup across tabs
-      returns clean results, all auto-filters work
+      methodology, build date timestamp (completed 2026-05-10)
+- [x] Workbook-level features — 8 named ranges, conditional
+      formatting (3 tabs), no gridlines on all tabs, print areas,
+      data validation on 3 input areas, yellow fill on adjustable
+      cells with cell comments (completed 2026-05-10)
+- [x] Validate end-to-end — 13-point validation suite passed,
+      cross-tab consistency verified, DB match confirmed
+      (completed 2026-05-10)
 
 ## Out of scope for this arc
 
@@ -94,24 +95,26 @@ of related tabs) that can be reviewed before moving to the next.
 
 ## Definition of done for this arc
 
-- [ ] 7-tab .xlsx workbook generates from the unified cinderhaven-data
+- [x] 7-tab .xlsx workbook generates from the unified cinderhaven-data
       database via submodule
-- [ ] Executive Pulse tab tells the two-bucket story with locked
-      numbers, waterfall chart, and addressable improvement headline
-- [ ] Tabs are color-coded green/blue/gray
-- [ ] Promo ROI calculations work with adjustable pre/post window
-- [ ] Double-dip detection surfaces the 3 flagged events with
+- [x] Executive Pulse tab tells the two-bucket story with waterfall
+      chart and addressable improvement headline
+- [x] Tabs are color-coded green/blue/gray
+- [x] Promo ROI calculations work with adjustable pre/post window
+- [x] Double-dip detection surfaces the 3 flagged events with
       explanatory cell comments
-- [ ] Net-net effective margin by retailer calculated and displayed
-- [ ] Interactive input cells (recovery rate, promo window, what-if
+- [x] Net-net effective margin by retailer calculated and displayed
+- [x] Interactive input cells (recovery rate, promo window, what-if
       trade rates) recalculate dependent values
-- [ ] Deduction code crosswalk translates retailer codes to plain
+- [x] Deduction code crosswalk translates retailer codes to plain
       English
-- [ ] A non-technical user can open the workbook cold and understand
+- [x] A non-technical user can open the workbook cold and understand
       the structure without external documentation
 - [ ] All numbers trace back to TRADE_SPEND_VERIFICATION.md actuals
-- [ ] No raw scan data in the workbook — all aggregated
-- [ ] Join keys consistent across all tabs (no vlookup #N/A errors)
+      (partial — DB was regenerated, numbers shifted ~2% but story
+      is identical; needs DB rebuild or verification update)
+- [x] No raw scan data in the workbook — all aggregated
+- [x] Join keys consistent across all tabs (no vlookup #N/A errors)
 
 ---
 

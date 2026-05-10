@@ -9,6 +9,83 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## [2026-05-10] Session Wrap-Up — Full workbook build and validation
+**Session focus:** Build all 7 tabs of the trade spend diagnostic
+workbook, add workbook-level features, and validate end-to-end.
+
+**Completed:**
+- Copied pre-built DB (164 MB) from active cinderhaven-data repo into
+  worktree (submodule data path)
+- Verified locked numbers against DB — discovered DB was rebuilt since
+  original verification; numbers shifted slightly (revenue $26.1M vs
+  locked $25.6M) but structural story is identical
+- Built `scripts/generate_workbook.py` — single-file generator that
+  reads the SQLite DB and produces a 7-tab .xlsx workbook
+- Built all 7 tabs in order: Methodology & Logic → Code Crosswalk →
+  Deduction Ledger → Retailer Risk → Promo Efficacy → Leak Diagnostic
+  → Executive Pulse
+- Fixed schema mismatches discovered during build: `sku` vs `sku_id`,
+  title-case retailer names in stores vs slugs in deductions,
+  promotions uses `retailer`/`start_week`/`end_week` not
+  `retailer_id`/`start_date`/`end_date`
+- Fixed double-dip exposure total bug (LEFT JOIN produced duplicates,
+  inflating total from $19K to $907K)
+- Added workbook-level features: 8 named ranges, conditional formatting
+  (ROI red/green, high op-rate highlighting, data bars on ledger),
+  freeze panes on 4 tabs, auto-filters on 4 tabs, data validation on
+  3 input areas, print areas, 6 navigation hyperlinks, 15 cell comments
+- Ran 13-point validation suite — all checks passed
+- Cross-tab consistency verified: structural/operational/promo amounts
+  match exactly between Executive Pulse and DB; deduction ledger row
+  count (2,374) matches DB; code crosswalk count (97) matches DB;
+  retailer revenue sum matches DB
+
+**Current state:** Workbook is complete and validated at
+`output/trade_spend_diagnostic.xlsx`. All PLAN.md tasks for Arc 2 are
+done. The workbook generates in ~15 seconds from the DB.
+
+**Key files changed:**
+- `scripts/generate_workbook.py` — created (full 7-tab workbook generator,
+  ~1,470 lines)
+- `output/trade_spend_diagnostic.xlsx` — created (7-tab workbook, ~2.5 MB)
+
+**Key numbers in the generated workbook (from current DB):**
+- Revenue: $26,089,284
+- Structural trade: $4,467,628 (17.1%)
+- Operational waste: $1,012,455 (3.9%)
+- Promo billback: $213,017
+- All-in trade cost: $5,693,100 (21.8%)
+- Addressable improvement: $914,239
+- Double-dips: 3 / $19,306 (2024, pre-trailing-365)
+- Disputes: 1,410 filed, $98,216 recovered
+- 75 promo events with ROI, 10 retailers with net-net margin
+
+**Next steps:**
+1. Push the cinderhaven-data deduction pipeline scripts to GitHub
+   (still blocking clean submodule builds)
+2. Visual review of workbook in Excel — verify chart rendering,
+   conditional formatting appearance, print layout
+3. Test interactive cells — change what-if trade rates, recovery
+   target, promo window and verify recalculation
+4. Consider updating TRADE_SPEND_VERIFICATION.md with current DB
+   numbers (or rebuild DB to match locked numbers)
+5. Begin Arc 3: Power BI dashboard (consumes workbook structure)
+
+**Blockers:**
+- DB numbers don't match original locked verification (DB was
+  regenerated). Not blocking workbook — numbers are internally
+  consistent. May want to rebuild DB from locked seed to restore
+  exact match.
+
+**Context for next session:** The workbook is done. The main remaining
+work is visual QA in Excel and testing interactive features. The
+`scripts/explore_db.py` can be deleted — it was a one-off. The
+generator can be re-run anytime with `python scripts/generate_workbook.py`
+(requires openpyxl and the DB at
+`cinderhaven-data/data/cinderhaven_product_master.db`).
+
+---
+
 ## [2026-05-10] Session Wrap-Up — Project setup and database wiring
 **Session focus:** Set up project structure (submodule, build script, DB),
 explore schema, prepare for workbook generation.
