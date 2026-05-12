@@ -1,0 +1,98 @@
+retailer_id,retailer_name,code,name,deduction_type,status
+costco,Costco,DMG,Damaged at receiving,Damaged,Inferred
+costco,Costco,LBL,Labeling noncompliance,Label Fine,Inferred
+costco,Costco,LATE,Late or refused delivery,Late Delivery,Inferred
+costco,Costco,PALT,Pallet noncompliance,Pallet Fine,Inferred
+costco,Costco,PROMO,Promotional allowance,Promo Billback,Inferred
+costco,Costco,SHRT,Shortage at receiving,Short Ship,Inferred
+costco,Costco,SLOT,Slotting / pay-to-play club placement,Slotting,Inferred
+costco,Costco,SPL,Spoilage / product condition at receipt,Spoilage,Inferred
+costco,Costco,MISC,Miscellaneous deduction,Vague,Inferred
+green_basket_market,Green Basket Market,DMG,Damaged,Damaged,Inferred
+green_basket_market,Green Basket Market,LBL,Label fine,Label Fine,Inferred
+green_basket_market,Green Basket Market,LATE,Late delivery,Late Delivery,Inferred
+green_basket_market,Green Basket Market,PALT,Pallet fine,Pallet Fine,Inferred
+green_basket_market,Green Basket Market,FAIR,Fair Share reset billback,Promo Billback,Inferred
+green_basket_market,Green Basket Market,FFL,Free Fill new-item billback,Promo Billback,Inferred
+green_basket_market,Green Basket Market,SHRT,Shortage,Short Ship,Inferred
+green_basket_market,Green Basket Market,SLOT,Reset / new-item placement billback,Slotting,Inferred
+green_basket_market,Green Basket Market,SPL,Spoilage / quality complaint,Spoilage,Inferred
+green_basket_market,Green Basket Market,MISC,Miscellaneous,Vague,Inferred
+harbor_fresh,Harbor Fresh,DMG,Damaged,Damaged,Inferred
+harbor_fresh,Harbor Fresh,LBL,Label fine,Label Fine,Inferred
+harbor_fresh,Harbor Fresh,LATE,Late delivery,Late Delivery,Inferred
+harbor_fresh,Harbor Fresh,PALT,Pallet fine,Pallet Fine,Inferred
+harbor_fresh,Harbor Fresh,PROMO,Promo billback,Promo Billback,Inferred
+harbor_fresh,Harbor Fresh,SHRT,Shortage,Short Ship,Inferred
+harbor_fresh,Harbor Fresh,SLOT,New-item placement allowance,Slotting,Inferred
+harbor_fresh,Harbor Fresh,SPL,Spoilage / quality complaint,Spoilage,Inferred
+harbor_fresh,Harbor Fresh,MISC,Miscellaneous,Vague,Inferred
+kehe,Kehe,LBL,Labeling noncompliance,Label Fine,Inferred
+kehe,Kehe,LATE,Late delivery,Late Delivery,Inferred
+kehe,Kehe,EP,Event Promotion fee,Promo Billback,Verified
+kehe,Kehe,MCB,Manufacturer Chargeback (promo),Promo Billback,Verified
+kehe,Kehe,MCBF,"MCB admin fee (8%, $65/DC min)",Promo Billback,Verified
+kehe,Kehe,UDR,Unloading Discrepancy (shortage/over/damage),Short Ship,Verified
+kehe,Kehe,SLOT,Slotting / Connect BI placement,Slotting,Inferred
+kehe,Kehe,UDRS,UDR — spoilage at receipt,Spoilage,Inferred
+kehe,Kehe,BI,Connect BI fee (2% of sales),Vague,Verified
+kehe,Kehe,FRT,Freight allowance,Vague,Verified
+mountain_pantry_co,Mountain Pantry Co,DMG,Damaged,Damaged,Inferred
+mountain_pantry_co,Mountain Pantry Co,LBL,Label fine,Label Fine,Inferred
+mountain_pantry_co,Mountain Pantry Co,LATE,Late delivery,Late Delivery,Inferred
+mountain_pantry_co,Mountain Pantry Co,PALT,Pallet fine,Pallet Fine,Inferred
+mountain_pantry_co,Mountain Pantry Co,PROMO,Promo billback,Promo Billback,Inferred
+mountain_pantry_co,Mountain Pantry Co,SHRT,Shortage,Short Ship,Inferred
+mountain_pantry_co,Mountain Pantry Co,SLOT,New-item placement allowance,Slotting,Inferred
+mountain_pantry_co,Mountain Pantry Co,SPL,Spoilage / quality complaint,Spoilage,Inferred
+mountain_pantry_co,Mountain Pantry Co,MISC,Miscellaneous,Vague,Inferred
+prairie_provisions,Prairie Provisions,DMG,Damaged,Damaged,Inferred
+prairie_provisions,Prairie Provisions,LBL,Label fine,Label Fine,Inferred
+prairie_provisions,Prairie Provisions,LATE,Late delivery,Late Delivery,Inferred
+prairie_provisions,Prairie Provisions,PALT,Pallet fine,Pallet Fine,Inferred
+prairie_provisions,Prairie Provisions,PROMO,Promo billback,Promo Billback,Inferred
+prairie_provisions,Prairie Provisions,SHRT,Shortage,Short Ship,Inferred
+prairie_provisions,Prairie Provisions,SLOT,New-item placement allowance,Slotting,Inferred
+prairie_provisions,Prairie Provisions,SPL,Spoilage / quality complaint,Spoilage,Inferred
+prairie_provisions,Prairie Provisions,MISC,Miscellaneous,Vague,Inferred
+southside_grocers,Southside Grocers,DMG,Damaged,Damaged,Inferred
+southside_grocers,Southside Grocers,LBL,Label fine,Label Fine,Inferred
+southside_grocers,Southside Grocers,LATE,Late delivery,Late Delivery,Inferred
+southside_grocers,Southside Grocers,PALT,Pallet fine,Pallet Fine,Inferred
+southside_grocers,Southside Grocers,PROMO,Promo billback,Promo Billback,Inferred
+southside_grocers,Southside Grocers,SHRT,Shortage,Short Ship,Inferred
+southside_grocers,Southside Grocers,SLOT,Placement allowance,Slotting,Inferred
+southside_grocers,Southside Grocers,SPL,Spoilage / quality complaint,Spoilage,Inferred
+southside_grocers,Southside Grocers,MISC,Miscellaneous,Vague,Inferred
+unfi,Unfi,DMG,Damaged product / unsaleable,Damaged,Inferred
+unfi,Unfi,LBL,Labeling fine,Label Fine,Inferred
+unfi,Unfi,LAT,Late delivery,Late Delivery,Inferred
+unfi,Unfi,PLT,Pallet noncompliance,Pallet Fine,Inferred
+unfi,Unfi,MCB,Manufacturer chargeback (promo),Promo Billback,Inferred
+unfi,Unfi,SHT,Shortage,Short Ship,Inferred
+unfi,Unfi,SLOT,Slotting / catalog placement,Slotting,Inferred
+unfi,Unfi,UNS,Unsaleable / spoilage,Spoilage,Inferred
+unfi,Unfi,MSC,Miscellaneous deduction,Vague,Inferred
+walmart,Walmart,28,Carton Damage – Freight Bill Signed Damaged,Damaged,Verified
+walmart,Walmart,59,Defective Merchandise Allowance,Damaged,Verified
+walmart,Walmart,99,OTIF,Late Delivery,Verified
+walmart,Walmart,11,Price Difference Between PO & Invoice,Promo Billback,Verified
+walmart,Walmart,51,Promotional Allowance,Promo Billback,Verified
+walmart,Walmart,13,Substitution Overcharge,Short Ship,Verified
+walmart,Walmart,21,Concealed Shortage,Short Ship,Verified
+walmart,Walmart,22,Merchandise Billed Not Shipped,Short Ship,Verified
+walmart,Walmart,24,Carton Shortage / Freight Bill Signed Short,Short Ship,Verified
+walmart,Walmart,25,No Merchandise Received for Invoice,Short Ship,Verified
+walmart,Walmart,NIF,New-item / slotting fee,Slotting,Inferred
+walmart,Walmart,29,Concealed damage / spoilage at receipt,Spoilage,Verified
+walmart,Walmart,30,Duplicate Billing,Vague,Verified
+walmart,Walmart,87,Other,Vague,Verified
+whole_foods,Whole Foods,DMG,Damaged product,Damaged,Inferred
+whole_foods,Whole Foods,LBL,Labeling fine,Label Fine,Inferred
+whole_foods,Whole Foods,LATE,Late delivery,Late Delivery,Inferred
+whole_foods,Whole Foods,PALT,Pallet fine,Pallet Fine,Inferred
+whole_foods,Whole Foods,PROMO,Promo billback,Promo Billback,Inferred
+whole_foods,Whole Foods,SHRT,Shortage,Short Ship,Inferred
+whole_foods,Whole Foods,SLOT,New-item / placement fee,Slotting,Inferred
+whole_foods,Whole Foods,SPL,Spoilage / quality at receipt,Spoilage,Inferred
+whole_foods,Whole Foods,MISC,Miscellaneous,Vague,Inferred

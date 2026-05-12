@@ -317,6 +317,17 @@ MEASURES = [
         "displayFolder": "Promo Performance",
     },
     {
+        "name": "ChartROI",
+        "expression": "SUM(PromoROIChart[ROI])",
+        "formatString": "0.00",
+        "displayFolder": "Promo Performance",
+    },
+    {
+        "name": "ChartROIColor",
+        "expression": 'IF([ChartROI] >= 1, "#00B050", "#C00000")',
+        "displayFolder": "Promo Performance",
+    },
+    {
         "name": "PromoCount",
         "expression": "COUNTROWS(dim_promo)",
         "formatString": "#,##0",

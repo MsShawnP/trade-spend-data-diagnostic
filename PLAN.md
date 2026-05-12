@@ -5,15 +5,38 @@ session. For session-by-session state, see HANDOFF.md.
 
 ---
 
-## Current arc
+## Current arc: Final Polish (started 2026-05-12)
 
-No active arc. All five planned arcs are complete. Post-arc refinement
-work has been done on the workbook and Power BI deliverables — see
-arc history below and HANDOFF.md for session details.
+**Goal:** Ship-ready state. Push submodule, add visual documentation,
+tag the release.
+
+**Tasks:**
+- [ ] Push cinderhaven-data to GitHub (unblocks submodule clone)
+- [ ] Add screenshots to README.md (workbook Tab 1, dashboard Page 1)
+- [ ] Final clean `python build_all.py` run from scratch (no --skip-db)
+- [ ] Tag v1.0
+
+**Done when:** `git clone --recurse-submodules` → `python build_all.py`
+produces both deliverables with 82/82 checks passing. README has
+screenshots. Tagged v1.0.
 
 ---
 
 ## Arc history
+
+### Post-arc: Pipeline restructure + bug fixes (2026-05-12)
+- Restructured pipeline: compute.py as single computation layer,
+  CSVs as contract between compute and both outputs
+- Zero sqlite3 imports in workbook package — all tab builders read CSVs
+- Created build_all.py (DB → Compute → Workbook → Validate)
+- Created validate_sync.py (13 cross-validation checks)
+- Fixed 8 bugs: KeHE trade rate, What-If savings, waterfall sort,
+  KPI subtitles, Walmart narrative, cyclic reference, data validation,
+  card callout sizing
+- Replaced scatter plot with green/red ROI bar chart (PromoROIChart
+  calculated table, top 10 + bottom 5 by ROI)
+- Created data_requirements.md (218 lines, prospect-facing)
+- 82/82 validation checks passing (10 compute + 59 workbook + 13 sync)
 
 ### Post-arc: Power BI bug fixes and presentation redesign (2026-05-11)
 - Fixed 5 data bugs (AllInTradeCost double-count, waterfall sort,

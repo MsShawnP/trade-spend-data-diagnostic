@@ -1,6 +1,6 @@
 """Tab 1: Executive Pulse — the CEO punchline."""
 
-import sqlite3
+import csv
 from datetime import date
 from pathlib import Path
 
@@ -25,17 +25,6 @@ from workbook.styles import (
     NUM_FMT_PCT,
 )
 
-CATEGORY_TO_DEPT = {
-    "slotting": ("Sales", "Negotiated trade terms"),
-    "short_ship": ("Operations", "Fulfillment accuracy"),
-    "late_delivery": ("Operations", "Logistics/carrier management"),
-    "damaged": ("Operations", "Packaging/handling"),
-    "pallet_fine": ("Operations", "Compliance with retailer specs"),
-    "label_fine": ("Operations", "Labeling/packaging compliance"),
-    "spoilage": ("Operations", "Shelf-life/inventory management"),
-    "vague": ("Finance", "Unclear codes — investigate"),
-}
-
 NAV_TABS = [
     "Executive Pulse",
     "Leak Diagnostic",
@@ -52,76 +41,30 @@ TABLE_STYLE = TableStyleInfo(
 )
 
 
-def _query_metrics(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+def _load_data(data_dir: Path) -> dict:
+    """Load pre-computed KPIs and waste categories from CSVs."""
+    with open(data_dir / "computed_kpis.csv", encoding="utf-8") as f:
+        kpi = next(csv.DictReader(f))
 
-    weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
-    ).fetchall()
-    oldest_week = weeks[-1][0]
-
-    revenue = conn.execute(
-        "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
-        (oldest_week,),
-    ).fetchone()[0]
-
-    channel_rev = conn.execute("""
-        SELECT s.retailer, SUM(sd.dollars_sold)
-        FROM scan_data sd
-        JOIN stores s ON sd.store_id = s.store_id
-        WHERE sd.week_ending >= ?
-        GROUP BY s.retailer
-    """, (oldest_week,)).fetchall()
-
-    channel_rate_cols = {
-        "Walmart": "trade_spend_pct_walmart",
-        "Costco": "trade_spend_pct_costco",
-        "Whole Foods": "trade_spend_pct_whole_foods",
-        "UNFI": "trade_spend_pct_unfi",
-        "DTC": "trade_spend_pct_dtc",
-    }
-    rates = {}
-    for channel, col in channel_rate_cols.items():
-        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
-
-    channel_trade = 0.0
-    for retailer, rev in channel_rev:
-        channel_trade += rev * rates.get(retailer, regional_rate)
-
-    max_scan = weeks[0][0]
-    deductions_by_type = conn.execute("""
-        SELECT deduction_type, COUNT(*), SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
-          AND deduction_type != 'promo_billback'
-        GROUP BY deduction_type
-        ORDER BY SUM(amount) DESC
-    """, (max_scan, max_scan)).fetchall()
-
-    operational_waste = sum(r[2] for r in deductions_by_type)
-
-    dispute_stats = conn.execute("""
-        SELECT COUNT(*), SUM(recovered_amount)
-        FROM disputes
-    """).fetchone()
-
-    conn.close()
+    categories = []
+    with open(data_dir / "waste_by_category.csv", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            categories.append(row)
 
     return {
-        "revenue": revenue,
-        "structural_trade": channel_trade,
-        "operational_waste": operational_waste,
-        "deductions_by_type": deductions_by_type,
-        "dispute_count": dispute_stats[0],
-        "total_recovered": dispute_stats[1],
-        "oldest_week": oldest_week,
-        "max_scan": max_scan,
+        "revenue": float(kpi["revenue"]),
+        "structural_trade": float(kpi["structural_trade"]),
+        "operational_waste": float(kpi["operational_waste"]),
+        "categories": categories,
+        "total_recovered": float(kpi["total_recovered"]),
+        "recovery_rate": float(kpi["recovery_rate"]),
+        "oldest_week": kpi["oldest_week"],
+        "max_scan": kpi["max_scan"],
     }
 
 
-def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
-    metrics = _query_metrics(db_path)
+def build_executive_pulse(ws: Worksheet, data_dir: Path) -> None:
+    metrics = _load_data(data_dir)
 
     revenue = metrics["revenue"]
     structural = metrics["structural_trade"]
@@ -133,7 +76,7 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
     waste_rate = waste / revenue
     all_in_rate = all_in / revenue
 
-    recovery_rate = metrics["total_recovered"] / (metrics["total_recovered"] / 0.143) if metrics["total_recovered"] else 0
+    recovery_rate = metrics["recovery_rate"]
     total_recovered = metrics["total_recovered"]
 
     ws.sheet_view.showGridLines = False
@@ -276,17 +219,16 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
         cell.font = FONT_BODY
         cell.alignment = ALIGN_CENTER
 
-    for i, (dtype, count, amount) in enumerate(metrics["deductions_by_type"]):
+    for i, cat in enumerate(metrics["categories"]):
         r = resp_header_row + 1 + i
-        dept, cause = CATEGORY_TO_DEPT.get(dtype, ("Unclassified", ""))
-        ws.cell(row=r, column=2, value=dtype.replace("_", " ").title())
-        c_amt = ws.cell(row=r, column=3, value=amount)
+        ws.cell(row=r, column=2, value=cat["label"])
+        c_amt = ws.cell(row=r, column=3, value=float(cat["total_amount"]))
         c_amt.number_format = NUM_FMT_DOLLAR
         c_amt.alignment = ALIGN_RIGHT
-        ws.cell(row=r, column=4, value=dept)
-        ws.cell(row=r, column=5, value=cause)
+        ws.cell(row=r, column=4, value=cat["owner"])
+        ws.cell(row=r, column=5, value=cat["root_cause"])
 
-    resp_end_row = resp_header_row + len(metrics["deductions_by_type"])
+    resp_end_row = resp_header_row + len(metrics["categories"])
 
     resp_table = Table(displayName="tbl_ResponsibilityMatrix", ref=f"B{resp_header_row}:E{resp_end_row}")
     resp_table.tableStyleInfo = TABLE_STYLE

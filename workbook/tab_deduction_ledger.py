@@ -1,6 +1,6 @@
 """Tab 5: Deduction Ledger — full trailing-365 deduction log for investigation."""
 
-import sqlite3
+import csv
 from datetime import date
 from pathlib import Path
 
@@ -40,57 +40,63 @@ COLUMNS = [
     ("Double-Dip", 9),
 ]
 
+# Maps CSV column names to the 20-column display order
+_CSV_FIELDS = [
+    "deduction_id", "deduction_date", "retailer_id",
+    "code_as_remitted", "translated_code", "deduction_type",
+    "amount", "order_id", "shipment_id", "remittance_id",
+    "remittance_description", "dispute_outcome", "recovered_amount",
+    "dispute_filed_date", "dispute_closed_date", "days_outstanding",
+    "dispute_deadline", "is_vague", "is_post_audit", "is_double_dip",
+]
 
-def _query_ledger(db_path: Path) -> tuple[list[tuple], str, str]:
-    conn = sqlite3.connect(db_path)
 
-    weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
-    ).fetchall()
-    oldest_week = weeks[-1][0]
-    max_scan = weeks[0][0]
+def _load_ledger(data_dir: Path) -> tuple[list[tuple], str, str]:
+    """Load trailing-window deductions from fact_deductions.csv."""
+    with open(data_dir / "computed_kpis.csv", encoding="utf-8") as f:
+        kpi = next(csv.DictReader(f))
+    oldest_week = kpi["oldest_week"]
+    max_scan = kpi["max_scan"]
 
-    rows = conn.execute("""
-        SELECT
-            d.deduction_id,
-            d.deduction_date,
-            d.retailer_id,
-            d.code_as_remitted,
-            COALESCE(dc.name, 'Unmapped'),
-            d.deduction_type,
-            d.amount,
-            d.order_id,
-            d.shipment_id,
-            d.remittance_id,
-            d.remittance_description,
-            dis.outcome,
-            dis.recovered_amount,
-            dis.filed_date,
-            dis.closed_date,
-            CASE
-                WHEN dis.closed_date IS NOT NULL
-                THEN CAST(julianday(dis.closed_date) - julianday(d.deduction_date) AS INTEGER)
-                WHEN dis.filed_date IS NOT NULL
-                THEN CAST(julianday(?) - julianday(d.deduction_date) AS INTEGER)
-                ELSE NULL
-            END,
-            d.dispute_deadline,
-            d.is_vague,
-            d.is_post_audit,
-            d.is_double_dip
-        FROM deductions d
-        LEFT JOIN deduction_codes dc ON d.code_id = dc.code_id
-        LEFT JOIN disputes dis ON dis.deduction_id = d.deduction_id
-        WHERE d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?
-        ORDER BY d.deduction_date DESC, d.amount DESC
-    """, (max_scan, max_scan, max_scan)).fetchall()
+    rows = []
+    with open(data_dir / "fact_deductions.csv", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            if r["in_trailing_window"] != "1":
+                continue
 
-    conn.close()
+            # Convert types to match what openpyxl expects
+            amount = float(r["amount"]) if r["amount"] else 0
+            recovered = float(r["recovered_amount"]) if r["recovered_amount"] else None
+            days = int(r["days_outstanding"]) if r["days_outstanding"] else None
+
+            rows.append((
+                r["deduction_id"],
+                r["deduction_date"],
+                r["retailer_id"],
+                r["code_as_remitted"] or None,
+                r["translated_code"] or None,
+                r["deduction_type"],
+                amount,
+                r["order_id"] or None,
+                r["shipment_id"] or None,
+                r["remittance_id"] or None,
+                r["remittance_description"] or None,
+                r["dispute_outcome"] or None,
+                recovered,
+                r["dispute_filed_date"] or None,
+                r["dispute_closed_date"] or None,
+                days,
+                r["dispute_deadline"] or None,
+                int(r["is_vague"]) if r["is_vague"] else 0,
+                int(r["is_post_audit"]) if r["is_post_audit"] else 0,
+                int(r["is_double_dip"]) if r["is_double_dip"] else 0,
+            ))
+
     return rows, oldest_week, max_scan
 
 
-def build_deduction_ledger(ws: Worksheet, db_path: Path) -> None:
-    rows, oldest_week, max_scan = _query_ledger(db_path)
+def build_deduction_ledger(ws: Worksheet, data_dir: Path) -> None:
+    rows, oldest_week, max_scan = _load_ledger(data_dir)
 
     ws.sheet_view.showGridLines = True
 

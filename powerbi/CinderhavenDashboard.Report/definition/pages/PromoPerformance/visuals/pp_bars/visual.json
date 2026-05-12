@@ -1,16 +1,16 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
-  "name": "rc_margin",
+  "name": "pp_bars",
   "position": {
     "x": 20,
     "y": 110,
     "z": 100,
-    "width": 1240,
-    "height": 320,
+    "width": 820,
+    "height": 380,
     "tabOrder": 100
   },
   "visual": {
-    "visualType": "clusteredColumnChart",
+    "visualType": "barChart",
     "query": {
       "queryState": {
         "Category": {
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_retailer"
+                      "Entity": "PromoROIChart"
                     }
                   },
-                  "Property": "retailer_name"
+                  "Property": "PromoLabel"
                 }
               },
-              "queryRef": "dim_retailer.retailer_name",
-              "nativeQueryRef": "retailer_name"
+              "queryRef": "PromoROIChart.PromoLabel",
+              "nativeQueryRef": "PromoLabel"
             }
           ]
         },
@@ -41,11 +41,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "NetNetMarginPct"
+                  "Property": "ChartROI"
                 }
               },
-              "queryRef": "_Measures.NetNetMarginPct",
-              "nativeQueryRef": "NetNetMarginPct"
+              "queryRef": "_Measures.ChartROI",
+              "nativeQueryRef": "ChartROI"
             }
           ]
         }
@@ -60,7 +60,7 @@
                     "Entity": "_Measures"
                   }
                 },
-                "Property": "NetNetMarginPct"
+                "Property": "ChartROI"
               }
             },
             "direction": "Descending"
@@ -69,6 +69,30 @@
         "isDefaultSort": true
       }
     },
+    "objects": {
+      "dataPoint": [
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "_Measures"
+                        }
+                      },
+                      "Property": "ChartROIColor"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "visualContainerObjects": {
       "title": [
         {
@@ -76,7 +100,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Net-Net Margin by Retailer'"
+                  "Value": "'Top 10 & Bottom 5 Promotions by ROI'"
                 }
               }
             },

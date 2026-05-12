@@ -1,6 +1,6 @@
 """Tab 6: Deduction Code Crosswalk — reference mapping of retailer codes."""
 
-import sqlite3
+import csv
 from pathlib import Path
 
 from openpyxl.formatting.rule import CellIsRule
@@ -24,24 +24,17 @@ COLUMNS = [
 ]
 
 
-def _query_crosswalk(db_path: Path) -> list[tuple]:
-    conn = sqlite3.connect(db_path)
-    rows = conn.execute("""
-        SELECT
-            retailer_id,
-            code,
-            name,
-            deduction_type,
-            CASE WHEN is_published = 1 THEN 'Verified' ELSE 'Inferred' END
-        FROM deduction_codes
-        ORDER BY retailer_id, deduction_type, code
-    """).fetchall()
-    conn.close()
+def _load_crosswalk(data_dir: Path) -> list[dict]:
+    """Load deduction code crosswalk from CSV."""
+    rows = []
+    with open(data_dir / "deduction_codes.csv", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            rows.append(row)
     return rows
 
 
-def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
-    rows = _query_crosswalk(db_path)
+def build_code_crosswalk(ws: Worksheet, data_dir: Path) -> None:
+    rows = _load_crosswalk(data_dir)
 
     ws.sheet_view.showGridLines = False
 
@@ -72,14 +65,13 @@ def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
     # --- Data rows ---
     for i, row_data in enumerate(rows):
         rw = header_row + 1 + i
-        retailer, code, name, category, status = row_data
 
-        ws.cell(row=rw, column=1, value=retailer.replace("_", " ").title())
-        c_code = ws.cell(row=rw, column=2, value=code)
+        ws.cell(row=rw, column=1, value=row_data["retailer_name"])
+        c_code = ws.cell(row=rw, column=2, value=row_data["code"])
         c_code.alignment = ALIGN_CENTER
-        ws.cell(row=rw, column=3, value=name)
-        ws.cell(row=rw, column=4, value=category.replace("_", " ").title())
-        c_status = ws.cell(row=rw, column=5, value=status)
+        ws.cell(row=rw, column=3, value=row_data["name"])
+        ws.cell(row=rw, column=4, value=row_data["deduction_type"])
+        c_status = ws.cell(row=rw, column=5, value=row_data["status"])
         c_status.alignment = ALIGN_CENTER
 
     table_end = header_row + len(rows)

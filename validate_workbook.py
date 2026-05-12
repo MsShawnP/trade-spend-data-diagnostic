@@ -1,7 +1,11 @@
-"""End-to-end validation of the trade spend diagnostic workbook."""
+"""End-to-end validation of the trade spend diagnostic workbook.
 
+Validates workbook structure, locked numbers, cross-tab consistency,
+and formatting. Uses computed CSVs as the reference data source.
+"""
+
+import csv
 import os
-import sqlite3
 import sys
 from pathlib import Path
 
@@ -11,7 +15,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 from openpyxl import load_workbook
 
 OUTPUT = Path(__file__).resolve().parent / "output" / "trade_spend_diagnostic.xlsx"
-DB = Path(__file__).resolve().parent / "cinderhaven-data" / "data" / "cinderhaven_product_master.db"
+DATA_DIR = Path(__file__).resolve().parent / "powerbi" / "data"
 
 PASS = 0
 FAIL = 0
@@ -40,11 +44,14 @@ def main():
     global PASS, FAIL
 
     print(f"Validating: {OUTPUT}")
-    print(f"Database:   {DB}")
+    print(f"CSV dir:    {DATA_DIR}")
     print()
 
     wb = load_workbook(OUTPUT, data_only=False)
-    conn = sqlite3.connect(DB)
+
+    # Load CSV reference data
+    with open(DATA_DIR / "computed_kpis.csv", encoding="utf-8") as f:
+        kpi = next(csv.DictReader(f))
 
     # === TAB STRUCTURE ===
     print("=== Tab Structure ===")
@@ -121,14 +128,14 @@ def main():
     check("Double-dip total ≈ $19,306", approx(dd_total, 19306),
           f"Got ${dd_total:,.0f}")
 
-    # === RECOVERY CHECK ===
+    # === RECOVERY CHECK (from CSV) ===
     print()
     print("=== Recovery Check ===")
-    disputes_total = conn.execute("SELECT COUNT(*) FROM disputes").fetchone()[0]
-    recovered = conn.execute("SELECT SUM(recovered_amount) FROM disputes").fetchone()[0]
-    check("Disputes ~ 1,409", abs(disputes_total - 1409) <= 2, f"Got {disputes_total}")
-    check("Recovered ≈ $98,216", approx(recovered, 98216),
-          f"Got ${recovered:,.0f}")
+    csv_dispute_count = int(kpi["dispute_count"])
+    csv_recovered = float(kpi["total_recovered"])
+    check("Disputes ~ 1,409", abs(csv_dispute_count - 1409) <= 2, f"Got {csv_dispute_count}")
+    check("Recovered ≈ $98,216", approx(csv_recovered, 98216),
+          f"Got ${csv_recovered:,.0f}")
 
     # === RETAILER TOTALS (Tab 4) ===
     print()
@@ -148,19 +155,16 @@ def main():
     check("Tab 4 structural sums to total", approx(retailer_struct_sum, structural),
           f"Got ${retailer_struct_sum:,.0f} vs ${structural:,.0f}")
 
-    # === DEDUCTION COUNT (Tab 5) ===
+    # === DEDUCTION COUNT (Tab 5, from CSV) ===
     print()
     print("=== Deduction Count (Tab 5) ===")
     ws5 = wb["Deduction Ledger"]
 
-    weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
-    ).fetchall()
-    max_scan = weeks[0][0]
-    db_count = conn.execute("""
-        SELECT COUNT(*) FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
-    """, (max_scan, max_scan)).fetchone()[0]
+    csv_trailing_count = 0
+    with open(DATA_DIR / "fact_deductions.csv", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            if row["in_trailing_window"] == "1":
+                csv_trailing_count += 1
 
     ledger_rows = 0
     for r in range(5, ws5.max_row + 1):
@@ -169,8 +173,8 @@ def main():
         else:
             break
 
-    check(f"Tab 5 rows match DB ({db_count})", ledger_rows == db_count,
-          f"Tab 5 has {ledger_rows} rows, DB has {db_count}")
+    check(f"Tab 5 rows match CSV ({csv_trailing_count})", ledger_rows == csv_trailing_count,
+          f"Tab 5 has {ledger_rows} rows, CSV has {csv_trailing_count}")
 
     # === CROSSWALK COMPLETENESS (Tab 6) ===
     print()
@@ -297,7 +301,6 @@ def main():
           f"Found {len(ws6_cf)} ranges")
 
     # === SUMMARY ===
-    conn.close()
     print()
     print("=" * 50)
     print(f"RESULTS: {PASS} passed, {FAIL} failed")

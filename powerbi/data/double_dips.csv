@@ -1,0 +1,4 @@
+deduction_id,retailer_id,retailer_name,amount,deduction_date,deduction_type
+DED-0003041,walmart,Walmart,7551.68,2024-11-22,Promo Billback
+DED-0003040,walmart,Walmart,6226.59,2024-07-04,Promo Billback
+DED-0003042,whole_foods,Whole Foods,5527.64,2024-12-11,Promo Billback

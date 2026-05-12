@@ -1,6 +1,6 @@
 """Tab 4: Retailer Risk — net-net margin by retailer with what-if scenarios."""
 
-import sqlite3
+import csv
 from datetime import date
 from pathlib import Path
 
@@ -24,15 +24,9 @@ from workbook.styles import (
     NUM_FMT_PCT,
 )
 
-CHANNEL_RATE_COLS = {
-    "Walmart": "trade_spend_pct_walmart",
-    "Costco": "trade_spend_pct_costco",
-    "Whole Foods": "trade_spend_pct_whole_foods",
-    "UNFI": "trade_spend_pct_unfi",
-    "DTC": "trade_spend_pct_dtc",
-}
-
-REGIONAL_RETAILERS = [
+# Display order for the P&L table (channels first, then regionals)
+DISPLAY_ORDER = [
+    "Walmart", "UNFI", "Whole Foods", "Costco", "DTC",
     "Green Basket Market", "Southside Grocers",
     "Prairie Provisions", "Mountain Pantry Co", "Harbor Fresh",
 ]
@@ -43,125 +37,61 @@ TABLE_STYLE = TableStyleInfo(
 )
 
 
-def _query_retailer_data(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
-
-    weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
-    ).fetchall()
-    oldest_week = weeks[-1][0]
-    max_scan = weeks[0][0]
-
-    rev_rows = conn.execute("""
-        SELECT s.retailer, SUM(sd.dollars_sold)
-        FROM scan_data sd JOIN stores s ON sd.store_id = s.store_id
-        WHERE sd.week_ending >= ?
-        GROUP BY s.retailer
-    """, (oldest_week,)).fetchall()
-    revenue_map = dict(rev_rows)
-    total_revenue = sum(revenue_map.values())
-
-    rates = {}
-    for channel, col in CHANNEL_RATE_COLS.items():
-        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
-
-    gm_map = {}
-    for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
-                          ("Whole Foods", "wholesale_whole_foods"), ("UNFI", "wholesale_unfi"),
-                          ("DTC", "wholesale_dtc"), ("Regional", "wholesale_regional")]:
-        r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM sku_costs").fetchone()
-        gm_map[channel] = (r[1] - r[0]) / r[1] if r[1] else 0
-
-    op_ded_rows = conn.execute("""
-        SELECT retailer_id, SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
-          AND deduction_type != 'promo_billback'
-        GROUP BY retailer_id
-    """, (max_scan, max_scan)).fetchall()
-    op_ded_map = dict(op_ded_rows)
-
-    pb_rows = conn.execute("""
-        SELECT retailer_id, SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
-          AND deduction_type = 'promo_billback'
-        GROUP BY retailer_id
-    """, (max_scan, max_scan)).fetchall()
-    pb_map = dict(pb_rows)
-
-    conn.close()
-
-    channel_order = ["Walmart", "UNFI", "Whole Foods", "Costco", "DTC"] + REGIONAL_RETAILERS
-
-    retailers = []
-    for retailer in channel_order:
-        rev = revenue_map.get(retailer, 0)
-        rate = rates.get(retailer, regional_rate)
-        structural = rev * rate
-
-        retailer_key = retailer.lower().replace(" ", "_")
-        op_ded = op_ded_map.get(retailer_key, 0)
-        pb_ded = pb_map.get(retailer_key, 0)
-
-        all_in = structural + op_ded + pb_ded
-        all_in_rate = all_in / rev if rev else 0
-
-        gm_key = retailer if retailer in gm_map else "Regional"
-        gross_margin = gm_map.get(gm_key, gm_map.get("Regional", 0.4))
-
-        total_ded = op_ded + pb_ded
-
-        retailers.append({
-            "name": retailer,
-            "revenue": rev,
-            "rev_share": rev / total_revenue if total_revenue else 0,
-            "structural": structural,
-            "structural_rate": rate,
-            "op_deductions": op_ded,
-            "op_ded_rate": op_ded / rev if rev else 0,
-            "pb_deductions": pb_ded,
-            "all_in": all_in,
-            "all_in_rate": all_in_rate,
-            "gross_margin": gross_margin,
-            "net_net_margin": gross_margin - (all_in / rev if rev else 0),
-            "total_deductions": total_ded,
-        })
-
-    kehe_op = op_ded_map.get("kehe", 0)
-    kehe_pb = pb_map.get("kehe", 0)
-    if kehe_op > 0 or kehe_pb > 0:
-        retailers.append({
-            "name": "KeHE (distributor)",
-            "revenue": 0,
-            "rev_share": 0,
-            "structural": 0,
-            "structural_rate": 0,
-            "op_deductions": kehe_op,
-            "op_ded_rate": 0,
-            "pb_deductions": kehe_pb,
-            "all_in": kehe_op + kehe_pb,
-            "all_in_rate": 0,
-            "gross_margin": 0,
-            "net_net_margin": 0,
-            "total_deductions": kehe_op + kehe_pb,
-        })
-
-    total_deductions = sum(r["total_deductions"] for r in retailers)
-    for r in retailers:
-        r["ded_share"] = r["total_deductions"] / total_deductions if total_deductions else 0
-
+def _row_to_dict(r, display_name=None):
+    """Convert a CSV row dict to the retailer dict used by the build function."""
     return {
-        "retailers": retailers,
-        "total_revenue": total_revenue,
-        "oldest_week": oldest_week,
-        "max_scan": max_scan,
+        "name": display_name or r["retailer_name"],
+        "revenue": float(r["revenue"]),
+        "rev_share": float(r["rev_share"]),
+        "structural": float(r["structural_trade_dollars"]),
+        "structural_rate": float(r["trade_rate"]),
+        "op_deductions": float(r["op_deductions"]),
+        "op_ded_rate": float(r["op_ded_rate"]),
+        "pb_deductions": float(r["promo_billback"]),
+        "all_in": float(r["all_in_trade"]),
+        "all_in_rate": float(r["all_in_rate"]),
+        "gross_margin": float(r["gross_margin"]),
+        "net_net_margin": float(r["net_net_margin"]),
+        "total_deductions": float(r["total_deductions"]),
+        "ded_share": float(r["ded_share"]),
     }
 
 
-def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
-    data = _query_retailer_data(db_path)
+def _load_retailer_data(data_dir: Path) -> dict:
+    """Load retailer P&L data from dim_retailer.csv."""
+    with open(data_dir / "computed_kpis.csv", encoding="utf-8") as f:
+        kpi = next(csv.DictReader(f))
+
+    all_rows = []
+    with open(data_dir / "dim_retailer.csv", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            all_rows.append(row)
+
+    by_name = {r["retailer_name"]: r for r in all_rows}
+
+    # Build ordered retailer list: channels + regionals in display order
+    retailers = []
+    for name in DISPLAY_ORDER:
+        if name in by_name:
+            retailers.append(_row_to_dict(by_name[name]))
+
+    # Append distributors with deductions (e.g. KeHE)
+    for r in all_rows:
+        name = r["retailer_name"]
+        if name not in DISPLAY_ORDER and float(r["total_deductions"]) > 0:
+            display = f"{name} (distributor)" if r.get("channel_type") == "distributor" else name
+            retailers.append(_row_to_dict(r, display_name=display))
+
+    return {
+        "retailers": retailers,
+        "total_revenue": float(kpi["revenue"]),
+        "oldest_week": kpi["oldest_week"],
+        "max_scan": kpi["max_scan"],
+    }
+
+
+def build_retailer_risk(ws: Worksheet, data_dir: Path) -> None:
+    data = _load_retailer_data(data_dir)
     retailers = data["retailers"]
 
     ws.sheet_view.showGridLines = False
@@ -305,6 +235,8 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         cell.alignment = ALIGN_CENTER
 
     dv = DataValidation(type="decimal", operator="between", formula1="0", formula2="0.5")
+    dv.errorStyle = "stop"
+    dv.showErrorMessage = True
     dv.error = "Enter a rate between 0% and 50%"
     dv.errorTitle = "Invalid rate"
     ws.add_data_validation(dv)
@@ -334,7 +266,7 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         )
         dv.add(target_cell)
 
-        # Trade at target = revenue × target rate
+        # Trade at target = revenue * target rate
         ws.cell(row=rw, column=6, value=f"=C{rw}*E{rw}").number_format = NUM_FMT_DOLLAR
         ws.cell(row=rw, column=6).alignment = ALIGN_RIGHT
 
@@ -343,7 +275,9 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         cur_trade.alignment = ALIGN_RIGHT
 
         # Annual savings = current trade - trade at target
-        ws.cell(row=rw, column=8, value=f"=G{rw}-F{rw}").number_format = NUM_FMT_DOLLAR
+        # IF guard: when target rate (E) equals current rate (D), force zero
+        # (the two computation paths produce small dollar gaps otherwise)
+        ws.cell(row=rw, column=8, value=f"=IF(E{rw}=D{rw},0,ROUND(G{rw}-F{rw},0))").number_format = NUM_FMT_DOLLAR
         ws.cell(row=rw, column=8).alignment = ALIGN_RIGHT
 
         # What-if margin = gross_margin - target_rate

@@ -80,6 +80,30 @@
             "dataType": "double",
             "sourceColumn": "net_net_margin",
             "summarizeBy": "none"
+          },
+          {
+            "name": "rev_share",
+            "dataType": "double",
+            "sourceColumn": "rev_share",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "op_ded_rate",
+            "dataType": "double",
+            "sourceColumn": "op_ded_rate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "total_deductions",
+            "dataType": "double",
+            "sourceColumn": "total_deductions",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ded_share",
+            "dataType": "double",
+            "sourceColumn": "ded_share",
+            "summarizeBy": "none"
           }
         ],
         "partitions": [
@@ -93,7 +117,7 @@
                 "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\.claude\\worktrees\\musing-hermann-a04c85\\powerbi\\data\\dim_retailer.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
                 "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
                 "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
-                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"retailer_id\", type text}, {\"retailer_name\", type text}, {\"channel_type\", type text}, {\"revenue\", type number}, {\"trade_rate\", type number}, {\"gross_margin\", type number}, {\"structural_trade_dollars\", type number}, {\"op_deductions\", type number}, {\"promo_billback\", type number}, {\"all_in_trade\", type number}, {\"all_in_rate\", type number}, {\"net_net_margin\", type number}})",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"retailer_id\", type text}, {\"retailer_name\", type text}, {\"channel_type\", type text}, {\"revenue\", type number}, {\"trade_rate\", type number}, {\"gross_margin\", type number}, {\"structural_trade_dollars\", type number}, {\"op_deductions\", type number}, {\"promo_billback\", type number}, {\"all_in_trade\", type number}, {\"all_in_rate\", type number}, {\"net_net_margin\", type number}, {\"rev_share\", type number}, {\"op_ded_rate\", type number}, {\"total_deductions\", type number}, {\"ded_share\", type number}})",
                 "in",
                 "    #\"Changed Type\""
               ]
@@ -760,13 +784,19 @@
           {
             "name": "Step",
             "dataType": "string",
-            "sourceColumn": "Step",
-            "sortByColumn": "SortOrder"
+            "sourceColumn": "[Step]",
+            "sortByColumn": "SortOrder",
+            "type": "calculatedTableColumn",
+            "isNameInferred": true,
+            "isDataTypeInferred": true
           },
           {
             "name": "SortOrder",
             "dataType": "int64",
-            "sourceColumn": "SortOrder"
+            "sourceColumn": "[SortOrder]",
+            "type": "calculatedTableColumn",
+            "isNameInferred": true,
+            "isDataTypeInferred": true
           }
         ]
       },
@@ -793,6 +823,37 @@
               "type": "calculated",
               "expression": "SELECTCOLUMNS(GENERATESERIES(0, 0.50, 0.01), \"TargetAllInRate Value\", [Value])"
             }
+          }
+        ]
+      },
+      {
+        "name": "PromoROIChart",
+        "partitions": [
+          {
+            "name": "PromoROIChart",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "VAR WithROI =\n    SELECTCOLUMNS(\n        FILTER(dim_promo, NOT(ISBLANK(dim_promo[roi]))),\n        \"PromoLabel\", dim_promo[promo_id] & \" | \" & dim_promo[retailer],\n        \"ROI\", dim_promo[roi]\n    )\nVAR Top10 = TOPN(10, WithROI, [ROI], DESC)\nVAR Bottom5 = TOPN(5, WithROI, [ROI], ASC)\nRETURN\n    UNION(Top10, Bottom5)"
+            }
+          }
+        ],
+        "columns": [
+          {
+            "name": "PromoLabel",
+            "dataType": "string",
+            "sourceColumn": "[PromoLabel]",
+            "type": "calculatedTableColumn",
+            "isNameInferred": true,
+            "isDataTypeInferred": true
+          },
+          {
+            "name": "ROI",
+            "dataType": "double",
+            "sourceColumn": "[ROI]",
+            "type": "calculatedTableColumn",
+            "isNameInferred": true,
+            "isDataTypeInferred": true
           }
         ]
       },
@@ -980,6 +1041,17 @@
             "displayFolder": "Promo Performance"
           },
           {
+            "name": "ChartROI",
+            "expression": "SUM(PromoROIChart[ROI])",
+            "formatString": "0.00",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "ChartROIColor",
+            "expression": "IF([ChartROI] >= 1, \"#00B050\", \"#C00000\")",
+            "displayFolder": "Promo Performance"
+          },
+          {
             "name": "PromoCount",
             "expression": "COUNTROWS(dim_promo)",
             "formatString": "#,##0",
@@ -1134,14 +1206,6 @@
         "toColumn": "retailer_id"
       },
       {
-        "name": "fact_disputes_retailer_id___dim_retailer_retailer_id",
-        "fromTable": "fact_disputes",
-        "fromColumn": "retailer_id",
-        "toTable": "dim_retailer",
-        "toColumn": "retailer_id",
-        "isActive": false
-      },
-      {
         "name": "fact_scan_data_sku___dim_product_sku",
         "fromTable": "fact_scan_data",
         "fromColumn": "sku",
@@ -1155,13 +1219,6 @@
         "toTable": "dim_product",
         "toColumn": "sku",
         "isActive": false
-      },
-      {
-        "name": "fact_disputes_deduction_id___fact_deductions_deduction_id",
-        "fromTable": "fact_disputes",
-        "fromColumn": "deduction_id",
-        "toTable": "fact_deductions",
-        "toColumn": "deduction_id"
       }
     ],
     "annotations": [

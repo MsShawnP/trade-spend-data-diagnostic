@@ -51,6 +51,10 @@ DATA_TABLES = [
             ("all_in_trade", "double", "sum"),
             ("all_in_rate", "double", "none"),
             ("net_net_margin", "double", "none"),
+            ("rev_share", "double", "none"),
+            ("op_ded_rate", "double", "none"),
+            ("total_deductions", "double", "sum"),
+            ("ded_share", "double", "none"),
         ],
     },
     {
@@ -209,9 +213,13 @@ CALCULATED_TABLES = [
         ),
         "columns": [
             {"name": "Step", "dataType": "string",
-             "sourceColumn": "Step", "sortByColumn": "SortOrder"},
+             "sourceColumn": "[Step]", "sortByColumn": "SortOrder",
+             "type": "calculatedTableColumn",
+             "isNameInferred": True, "isDataTypeInferred": True},
             {"name": "SortOrder", "dataType": "int64",
-             "sourceColumn": "SortOrder"},
+             "sourceColumn": "[SortOrder]",
+             "type": "calculatedTableColumn",
+             "isNameInferred": True, "isDataTypeInferred": True},
         ],
     },
     {
@@ -232,6 +240,31 @@ CALCULATED_TABLES = [
             ")"
         ),
     },
+    {
+        "name": "PromoROIChart",
+        "expression": (
+            "VAR WithROI =\n"
+            "    SELECTCOLUMNS(\n"
+            "        FILTER(dim_promo, NOT(ISBLANK(dim_promo[roi]))),\n"
+            "        \"PromoLabel\", dim_promo[promo_id] & \" | \" & dim_promo[retailer],\n"
+            "        \"ROI\", dim_promo[roi]\n"
+            "    )\n"
+            "VAR Top10 = TOPN(10, WithROI, [ROI], DESC)\n"
+            "VAR Bottom5 = TOPN(5, WithROI, [ROI], ASC)\n"
+            "RETURN\n"
+            "    UNION(Top10, Bottom5)"
+        ),
+        "columns": [
+            {"name": "PromoLabel", "dataType": "string",
+             "sourceColumn": "[PromoLabel]",
+             "type": "calculatedTableColumn",
+             "isNameInferred": True, "isDataTypeInferred": True},
+            {"name": "ROI", "dataType": "double",
+             "sourceColumn": "[ROI]",
+             "type": "calculatedTableColumn",
+             "isNameInferred": True, "isDataTypeInferred": True},
+        ],
+    },
 ]
 
 # ── Relationships ────────────────────────────────────────────────
@@ -245,13 +278,13 @@ RELATIONSHIPS = [
     ("fact_structural_trade", "retailer_id", "dim_retailer", "retailer_name", True),
     ("dim_promo", "retailer", "dim_retailer", "retailer_name", True),
     ("fact_deductions", "retailer_id", "dim_retailer", "retailer_id", True),
-    # fact_disputes reaches dim_retailer through fact_deductions (avoids ambiguous path)
-    ("fact_disputes", "retailer_id", "dim_retailer", "retailer_id", False),
+    # fact_disputes: no relationships needed — TotalRecovered and DisputeCount
+    # aggregate within fact_disputes only.  The former relationship to
+    # fact_deductions created a cyclic evaluation dependency with the
+    # dim_date calculated table (which references fact_deductions[deduction_date]).
     # dim_product joins
     ("fact_scan_data", "sku", "dim_product", "sku", True),
     ("dim_promo", "sku", "dim_product", "sku", False),  # inactive to avoid diamond
-    # fact_disputes to fact_deductions
-    ("fact_disputes", "deduction_id", "fact_deductions", "deduction_id", True),
 ]
 
 
@@ -459,7 +492,12 @@ def _vc(name, x, y, w, h, vtype, query_state, title, z=0,
         "title": [{"properties": {
             "text": _lit(f"'{title}'"),
             "show": _lit("true"),
-        }}]
+            "fontSize": _lit("9"),
+        }}],
+        "subTitle": [{"properties": {
+            "show": _lit("true"),
+            "fontSize": _lit("8"),
+        }}],
     }
     vis["drillFilterOtherVisuals"] = True
     return {
@@ -476,7 +514,11 @@ def _card(name, x, y, w, h, measure, title, z=0):
         "Values": {"projections": [
             _proj(_mref(measure), f"_Measures.{measure}")
         ]}
-    }, title, z)
+    }, title, z, objects={
+        "calloutValue": [{"properties": {
+            "fontSize": _lit("36D"),
+        }}],
+    })
 
 
 def _col_chart(name, x, y, w, h, cat_tbl, cat_col, measure, title, z=0):
@@ -609,7 +651,7 @@ TAKEAWAYS = {
     ),
     "p4": (
         "Net-net margin ranges from 33.8% (Mountain Pantry Co) to "
-        "12.5% (Walmart). Walmart contributes 51% of revenue but its "
+        "13.5% (Walmart). Walmart contributes 51% of revenue but its "
         "21.5% structural rate compresses margin to less than half the "
         "portfolio average."
     ),
@@ -695,21 +737,30 @@ def _build_pages():
 
     # ── Page 3: Which Promos Work ──────────────────────────────
     p3 = _page_header("pp", "p3")
-    # Hero — scatter (cost vs. incremental revenue)
+    # Hero — top 10 & bottom 5 promos by ROI (horizontal bar)
     p3.append(
-        _vc("pp_scatter", 20, 110, 820, 380, "scatterChart", {
-            "X": {"projections": [
-                _proj(_mref("PromoCost"), "_Measures.PromoCost")
+        _vc("pp_bars", 20, 110, 820, 380, "barChart", {
+            "Category": {"projections": [
+                _proj(_cref("PromoROIChart", "PromoLabel"),
+                      "PromoROIChart.PromoLabel", "PromoLabel")
             ]},
             "Y": {"projections": [
-                _proj(_mref("IncrementalRevenue"),
-                      "_Measures.IncrementalRevenue")
+                _proj(_mref("ChartROI"), "_Measures.ChartROI")
             ]},
-            "Category": {"projections": [
-                _proj(_cref("dim_promo", "promo_id"),
-                      "dim_promo.promo_id", "promo_id")
-            ]},
-        }, "Promo Cost vs. Incremental Revenue", 100),
+        }, "Top 10 & Bottom 5 Promotions by ROI", 100,
+        sort=_sort_desc("ChartROI"),
+        objects={
+            "dataPoint": [{"properties": {
+                "fill": {"solid": {"color": {
+                    "expr": {
+                        "Measure": {
+                            "Expression": {"SourceRef": {"Entity": "_Measures"}},
+                            "Property": "ChartROIColor",
+                        }
+                    }
+                }}},
+            }}],
+        }),
     )
     # Supporting — data quality donut
     p3.append(
@@ -779,7 +830,7 @@ def write_project():
         print(f"ERROR: Missing CSV files in {DATA_DIR}:")
         for f in missing:
             print(f"  - {f}")
-        print("\nRun 'python powerbi/export_data.py' first.")
+        print("\nRun 'python -m scripts.compute' first.")
         sys.exit(1)
 
     sem_dir = OUT_DIR / f"{PROJECT}.SemanticModel"

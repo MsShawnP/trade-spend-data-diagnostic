@@ -1,4 +1,8 @@
-"""Generate the trade spend diagnostic workbook."""
+"""Generate the trade spend diagnostic workbook.
+
+Reads pre-computed CSVs from the data directory (produced by scripts/compute.py)
+and builds the 7-tab Excel workbook. No SQLite queries — CSVs are the contract.
+"""
 
 from pathlib import Path
 
@@ -61,7 +65,16 @@ def _set_print_areas(wb: Workbook) -> None:
         ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
 
 
-def generate_workbook(db_path: Path, output_path: Path) -> Path:
+def generate_workbook(data_dir: Path, output_path: Path) -> Path:
+    """Build the 7-tab workbook from pre-computed CSVs.
+
+    Args:
+        data_dir: Directory containing computed CSVs (from scripts/compute.py).
+        output_path: Where to save the .xlsx file.
+
+    Returns:
+        The output_path for confirmation.
+    """
     wb = Workbook()
     wb.remove(wb.active)
 
@@ -69,12 +82,12 @@ def generate_workbook(db_path: Path, output_path: Path) -> Path:
         ws = wb.create_sheet(title=name)
         ws.sheet_properties.tabColor = color
 
-    build_executive_pulse(wb["Executive Pulse"], db_path)
-    build_leak_diagnostic(wb["Leak Diagnostic"], db_path)
-    build_promo_efficacy(wb["Promo Efficacy"], db_path)
-    build_retailer_risk(wb["Retailer Risk"], db_path)
-    build_deduction_ledger(wb["Deduction Ledger"], db_path)
-    build_code_crosswalk(wb["Deduction Code Crosswalk"], db_path)
+    build_executive_pulse(wb["Executive Pulse"], data_dir)
+    build_leak_diagnostic(wb["Leak Diagnostic"], data_dir)
+    build_promo_efficacy(wb["Promo Efficacy"], data_dir)
+    build_retailer_risk(wb["Retailer Risk"], data_dir)
+    build_deduction_ledger(wb["Deduction Ledger"], data_dir)
+    build_code_crosswalk(wb["Deduction Code Crosswalk"], data_dir)
     build_methodology(wb["Methodology & Logic"])
 
     _add_named_ranges(wb)

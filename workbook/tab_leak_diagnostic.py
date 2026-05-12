@@ -1,6 +1,6 @@
 """Tab 2: Leak Diagnostic — where the operational waste is and what's recoverable."""
 
-import sqlite3
+import csv
 from datetime import date
 from pathlib import Path
 
@@ -24,79 +24,39 @@ from workbook.styles import (
     NUM_FMT_PCT,
 )
 
-RECOVERABILITY = {
-    "vague": "Low",
-    "label_fine": "Low",
-    "short_ship": "Medium",
-    "spoilage": "Low",
-    "late_delivery": "Medium",
-    "slotting": "Low",
-    "damaged": "Medium",
-    "pallet_fine": "Low",
-}
-
 TABLE_STYLE = TableStyleInfo(
     name="TableStyleMedium2", showFirstColumn=False,
     showLastColumn=False, showRowStripes=True, showColumnStripes=False,
 )
 
 
-def _query_data(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+def _load_data(data_dir: Path) -> dict:
+    """Load waste categories, double-dips, and recovery data from CSVs."""
+    with open(data_dir / "computed_kpis.csv", encoding="utf-8") as f:
+        kpi = next(csv.DictReader(f))
 
-    weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
-    ).fetchall()
-    oldest_week = weeks[-1][0]
-    max_scan = weeks[0][0]
+    categories = []
+    with open(data_dir / "waste_by_category.csv", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            categories.append(row)
 
-    categories = conn.execute("""
-        SELECT
-            d.deduction_type,
-            COUNT(*) as cnt,
-            SUM(d.amount) as total,
-            AVG(
-                CASE WHEN dis.closed_date IS NOT NULL
-                     THEN julianday(dis.closed_date) - julianday(d.deduction_date)
-                END
-            ) as avg_days
-        FROM deductions d
-        LEFT JOIN disputes dis ON dis.deduction_id = d.deduction_id
-        WHERE d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?
-          AND d.deduction_type != 'promo_billback'
-        GROUP BY d.deduction_type
-        ORDER BY SUM(d.amount) DESC
-    """, (max_scan, max_scan)).fetchall()
-
-    operational_waste = sum(r[2] for r in categories)
-
-    double_dips = conn.execute("""
-        SELECT deduction_id, retailer_id, amount, deduction_date, deduction_type
-        FROM deductions
-        WHERE is_double_dip = 1
-        ORDER BY amount DESC
-    """).fetchall()
-
-    recovery = conn.execute("""
-        SELECT COUNT(*), SUM(recovered_amount)
-        FROM disputes
-    """).fetchone()
-
-    conn.close()
+    double_dips = []
+    with open(data_dir / "double_dips.csv", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            double_dips.append(row)
 
     return {
         "categories": categories,
-        "operational_waste": operational_waste,
+        "operational_waste": float(kpi["operational_waste"]),
         "double_dips": double_dips,
-        "dispute_count": recovery[0],
-        "total_recovered": recovery[1],
-        "oldest_week": oldest_week,
-        "max_scan": max_scan,
+        "total_recovered": float(kpi["total_recovered"]),
+        "oldest_week": kpi["oldest_week"],
+        "max_scan": kpi["max_scan"],
     }
 
 
-def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
-    data = _query_data(db_path)
+def build_leak_diagnostic(ws: Worksheet, data_dir: Path) -> None:
+    data = _load_data(data_dir)
 
     ws.sheet_view.showGridLines = False
 
@@ -125,23 +85,21 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
         cell.alignment = ALIGN_CENTER
 
     table_start_row = row + 1
-    for i, (dtype, cnt, total, avg_days) in enumerate(data["categories"]):
+    for i, cat in enumerate(data["categories"]):
         r = table_start_row + i
-        label = dtype.replace("_", " ").title()
-        pct = total / data["operational_waste"]
-        recov = RECOVERABILITY.get(dtype, "Low")
 
-        ws.cell(row=r, column=2, value=label)
-        ws.cell(row=r, column=3, value=cnt).alignment = ALIGN_RIGHT
-        c_amt = ws.cell(row=r, column=4, value=total)
+        ws.cell(row=r, column=2, value=cat["label"])
+        ws.cell(row=r, column=3, value=int(cat["count"])).alignment = ALIGN_RIGHT
+        c_amt = ws.cell(row=r, column=4, value=float(cat["total_amount"]))
         c_amt.number_format = NUM_FMT_DOLLAR
         c_amt.alignment = ALIGN_RIGHT
-        c_pct = ws.cell(row=r, column=5, value=pct)
+        c_pct = ws.cell(row=r, column=5, value=float(cat["pct_of_waste"]))
         c_pct.number_format = NUM_FMT_PCT
         c_pct.alignment = ALIGN_CENTER
-        c_days = ws.cell(row=r, column=6, value=round(avg_days) if avg_days else None)
+        avg_days = cat["avg_days_to_resolve"]
+        c_days = ws.cell(row=r, column=6, value=int(avg_days) if avg_days else None)
         c_days.alignment = ALIGN_CENTER
-        ws.cell(row=r, column=7, value=recov).alignment = ALIGN_CENTER
+        ws.cell(row=r, column=7, value=cat["recoverability"]).alignment = ALIGN_CENTER
 
     table_end_row = table_start_row + len(data["categories"]) - 1
 
@@ -171,7 +129,8 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     # Totals row (outside table)
     totals_row = table_end_row + 1
     ws.cell(row=totals_row, column=2, value="Total").font = Font(name="Calibri", size=11, bold=True)
-    c_tcnt = ws.cell(row=totals_row, column=3, value=sum(r[1] for r in data["categories"]))
+    total_count = sum(int(c["count"]) for c in data["categories"])
+    c_tcnt = ws.cell(row=totals_row, column=3, value=total_count)
     c_tcnt.alignment = ALIGN_RIGHT
     c_tcnt.font = Font(name="Calibri", size=11, bold=True)
     c_tamt = ws.cell(row=totals_row, column=4, value=data["operational_waste"])
@@ -184,9 +143,10 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     ws.cell(row=dd_row, column=2, value="Double-Dip Alert").font = FONT_SECTION
 
     dd_row += 1
+    dd_total = sum(float(d["amount"]) for d in data["double_dips"])
     ws.merge_cells(f"B{dd_row}:F{dd_row}")
     ws.cell(row=dd_row, column=2,
-            value=f"{len(data['double_dips'])} events detected — ${sum(d[2] for d in data['double_dips']):,.0f} total double-payment"
+            value=f"{len(data['double_dips'])} events detected — ${dd_total:,.0f} total double-payment"
             ).font = FONT_BODY
 
     dd_row += 1
@@ -196,20 +156,20 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
         cell = ws.cell(row=dd_row, column=c, value=h)
         cell.font = Font(name="Calibri", size=11, bold=True)
 
-    for i, (ded_id, retailer, amount, ded_date, dtype) in enumerate(data["double_dips"]):
+    for i, dd in enumerate(data["double_dips"]):
         r = dd_row + 1 + i
-        ws.cell(row=r, column=2, value=ded_id).comment = Comment(
+        ws.cell(row=r, column=2, value=dd["deduction_id"]).comment = Comment(
             "This deduction represents a double-payment: the promotion received both "
             "an off-invoice discount on the original invoice and a promo_billback "
             "deduction, resulting in Cinderhaven paying twice for the same promotion.",
             "System", width=300, height=100,
         )
-        ws.cell(row=r, column=3, value=retailer.replace("_", " ").title())
-        c_a = ws.cell(row=r, column=4, value=amount)
+        ws.cell(row=r, column=3, value=dd["retailer_name"])
+        c_a = ws.cell(row=r, column=4, value=float(dd["amount"]))
         c_a.number_format = NUM_FMT_DOLLAR
         c_a.alignment = ALIGN_RIGHT
-        ws.cell(row=r, column=5, value=ded_date)
-        ws.cell(row=r, column=6, value=dtype.replace("_", " ").title())
+        ws.cell(row=r, column=5, value=dd["deduction_date"])
+        ws.cell(row=r, column=6, value=dd["deduction_type"])
 
     dd_end_row = dd_row + len(data["double_dips"])
 
@@ -238,6 +198,8 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     input_ref = f"C{recov_row}"
 
     dv = DataValidation(type="decimal", operator="between", formula1="0", formula2="1")
+    dv.errorStyle = "stop"
+    dv.showErrorMessage = True
     dv.error = "Please enter a value between 0% and 100%"
     dv.errorTitle = "Invalid recovery rate"
     ws.add_data_validation(dv)

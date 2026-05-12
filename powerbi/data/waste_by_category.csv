@@ -1,0 +1,9 @@
+deduction_type,label,count,total_amount,pct_of_waste,avg_days_to_resolve,recoverability,owner,root_cause
+vague,Vague,189,293926.56,0.290311,92,Low,Finance,Unclear codes — investigate
+label_fine,Label Fine,344,197488.13,0.195059,89,Low,Operations,Labeling/packaging compliance
+short_ship,Short Ship,814,184411.24,0.182143,92,Medium,Operations,Fulfillment accuracy
+spoilage,Spoilage,102,92445.94,0.091309,92,Low,Operations,Shelf-life/inventory management
+late_delivery,Late Delivery,457,87869.07,0.086788,93,Medium,Operations,Logistics/carrier management
+slotting,Slotting,22,79159.73,0.078186,,Low,Sales,Negotiated trade terms
+damaged,Damaged,98,63320.85,0.062542,91,Medium,Operations,Packaging/handling
+pallet_fine,Pallet Fine,80,13833.38,0.013663,88,Low,Operations,Compliance with retailer specs

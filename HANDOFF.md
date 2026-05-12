@@ -9,6 +9,18 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-12 23:00
+
+**Started from:** All five arcs complete. Workbook had formatting issues. Power BI dashboard had data bugs and was an analysis tool, not a presentation layer.
+
+**Did:** Workbook restructure (charts stripped, 9 Excel Tables, input cell validation on all tabs, tab colors/gridlines fixed, IF guard on What-If, KeHE 0% fix). Power BI overhaul (6 bugs fixed, tables/slicers removed, rebuilt as presentation layer with narrative pages, scatter plot replaced with green/red ROI bar chart, waterfall sort fixed via calculatedTableColumn, cyclic reference resolved). Pipeline restructure (compute.py as single source, CSVs as contract, zero sqlite3 in workbook, build_all.py, validate_sync.py — 82/82 checks). New deliverables: data_requirements.md, MIT license on all projects.
+
+**State:** Workbook and dashboard both complete and validated. Pipeline runs end-to-end. Both outputs consume same CSVs. 82/82 checks passing. KPI card sizing was manual fix in Power BI Desktop.
+
+**Next:** Push cinderhaven-data to GitHub. Add screenshots to README.md. Final clean build_all.py run. Tag v1.0.
+
+---
+
 ## 2026-05-11 — Power BI bug fixes and presentation redesign
 
 **Started from:** All five arcs complete. Dashboard had data bugs and needed visual polish.

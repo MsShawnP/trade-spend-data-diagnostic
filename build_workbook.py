@@ -1,7 +1,6 @@
 """Build the trade spend diagnostic workbook.
 
-Ensures the cinderhaven database is current, then generates the
-7-tab Excel workbook.
+Pipeline: build_db → compute CSVs → generate workbook.
 """
 
 import argparse
@@ -11,9 +10,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from scripts.build_db import build, find_database
+from scripts.compute import main as run_compute
 from workbook.generator import generate_workbook
 
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "output" / "trade_spend_diagnostic.xlsx"
+DATA_DIR = Path(__file__).resolve().parent / "powerbi" / "data"
 
 
 def main():
@@ -26,12 +27,21 @@ def main():
     )
     args = parser.parse_args()
 
+    # 1. Build or locate the database
     try:
-        db_path = build()
+        build()
     except FileNotFoundError:
-        db_path = find_database()
+        find_database()  # Just verify it exists
 
-    output_path = generate_workbook(db_path, args.output)
+    # 2. Run computation layer (SQLite → CSVs)
+    print("Running computation layer...")
+    if not run_compute():
+        print("Compute layer validation failed!")
+        sys.exit(1)
+    print()
+
+    # 3. Generate workbook from computed CSVs
+    output_path = generate_workbook(DATA_DIR, args.output)
     print(f"Workbook written: {output_path}")
 
 

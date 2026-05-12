@@ -1,6 +1,6 @@
 """Tab 3: Promo Efficacy — which promotions created value vs. destroyed it."""
 
-import sqlite3
+import csv
 from datetime import date
 from pathlib import Path
 
@@ -33,179 +33,73 @@ TABLE_STYLE = TableStyleInfo(
 )
 
 
-def _retailer_key(name: str) -> str:
-    return name.lower().replace(" ", "_")
+def _vol_or_none(val):
+    """Convert CSV volume value to numeric or None."""
+    if val is None or val == "":
+        return None
+    return float(val)
 
 
-def _query_promo_data(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+def _load_promo_data(data_dir: Path) -> dict:
+    """Load promo performance data from dim_promo.csv + ghost_promos.csv."""
+    with open(data_dir / "computed_kpis.csv", encoding="utf-8") as f:
+        kpi = next(csv.DictReader(f))
 
-    all_weeks = [r[0] for r in conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending"
-    ).fetchall()]
-    week_idx = {w: i for i, w in enumerate(all_weeks)}
+    promos = []
+    with open(data_dir / "dim_promo.csv", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            pre_volumes = [
+                _vol_or_none(row.get(f"pre_vol_{i:02d}"))
+                for i in range(1, _MAX_WINDOW + 1)
+            ]
+            during_volumes = [
+                _vol_or_none(row.get(f"during_vol_{i:02d}"))
+                for i in range(1, _MAX_WINDOW + 1)
+            ]
+            post_volumes = [
+                _vol_or_none(row.get(f"post_vol_{i:02d}"))
+                for i in range(1, _MAX_WINDOW + 1)
+            ]
 
-    promos = conn.execute("""
-        SELECT promo_id, sku, retailer, start_week, end_week,
-               duration_weeks, discount_depth_pct, promo_type,
-               promo_cost, funding_mechanism
-        FROM promotions
-        ORDER BY promo_id, retailer
-    """).fetchall()
+            # Trim trailing Nones from during (actual duration may be < 12)
+            while during_volumes and during_volumes[-1] is None:
+                during_volumes.pop()
 
-    asp_map = {}
-    asp_rows = conn.execute("""
-        SELECT sd.sku, s.retailer, AVG(sd.dollars_sold * 1.0 / sd.units_sold)
-        FROM scan_data sd
-        JOIN stores s ON sd.store_id = s.store_id
-        WHERE sd.units_sold > 0
-        GROUP BY sd.sku, s.retailer
-    """).fetchall()
-    for sku, retailer, asp in asp_rows:
-        asp_map[(sku, retailer)] = asp
-
-    vol_rows = conn.execute("""
-        SELECT sd.sku, s.retailer, sd.week_ending, SUM(sd.units_sold) as units
-        FROM scan_data sd
-        JOIN stores s ON sd.store_id = s.store_id
-        GROUP BY sd.sku, s.retailer, sd.week_ending
-        ORDER BY sd.sku, s.retailer, sd.week_ending
-    """).fetchall()
-
-    vol_map = {}
-    for sku, retailer, week, units in vol_rows:
-        vol_map.setdefault((sku, retailer), {})[week] = units
-
-    matched_deductions = conn.execute("""
-        SELECT p.promo_id, p.sku, p.retailer, SUM(d.amount) as actual_cost
-        FROM promotions p
-        JOIN deductions d ON LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
-            AND d.deduction_type = 'promo_billback'
-            AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
-                                     AND date(p.end_week, '+90 days')
-        GROUP BY p.promo_id, p.sku, p.retailer
-    """).fetchall()
-    actual_cost_map = {}
-    for pid, sku, retailer, cost in matched_deductions:
-        actual_cost_map[(pid, sku, retailer)] = cost
-
-    ghosts = conn.execute("""
-        SELECT d.deduction_id, d.retailer_id, d.amount, d.deduction_date
-        FROM deductions d
-        WHERE d.deduction_type = 'promo_billback'
-          AND NOT EXISTS (
-              SELECT 1 FROM promotions p
-              WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
-                AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
-                                         AND date(p.end_week, '+90 days')
-          )
-        ORDER BY d.amount DESC
-        LIMIT 20
-    """).fetchall()
-
-    ghost_summary = conn.execute("""
-        SELECT COUNT(*), SUM(d.amount)
-        FROM deductions d
-        WHERE d.deduction_type = 'promo_billback'
-          AND NOT EXISTS (
-              SELECT 1 FROM promotions p
-              WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
-                AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
-                                         AND date(p.end_week, '+90 days')
-          )
-    """).fetchone()
-
-    conn.close()
-
-    import bisect
-
-    def _find_nearest_week_idx(target_date: str) -> int | None:
-        idx = bisect.bisect_left(all_weeks, target_date)
-        if idx >= len(all_weeks):
-            return len(all_weeks) - 1 if all_weeks else None
-        if idx == 0:
-            return 0
-        if abs(ord(all_weeks[idx][8]) - ord(target_date[8])) <= abs(ord(all_weeks[idx-1][8]) - ord(target_date[8])):
-            return idx
-        return idx - 1
-
-    promo_results = []
-    for (pid, sku, retailer, start_wk, end_wk, dur_wks,
-         discount, ptype, planned_cost, funding) in promos:
-
-        weekly = vol_map.get((sku, retailer), {})
-        asp = asp_map.get((sku, retailer))
-
-        start_idx = _find_nearest_week_idx(start_wk)
-        end_idx = _find_nearest_week_idx(end_wk)
-
-        if start_idx is None or not weekly:
-            promo_results.append({
-                "promo_id": pid, "sku": sku, "retailer": retailer,
-                "promo_type": ptype, "start_week": start_wk, "end_week": end_wk,
-                "planned_cost": planned_cost, "funding": funding,
-                "actual_cost": actual_cost_map.get((pid, sku, retailer)),
-                "asp": asp, "dur_wks": dur_wks,
-                "pre_volumes": [], "during_volumes": [], "post_volumes": [],
-                "data_quality": "No POS",
+            promos.append({
+                "promo_id": row["promo_id"],
+                "sku": row["sku"],
+                "retailer": row["retailer"],
+                "promo_type": row["promo_type"],
+                "start_week": row["start_week"],
+                "end_week": row["end_week"],
+                "planned_cost": float(row["planned_cost"]) if row["planned_cost"] else None,
+                "funding": row["funding_mechanism"],
+                "actual_cost": float(row["actual_cost"]) if row["actual_cost"] else None,
+                "asp": float(row["asp"]) if row["asp"] else None,
+                "dur_wks": int(row["duration_weeks"]) if row["duration_weeks"] else None,
+                "roi": float(row["roi"]) if row["roi"] else None,
+                "pre_volumes": pre_volumes,
+                "during_volumes": during_volumes,
+                "post_volumes": post_volumes,
+                "data_quality": row["data_quality"],
             })
-            continue
 
-        pre_volumes = []
-        for offset in range(_MAX_WINDOW, 0, -1):
-            idx = start_idx - offset
-            if 0 <= idx < len(all_weeks):
-                wk = all_weeks[idx]
-                pre_volumes.append(weekly.get(wk, 0))
-            else:
-                pre_volumes.append(None)
-
-        during_volumes = []
-        for idx in range(start_idx, min(end_idx + 1, len(all_weeks))):
-            wk = all_weeks[idx]
-            during_volumes.append(weekly.get(wk, 0))
-
-        post_volumes = []
-        for offset in range(1, _MAX_WINDOW + 1):
-            idx = end_idx + offset
-            if idx < len(all_weeks):
-                wk = all_weeks[idx]
-                post_volumes.append(weekly.get(wk, 0))
-            else:
-                post_volumes.append(None)
-
-        has_pre = any(v is not None and v > 0 for v in pre_volumes[:4])
-        has_post = any(v is not None and v > 0 for v in post_volumes[:4])
-        has_during = len(during_volumes) > 0 and any(v > 0 for v in during_volumes)
-
-        if has_pre and has_during and has_post:
-            quality = "Full"
-        elif has_during and (has_pre or has_post):
-            quality = "Partial"
-        else:
-            quality = "No POS"
-
-        promo_results.append({
-            "promo_id": pid, "sku": sku, "retailer": retailer,
-            "promo_type": ptype, "start_week": start_wk, "end_week": end_wk,
-            "planned_cost": planned_cost, "funding": funding,
-            "actual_cost": actual_cost_map.get((pid, sku, retailer)),
-            "asp": asp, "dur_wks": dur_wks,
-            "pre_volumes": pre_volumes, "during_volumes": during_volumes,
-            "post_volumes": post_volumes, "data_quality": quality,
-        })
+    ghosts = []
+    with open(data_dir / "ghost_promos.csv", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            ghosts.append(row)
 
     return {
-        "promos": promo_results,
+        "promos": promos,
         "ghosts": ghosts,
-        "ghost_count": ghost_summary[0],
-        "ghost_total": ghost_summary[1],
+        "ghost_count": int(kpi["ghost_promo_count"]),
+        "ghost_total": float(kpi["ghost_promo_total"]),
         "total_promos": len(promos),
     }
 
 
-def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
-    data = _query_promo_data(db_path)
+def build_promo_efficacy(ws: Worksheet, data_dir: Path) -> None:
+    data = _load_promo_data(data_dir)
 
     ws.sheet_view.showGridLines = False
 
@@ -247,6 +141,7 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
 
     dv = DataValidation(type="whole", operator="between", formula1="1", formula2="12")
     dv.errorStyle = "stop"
+    dv.showErrorMessage = True
     dv.error = "Enter an integer between 1 and 12"
     dv.errorTitle = "Invalid window"
     ws.add_data_validation(dv)
@@ -282,19 +177,13 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
 
     ws.freeze_panes = f"B{table_header_row + 1}"
 
+    # Sort by pre-computed ROI (same order as original SQL-based version)
     def _sort_key(p):
         if p["data_quality"] == "No POS":
             return (2, 0)
-        pre = p["pre_volumes"][-4:]
-        pre_valid = [v for v in pre if v is not None and v > 0]
-        if not pre_valid or not p.get("asp"):
+        roi = p.get("roi")
+        if roi is None:
             return (1, 0)
-        baseline = sum(pre_valid) / len(pre_valid)
-        during = p["during_volumes"]
-        during_avg = sum(during) / len(during) if during else 0
-        incr_vol = (during_avg - baseline) * (p["dur_wks"] or 1)
-        cost = p["actual_cost"] or p["planned_cost"] or 1
-        roi = (incr_vol * p["asp"]) / cost
         return (0, -roi)
 
     sorted_promos = sorted(data["promos"], key=_sort_key)
@@ -324,6 +213,7 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
         c_act.number_format = NUM_FMT_DOLLAR
         c_act.alignment = ALIGN_RIGHT
 
+        # Write volume arrays to hidden columns
         for j, vol in enumerate(promo["pre_volumes"]):
             ws.cell(row=row, column=pre_start_col + j, value=vol if vol is not None else "")
 
@@ -410,7 +300,7 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
                    fill=PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")),
     )
 
-    # Conditional formatting on ROI (col O = 15): <1 red first, ≥1 green second
+    # Conditional formatting on ROI (col O = 15): <1 red first, >=1 green second
     roi_range = f"O{table_header_row + 1}:O{table_end_row}"
     ws.conditional_formatting.add(
         roi_range,
@@ -442,11 +332,11 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
         cell = ws.cell(row=ghost_row, column=c, value=h)
         cell.font = Font(name="Calibri", size=10, bold=True)
 
-    for i, (ded_id, retailer, amount, ded_date) in enumerate(data["ghosts"]):
+    for i, ghost in enumerate(data["ghosts"]):
         r = ghost_row + 1 + i
-        ws.cell(row=r, column=2, value=ded_id)
-        ws.cell(row=r, column=3, value=retailer.replace("_", " ").title())
-        c_a = ws.cell(row=r, column=4, value=amount)
+        ws.cell(row=r, column=2, value=ghost["deduction_id"])
+        ws.cell(row=r, column=3, value=ghost["retailer_name"])
+        c_a = ws.cell(row=r, column=4, value=float(ghost["amount"]))
         c_a.number_format = NUM_FMT_DOLLAR
         c_a.alignment = ALIGN_RIGHT
-        ws.cell(row=r, column=5, value=ded_date)
+        ws.cell(row=r, column=5, value=ghost["deduction_date"])

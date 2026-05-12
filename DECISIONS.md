@@ -48,6 +48,11 @@ Each entry:
 - **Scope:** Global
 - **Do not:** Over-engineer the schema for a dataset this size.
 
+### 2026-05-12 — Single computation layer (compute.py → CSVs → both outputs)
+- **Why:** The workbook and dashboard independently computing from SQLite produced drift (recovery rate denominator, data quality thresholds, ghost promo context). Moving all business logic into compute.py and having both outputs read the same CSVs makes drift structurally impossible. 82 validation checks (10 compute + 59 workbook + 13 sync) confirm alignment.
+- **Scope:** Global — pipeline architecture
+- **Do not:** Add SQLite queries to the workbook package. Do not add independent business logic to DAX measures. All computation lives in compute.py.
+
 ### 2026-05-10 — Validate deliverables with a separate verification script, not inline assertions
 - **Why:** `validate_workbook.py` reopens the generated .xlsx and checks it
   as a reader would — locked numbers, cross-tab consistency, tab structure,
@@ -174,6 +179,11 @@ off-invoice, $4.5M total trade, 42/38/20 category split.~~
 - **Scope:** Promo ROI calculator tab and any ROI-related analysis
 - **Do not:** Build sophisticated baseline models. Acknowledge the
   limitation in the documentation.
+
+### 2026-05-12 — Workbook is the data tool, dashboard is the presentation layer
+- **Why:** openpyxl charts can't compete with Power BI for visualization, and Power BI tables/slicers can't compete with Excel for data exploration. Each medium does what it's best at. The workbook has Excel Tables (pivot-ready), interactive input cells, and named ranges. The dashboard has narrative titles, KPI cards, charts, and text boxes.
+- **Scope:** Both deliverables — workbook generation and Power BI PBIP generation
+- **Do not:** Add openpyxl charts back to the workbook. Do not add tables or slicers to the Power BI dashboard.
 
 ### 2026-05-11 — Workbook is a data tool, not a dashboard. No openpyxl charts.
 - **Why:** openpyxl charts are basic and send mixed signals next to
