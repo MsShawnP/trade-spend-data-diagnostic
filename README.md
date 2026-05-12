@@ -70,7 +70,7 @@ Python 3.10+, openpyxl, pandas, rapidfuzz, SQLite.
 
 ## License
 
-Not yet determined.
+MIT — see [LICENSE](LICENSE).
 
 ## Contact
 
