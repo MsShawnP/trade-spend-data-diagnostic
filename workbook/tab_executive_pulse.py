@@ -171,7 +171,7 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
         cell_lbl.font = FONT_KPI_LABEL
         cell_lbl.alignment = ALIGN_CENTER
 
-    ws.merge_cells("B7:D7")
+    ws.merge_cells("B7:F7")
     ws["B7"] = "You budgeted 17%. You're spending 21%. The extra 4 points is operational waste."
     ws["B7"].font = Font(name="Calibri", size=11, italic=True)
     ws["B7"].alignment = ALIGN_LEFT

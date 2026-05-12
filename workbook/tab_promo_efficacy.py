@@ -25,7 +25,7 @@ from workbook.styles import (
 )
 
 _HELPER_COL_START = 27
-_MAX_WINDOW = 8
+_MAX_WINDOW = 12
 
 TABLE_STYLE = TableStyleInfo(
     name="TableStyleMedium2", showFirstColumn=False,
@@ -246,6 +246,7 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
     window_ref = "$D$5"
 
     dv = DataValidation(type="whole", operator="between", formula1="1", formula2="12")
+    dv.errorStyle = "stop"
     dv.error = "Enter an integer between 1 and 12"
     dv.errorTitle = "Invalid window"
     ws.add_data_validation(dv)
@@ -336,8 +337,8 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
         asp = promo["asp"]
 
         if promo["data_quality"] == "No POS" or not asp:
-            for col in range(10, 15):
-                ws.cell(row=row, column=col, value="")
+            for col in range(10, 16):
+                ws.cell(row=row, column=col, value=None)
         else:
             last_pre_col = get_column_letter(pre_start_col + _MAX_WINDOW - 1)
             pre_formula = f'=AVERAGE(OFFSET({last_pre_col}{row},0,1-{window_ref},1,{window_ref}))'
@@ -409,17 +410,19 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
                    fill=PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")),
     )
 
-    # Conditional formatting on ROI (col O = 15)
+    # Conditional formatting on ROI (col O = 15): <1 red first, ≥1 green second
     roi_range = f"O{table_header_row + 1}:O{table_end_row}"
     ws.conditional_formatting.add(
         roi_range,
-        CellIsRule(operator="greaterThanOrEqual", formula=["1"],
-                   fill=PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")),
+        CellIsRule(operator="lessThan", formula=["1"],
+                   stopIfTrue=True,
+                   fill=PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")),
     )
     ws.conditional_formatting.add(
         roi_range,
-        CellIsRule(operator="lessThan", formula=["1"],
-                   fill=PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")),
+        CellIsRule(operator="greaterThanOrEqual", formula=["1"],
+                   stopIfTrue=True,
+                   fill=PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")),
     )
 
     # --- Ghost promos section ---
