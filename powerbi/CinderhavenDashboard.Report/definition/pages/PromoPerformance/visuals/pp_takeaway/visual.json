@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "pp_takeaway",
+  "position": {
+    "x": 10,
+    "y": 48,
+    "z": 1,
+    "width": 1260,
+    "height": 55,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Of 160 measurable promotions, 104 destroyed value — the cost exceeded the incremental revenue. 137 promo-billback deductions totaling $95,826 reference promotions that don't appear in the planning calendar.",
+                    "textStyle": {
+                      "fontFamily": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+                      "fontSize": "12pt",
+                      "color": "#333333"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "Revenue",
-  "expression": "SELECTEDVALUE(dim_retailer[revenue], 0)",
+  "expression": "IF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    SELECTEDVALUE(dim_retailer[revenue], 0),\n    SUM(dim_retailer[revenue])\n)",
   "formatString": "$#,##0",
   "displayFolder": "Retailer Comparison"
 }

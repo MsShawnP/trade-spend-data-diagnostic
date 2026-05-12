@@ -6,7 +6,7 @@
       "mode": "import",
       "source": {
         "type": "calculated",
-        "expression": "DATATABLE(\n    \"Step\", STRING,\n    \"SortOrder\", INTEGER,\n    {\n        {\"Revenue\", 1},\n        {\"Structural Trade\", 2},\n        {\"Operational Waste\", 3},\n        {\"Net After Trade\", 4}\n    }\n)"
+        "expression": "DATATABLE(\n    \"Step\", STRING,\n    \"SortOrder\", INTEGER,\n    {\n        {\"Revenue\", 1},\n        {\"Structural Trade\", 2},\n        {\"Operational Waste\", 3}\n    }\n)"
       }
     }
   ]

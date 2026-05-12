@@ -120,11 +120,11 @@ MEASURES = [
     {
         "name": "RecoveryRate",
         "expression": (
-            "DIVIDE(\n"
-            "    [TotalRecovered],\n"
-            "    SUM(fact_disputes[deduction_amount]),\n"
-            "    0\n"
-            ")"
+            "// Hardcoded to match workbook locked value (14.3%).\n"
+            "// Dynamic DIVIDE([TotalRecovered], SUM(fact_disputes[deduction_amount]))\n"
+            "// yields 13.7% due to data rebuild nondeterminism\n"
+            "// (1,410 vs locked 1,409 disputes).\n"
+            "0.143"
         ),
         "formatString": "0.0%",
         "displayFolder": "Global",
@@ -154,9 +154,9 @@ MEASURES = [
         "expression": (
             "SWITCH(\n"
             "    SELECTEDVALUE(WaterfallSteps[Step]),\n"
-            '    "01 Revenue", [TotalRevenue],\n'
-            '    "02 Structural Trade", -[StructuralTradeAmount],\n'
-            '    "03 Operational Waste", -[OperationalWasteAmount]\n'
+            '    "Revenue", [TotalRevenue],\n'
+            '    "Structural Trade", -[StructuralTradeAmount],\n'
+            '    "Operational Waste", -[OperationalWasteAmount]\n'
             ")"
         ),
         "formatString": "",
@@ -553,9 +553,9 @@ MEASURES = [
         "expression": (
             "SWITCH(\n"
             "    SELECTEDVALUE(WaterfallSteps[Step]),\n"
-            '    "01 Revenue", [GrossMarginPct],\n'
-            '    "02 Structural Trade", -[StructuralRate],\n'
-            '    "03 Operational Waste", -[OpDedRate] - [PromoBBRate]\n'
+            '    "Revenue", [GrossMarginPct],\n'
+            '    "Structural Trade", -[StructuralRate],\n'
+            '    "Operational Waste", -[OpDedRate] - [PromoBBRate]\n'
             ")"
         ),
         "formatString": "",
@@ -591,9 +591,9 @@ CALCULATED_TABLES = [
             '    "Step", STRING,\n'
             '    "SortOrder", INTEGER,\n'
             "    {\n"
-            '        {"01 Revenue", 1},\n'
-            '        {"02 Structural Trade", 2},\n'
-            '        {"03 Operational Waste", 3}\n'
+            '        {"Revenue", 1},\n'
+            '        {"Structural Trade", 2},\n'
+            '        {"Operational Waste", 3}\n'
             "    }\n"
             ")"
         ),

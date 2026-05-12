@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "eo_takeaway",
+  "position": {
+    "x": 10,
+    "y": 48,
+    "z": 1,
+    "width": 1260,
+    "height": 55,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Cinderhaven budgets 17.3% of revenue for trade spend — $4.4 million in negotiated rate-card allowances. Actual all-in cost is 21.3%. The 4-point gap is $1 million in annual operational waste: retailer deductions beyond the rate card, largely uncontested.",
+                    "textStyle": {
+                      "fontFamily": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+                      "fontSize": "12pt",
+                      "color": "#333333"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

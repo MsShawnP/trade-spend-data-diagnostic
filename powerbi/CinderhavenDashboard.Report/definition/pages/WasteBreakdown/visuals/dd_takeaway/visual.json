@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "dd_takeaway",
+  "position": {
+    "x": 10,
+    "y": 48,
+    "z": 1,
+    "width": 1260,
+    "height": 55,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Three categories account for two-thirds of operational waste: vague deductions ($294K), label fines ($197K), and short-ship charges ($184K). Three deductions totaling $19,306 are confirmed double-payments — the same promotion billed twice through different mechanisms.",
+                    "textStyle": {
+                      "fontFamily": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+                      "fontSize": "12pt",
+                      "color": "#333333"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,5 +1,5 @@
 {
   "name": "RetailerWaterfallValue",
-  "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"Revenue\", [GrossMarginPct],\n    \"Structural Trade\", -[StructuralRate],\n    \"Operational Waste\", -[OpDedRate] - [PromoBBRate],\n    \"Net After Trade\", [NetNetMargin]\n)",
+  "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"Revenue\", [GrossMarginPct],\n    \"Structural Trade\", -[StructuralRate],\n    \"Operational Waste\", -[OpDedRate] - [PromoBBRate]\n)",
   "displayFolder": "Retailer Comparison"
 }

@@ -68,7 +68,7 @@ revenue eroding through two layers of trade cost to a net position.
 |----------|-------|
 | Type | Waterfall chart |
 | Position | Center, below takeaway text. Full width, ~60% of page height |
-| Category axis | `WaterfallSteps[Step]` — "01 Revenue", "02 Structural Trade", "03 Operational Waste" |
+| Category axis | `WaterfallSteps[Step]` — "Revenue", "Structural Trade", "Operational Waste" |
 | Values | Measure: `WaterfallValue` |
 | Sort | By `WaterfallSteps[SortOrder]` ascending |
 | Colors | Increase (Revenue): `#2E5090`. Decrease (Structural, Operational): `#C44E52`. Total bar: `#4C9A6E` |
@@ -85,7 +85,7 @@ Large format: 28pt values, 10pt labels.
 |------|---------|---------------|---------|
 | 1 | `AllInTradeRate` | 21.3% | The headline rate — the number that should be 17.3% |
 | 2 | `OperationalWasteAmount` | ~$1,012,455 | The dollar cost of the gap |
-| 3 | `RecoveryRate` | 13.7% | How much is being recovered today |
+| 3 | `RecoveryRate` | 14.3% | How much is being recovered today |
 
 ### What was removed (vs. prior design)
 

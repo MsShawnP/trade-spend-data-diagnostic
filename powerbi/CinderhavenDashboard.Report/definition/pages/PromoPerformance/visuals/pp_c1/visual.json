@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "pp_c1",
   "position": {
-    "x": 264,
-    "y": 10,
-    "z": 1,
-    "width": 244,
-    "height": 100,
-    "tabOrder": 1
+    "x": 870,
+    "y": 410,
+    "z": 301,
+    "width": 380,
+    "height": 70,
+    "tabOrder": 301
   },
   "visual": {
     "visualType": "card",
@@ -23,11 +23,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "PromoCost"
+                  "Property": "GhostPromoCount"
                 }
               },
-              "queryRef": "_Measures.PromoCost",
-              "nativeQueryRef": "PromoCost"
+              "queryRef": "_Measures.GhostPromoCount",
+              "nativeQueryRef": "GhostPromoCount"
             }
           ]
         }
@@ -40,7 +40,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Total Promo Cost'"
+                  "Value": "'Ghost Promos'"
                 }
               }
             },

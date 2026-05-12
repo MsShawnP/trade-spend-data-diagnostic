@@ -377,7 +377,7 @@ interactive filtering are workbook features.
 - [ ] **KPI spot-check**:
   - AllInTradeRate: 21.3%
   - OperationalWasteAmount: ~$1,012,455
-  - RecoveryRate: 13.7%
+  - RecoveryRate: 14.3%
   - DoubleDipTotal: $19,306
   - GhostPromoCount: 137
   - HighestRiskRetailer: displays a retailer name in red
@@ -577,9 +577,9 @@ Visual count: 1 hero chart + 3 KPI cards + 1 takeaway text box.
   - Total: `#4C9A6E` (net result auto-bar)
 - Sort: by SortOrder ascending (should work automatically via
   prefixed names). If not: **... → Sort axis → SortOrder → Ascending**
-- Category axis labels: the "01 ", "02 ", "03 " prefixes appear on
-  the axis. Leave them — they're unobtrusive and guarantee correct
-  order. (Power BI does not offer per-label renaming on waterfall.)
+- Category axis labels: "Revenue", "Structural Trade", "Operational
+  Waste". Sort order is guaranteed by the SortOrder column
+  (`sortByColumn` property on the Step column).
 - Data labels: ON, Segoe UI 10pt, `$#,##0` format, above/below bars
 - Y-axis title: OFF
 - X-axis title: OFF

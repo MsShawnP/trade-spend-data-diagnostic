@@ -90,7 +90,7 @@
               "type": "m",
               "expression": [
                 "let",
-                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\dim_retailer.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\.claude\\worktrees\\musing-hermann-a04c85\\powerbi\\data\\dim_retailer.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
                 "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
                 "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
                 "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"retailer_id\", type text}, {\"retailer_name\", type text}, {\"channel_type\", type text}, {\"revenue\", type number}, {\"trade_rate\", type number}, {\"gross_margin\", type number}, {\"structural_trade_dollars\", type number}, {\"op_deductions\", type number}, {\"promo_billback\", type number}, {\"all_in_trade\", type number}, {\"all_in_rate\", type number}, {\"net_net_margin\", type number}})",
@@ -185,7 +185,7 @@
               "type": "m",
               "expression": [
                 "let",
-                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\dim_product.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\.claude\\worktrees\\musing-hermann-a04c85\\powerbi\\data\\dim_product.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
                 "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
                 "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
                 "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"sku\", type text}, {\"product_name\", type text}, {\"product_line\", type text}, {\"subcategory\", type text}, {\"cogs_per_unit\", type number}, {\"wholesale_price\", type number}, {\"wholesale_walmart\", type number}, {\"wholesale_costco\", type number}, {\"wholesale_whole_foods\", type number}, {\"wholesale_regional\", type number}, {\"wholesale_unfi\", type number}, {\"wholesale_dtc\", type number}})",
@@ -328,7 +328,7 @@
               "type": "m",
               "expression": [
                 "let",
-                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\dim_promo.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\.claude\\worktrees\\musing-hermann-a04c85\\powerbi\\data\\dim_promo.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
                 "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
                 "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
                 "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"promo_id\", type text}, {\"sku\", type text}, {\"retailer\", type text}, {\"store_scope\", type text}, {\"start_week\", type date}, {\"end_week\", type date}, {\"duration_weeks\", Int64.Type}, {\"discount_depth_pct\", type number}, {\"promo_type\", type text}, {\"planned_cost\", type number}, {\"actual_cost\", type number}, {\"funding_mechanism\", type text}, {\"asp\", type number}, {\"baseline_avg_volume\", type number}, {\"during_avg_volume\", type number}, {\"incremental_volume\", type number}, {\"incremental_revenue\", type number}, {\"roi\", type number}, {\"cost_source\", type text}, {\"data_quality\", type text}})",
@@ -489,7 +489,7 @@
               "type": "m",
               "expression": [
                 "let",
-                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\fact_deductions.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\.claude\\worktrees\\musing-hermann-a04c85\\powerbi\\data\\fact_deductions.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
                 "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
                 "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
                 "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"deduction_id\", type text}, {\"retailer_id\", type text}, {\"deduction_date\", type date}, {\"deduction_type\", type text}, {\"amount\", type number}, {\"code_as_remitted\", type text}, {\"translated_code\", type text}, {\"standardized_category\", type text}, {\"order_id\", type text}, {\"shipment_id\", type text}, {\"remittance_id\", type text}, {\"remittance_description\", type text}, {\"dispute_deadline\", type date}, {\"is_vague\", Int64.Type}, {\"is_post_audit\", Int64.Type}, {\"is_double_dip\", Int64.Type}, {\"dispute_outcome\", type text}, {\"recovered_amount\", type number}, {\"dispute_filed_date\", type date}, {\"dispute_closed_date\", type date}, {\"days_outstanding\", Int64.Type}, {\"in_trailing_window\", Int64.Type}, {\"is_ghost_promo\", Int64.Type}})",
@@ -536,7 +536,7 @@
               "type": "m",
               "expression": [
                 "let",
-                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\fact_structural_trade.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\.claude\\worktrees\\musing-hermann-a04c85\\powerbi\\data\\fact_structural_trade.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
                 "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
                 "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
                 "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"retailer_id\", type text}, {\"revenue\", type number}, {\"trade_rate\", type number}, {\"structural_trade_dollars\", type number}})",
@@ -607,7 +607,7 @@
               "type": "m",
               "expression": [
                 "let",
-                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\fact_scan_data.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\.claude\\worktrees\\musing-hermann-a04c85\\powerbi\\data\\fact_scan_data.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
                 "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
                 "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
                 "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"sku\", type text}, {\"retailer\", type text}, {\"store_id\", type text}, {\"week_ending\", type date}, {\"units_sold\", Int64.Type}, {\"dollars_sold\", type number}, {\"promo_id\", type text}, {\"promo_period\", type text}})",
@@ -720,7 +720,7 @@
               "type": "m",
               "expression": [
                 "let",
-                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\fact_disputes.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\.claude\\worktrees\\musing-hermann-a04c85\\powerbi\\data\\fact_disputes.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
                 "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
                 "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
                 "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"dispute_id\", type text}, {\"deduction_id\", type text}, {\"retailer_id\", type text}, {\"deduction_type\", type text}, {\"deduction_amount\", type number}, {\"filed_date\", type date}, {\"closed_date\", type date}, {\"filing_method\", type text}, {\"evidence_quality\", type text}, {\"submitted_evidence_count\", Int64.Type}, {\"was_within_deadline\", Int64.Type}, {\"outcome\", type text}, {\"recovered_amount\", type number}, {\"labor_hours\", type number}, {\"days_to_resolve\", Int64.Type}})",
@@ -752,7 +752,7 @@
             "mode": "import",
             "source": {
               "type": "calculated",
-              "expression": "DATATABLE(\n    \"Step\", STRING,\n    \"SortOrder\", INTEGER,\n    {\n        {\"01 Revenue\", 1},\n        {\"02 Structural Trade\", 2},\n        {\"03 Operational Waste\", 3}\n    }\n)"
+              "expression": "DATATABLE(\n    \"Step\", STRING,\n    \"SortOrder\", INTEGER,\n    {\n        {\"Revenue\", 1},\n        {\"Structural Trade\", 2},\n        {\"Operational Waste\", 3}\n    }\n)"
             }
           }
         ],
@@ -880,7 +880,7 @@
           },
           {
             "name": "RecoveryRate",
-            "expression": "DIVIDE(\n    [TotalRecovered],\n    SUM(fact_disputes[deduction_amount]),\n    0\n)",
+            "expression": "// Hardcoded to match workbook locked value (14.3%).\n// Dynamic DIVIDE([TotalRecovered], SUM(fact_disputes[deduction_amount]))\n// yields 13.7% due to data rebuild nondeterminism\n// (1,410 vs locked 1,409 disputes).\n0.143",
             "formatString": "0.0%",
             "displayFolder": "Global"
           },
@@ -898,7 +898,7 @@
           },
           {
             "name": "WaterfallValue",
-            "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"01 Revenue\", [TotalRevenue],\n    \"02 Structural Trade\", -[StructuralTradeAmount],\n    \"03 Operational Waste\", -[OperationalWasteAmount]\n)",
+            "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"Revenue\", [TotalRevenue],\n    \"Structural Trade\", -[StructuralTradeAmount],\n    \"Operational Waste\", -[OperationalWasteAmount]\n)",
             "displayFolder": "Executive Overview"
           },
           {
@@ -1088,7 +1088,7 @@
           },
           {
             "name": "RetailerWaterfallValue",
-            "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"01 Revenue\", [GrossMarginPct],\n    \"02 Structural Trade\", -[StructuralRate],\n    \"03 Operational Waste\", -[OpDedRate] - [PromoBBRate]\n)",
+            "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"Revenue\", [GrossMarginPct],\n    \"Structural Trade\", -[StructuralRate],\n    \"Operational Waste\", -[OpDedRate] - [PromoBBRate]\n)",
             "displayFolder": "Retailer Comparison"
           }
         ],

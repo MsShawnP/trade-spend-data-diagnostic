@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "pp_c0",
   "position": {
-    "x": 10,
-    "y": 10,
-    "z": 0,
-    "width": 244,
-    "height": 100,
-    "tabOrder": 0
+    "x": 870,
+    "y": 330,
+    "z": 300,
+    "width": 380,
+    "height": 70,
+    "tabOrder": 300
   },
   "visual": {
     "visualType": "card",
@@ -23,11 +23,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "PromoCount"
+                  "Property": "AvgROI"
                 }
               },
-              "queryRef": "_Measures.PromoCount",
-              "nativeQueryRef": "PromoCount"
+              "queryRef": "_Measures.AvgROI",
+              "nativeQueryRef": "AvgROI"
             }
           ]
         }
@@ -40,7 +40,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Promo Count'"
+                  "Value": "'Avg Promo ROI'"
                 }
               }
             },

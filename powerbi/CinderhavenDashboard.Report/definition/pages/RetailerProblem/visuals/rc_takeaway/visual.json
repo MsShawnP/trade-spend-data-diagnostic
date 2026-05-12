@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "rc_takeaway",
+  "position": {
+    "x": 10,
+    "y": 48,
+    "z": 1,
+    "width": 1260,
+    "height": 55,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Net-net margin ranges from 33.8% (Mountain Pantry Co) to 12.5% (Walmart). Walmart contributes 51% of revenue but its 21.5% structural rate compresses margin to less than half the portfolio average.",
+                    "textStyle": {
+                      "fontFamily": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+                      "fontSize": "12pt",
+                      "color": "#333333"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

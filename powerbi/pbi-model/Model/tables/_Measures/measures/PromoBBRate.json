@@ -1,6 +1,6 @@
 {
   "name": "PromoBBRate",
-  "expression": "DIVIDE(\n    CALCULATE(\n        SUM(fact_deductions[amount]),\n        fact_deductions[deduction_type] = \"promo_billback\"\n    ),\n    SELECTEDVALUE(dim_retailer[revenue], 1),\n    0\n)",
+  "expression": "VAR PromoBB =\n    CALCULATE(\n        SUM(fact_deductions[amount]),\n        fact_deductions[deduction_type] = \"promo_billback\",\n        fact_deductions[in_trailing_window] = 1\n    )\nRETURN\nIF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    DIVIDE(PromoBB, SELECTEDVALUE(dim_retailer[revenue], 1), 0),\n    DIVIDE(PromoBB, [TotalRevenue], 0)\n)",
   "formatString": "0.0%",
   "displayFolder": "Retailer Comparison"
 }

@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "pp_c2",
   "position": {
-    "x": 518,
-    "y": 10,
-    "z": 2,
-    "width": 244,
-    "height": 100,
-    "tabOrder": 2
+    "x": 870,
+    "y": 490,
+    "z": 302,
+    "width": 380,
+    "height": 70,
+    "tabOrder": 302
   },
   "visual": {
     "visualType": "card",
@@ -23,11 +23,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "AvgROI"
+                  "Property": "GhostPromoTotal"
                 }
               },
-              "queryRef": "_Measures.AvgROI",
-              "nativeQueryRef": "AvgROI"
+              "queryRef": "_Measures.GhostPromoTotal",
+              "nativeQueryRef": "GhostPromoTotal"
             }
           ]
         }
@@ -40,7 +40,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Avg Promo ROI'"
+                  "Value": "'Ghost Promo Exposure'"
                 }
               }
             },

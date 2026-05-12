@@ -201,9 +201,9 @@ CALCULATED_TABLES = [
             "    \"Step\", STRING,\n"
             "    \"SortOrder\", INTEGER,\n"
             "    {\n"
-            "        {\"01 Revenue\", 1},\n"
-            "        {\"02 Structural Trade\", 2},\n"
-            "        {\"03 Operational Waste\", 3}\n"
+            "        {\"Revenue\", 1},\n"
+            "        {\"Structural Trade\", 2},\n"
+            "        {\"Operational Waste\", 3}\n"
             "    }\n"
             ")"
         ),
@@ -549,6 +549,91 @@ def _slicer(name, x, y, w, h, table, column, title, z=0):
     }, title, z)
 
 
+def _textbox(name, x, y, w, h, text, font_size="12pt",
+             font_color="#333333", font_weight=None, z=0):
+    """Create a text box visual container."""
+    text_style = {
+        "fontFamily": ("'Segoe UI', wf_segoe-ui_normal, helvetica, "
+                       "arial, sans-serif"),
+        "fontSize": font_size,
+        "color": font_color,
+    }
+    if font_weight:
+        text_style["fontWeight"] = font_weight
+    return {
+        "$schema": SCHEMA_VC,
+        "name": name,
+        "position": {"x": x, "y": y, "z": z, "width": w, "height": h,
+                      "tabOrder": z},
+        "visual": {
+            "visualType": "textbox",
+            "objects": {
+                "general": [{
+                    "properties": {
+                        "paragraphs": [{
+                            "textRuns": [{
+                                "value": text,
+                                "textStyle": text_style,
+                            }]
+                        }]
+                    }
+                }]
+            },
+            "drillFilterOtherVisuals": True,
+        },
+    }
+
+
+# ── Takeaway text (verbatim from DESIGN.md) ──────────────────
+
+TAKEAWAYS = {
+    "p1": (
+        "Cinderhaven budgets 17.3% of revenue for trade spend — "
+        "$4.4 million in negotiated rate-card allowances. Actual all-in "
+        "cost is 21.3%. The 4-point gap is $1 million in annual "
+        "operational waste: retailer deductions beyond the rate card, "
+        "largely uncontested."
+    ),
+    "p2": (
+        "Three categories account for two-thirds of operational waste: "
+        "vague deductions ($294K), label fines ($197K), and short-ship "
+        "charges ($184K). Three deductions totaling $19,306 are "
+        "confirmed double-payments — the same promotion billed "
+        "twice through different mechanisms."
+    ),
+    "p3": (
+        "Of 160 measurable promotions, 104 destroyed value — the "
+        "cost exceeded the incremental revenue. 137 promo-billback "
+        "deductions totaling $95,826 reference promotions that don't "
+        "appear in the planning calendar."
+    ),
+    "p4": (
+        "Net-net margin ranges from 33.8% (Mountain Pantry Co) to "
+        "12.5% (Walmart). Walmart contributes 51% of revenue but its "
+        "21.5% structural rate compresses margin to less than half the "
+        "portfolio average."
+    ),
+}
+
+PAGE_TITLES = {
+    "p1": "The Gap",
+    "p2": "Where the Waste Goes",
+    "p3": "Which Promos Work",
+    "p4": "The Retailer Problem",
+}
+
+
+def _page_header(prefix, page_key):
+    """Generate title text box and takeaway text box for a page."""
+    return [
+        _textbox(f"{prefix}_title", 10, 5, 1260, 40,
+                 PAGE_TITLES[page_key], font_size="16pt",
+                 font_color="#2E5090", font_weight="bold", z=0),
+        _textbox(f"{prefix}_takeaway", 10, 48, 1260, 55,
+                 TAKEAWAYS[page_key], font_size="12pt", z=1),
+    ]
+
+
 # ── Dashboard layout ───────────────────────────────────────────
 
 def _cards(specs, y, prefix, z0=0):
@@ -563,114 +648,119 @@ def _cards(specs, y, prefix, z0=0):
 
 
 def _build_pages():
-    """Return list of (page_meta, visuals) for each dashboard page."""
+    """Return list of (page_meta, visuals) for each dashboard page.
+
+    Presentation layout: each page has 1 hero visual, 1–3 KPI cards,
+    and a narrative takeaway text box.  No tables, no slicers.
+    See DESIGN.md for the full design philosophy.
+    """
     pages = []
 
-    # ── Page 1: Executive Overview ──────────────────────────────
-    p1 = _cards([
-        ("TotalRevenue", "Total Revenue"),
-        ("AllInTradeCost", "All-In Trade Cost"),
-        ("AllInTradeRate", "All-In Trade Rate"),
-        ("OperationalWasteAmount", "Operational Waste"),
-        ("RecoveryRate", "Recovery Rate"),
-    ], y=10, prefix="eo_c", z0=0)
-    p1 += [
-        _waterfall("eo_waterfall", 10, 120, 620, 280,
+    # ── Page 1: The Gap ────────────────────────────────────────
+    p1 = _page_header("eo", "p1")
+    p1.append(
+        _waterfall("eo_waterfall", 40, 110, 1200, 380,
                    "WaterfallSteps", "Step", "SortOrder",
                    "WaterfallValue", "Trade Spend Waterfall", 100),
-        _col_chart("eo_rev_retailer", 640, 120, 630, 280,
-                   "dim_retailer", "retailer_name", "RetailerRevenue",
-                   "Revenue by Retailer", 200),
-        _table_vis("eo_table", 10, 410, 1260, 300, [
-            ("dim_retailer", "retailer_name", False),
-            ("_Measures", "TotalRevenue", True),
-            ("_Measures", "StructuralTradeRate", True),
-            ("_Measures", "OperationalWasteRate", True),
-            ("_Measures", "AllInTradeRate", True),
-            ("_Measures", "RecoveryRate", True),
-        ], "Retailer Summary", 300),
+    )
+    p1 += [
+        _card("eo_c0", 30, 500, 400, 100,
+              "AllInTradeRate", "All-In Trade Rate", 200),
+        _card("eo_c1", 440, 500, 400, 100,
+              "OperationalWasteAmount", "Operational Waste", 201),
+        _card("eo_c2", 850, 500, 400, 100,
+              "RecoveryRate", "Recovery Rate", 202),
     ]
-    pages.append(({"id": "ExecOverview",
-                   "displayName": "Executive Overview"}, p1))
+    pages.append(({"id": "TheGap",
+                   "displayName": "The Gap"}, p1))
 
-    # ── Page 2: Deduction Deep-Dive ─────────────────────────────
-    p2 = _cards([
-        ("DeductionCount", "Deduction Count"),
-        ("DeductionAmount", "Total Deductions"),
-        ("DoubleDipTotal", "Double-Dip Total"),
-        ("AvgDaysToResolve", "Avg Days to Resolve"),
-    ], y=10, prefix="dd_c", z0=0)
-    p2 += [
-        _col_chart("dd_by_type", 10, 120, 620, 280,
+    # ── Page 2: Where the Waste Goes ───────────────────────────
+    p2 = _page_header("dd", "p2")
+    p2.append(
+        _bar_chart("dd_bars", 40, 110, 1200, 360,
                    "fact_deductions", "standardized_category",
-                   "DeductionAmount", "Deductions by Category", 100),
-        _bar_chart("dd_by_retailer", 640, 120, 630, 280,
-                   "dim_retailer", "retailer_name",
-                   "DeductionAmount", "Deductions by Retailer", 200),
-        _table_vis("dd_table", 10, 410, 1260, 300, [
-            ("dim_retailer", "retailer_name", False),
-            ("_Measures", "DeductionAmount", True),
-            ("_Measures", "DeductionCount", True),
-            ("_Measures", "DoubleDipCount", True),
-            ("_Measures", "UnmappedCodeCount", True),
-            ("_Measures", "RecoveryRate", True),
-        ], "Deduction Detail by Retailer", 300),
+                   "WasteAmount",
+                   "Operational Waste by Category", 100),
+    )
+    p2 += [
+        _card("dd_c0", 30, 480, 400, 100,
+              "OperationalWasteAmount", "Total Waste", 200),
+        _card("dd_c1", 440, 480, 400, 100,
+              "DoubleDipTotal", "Double-Dip Total", 201),
+        _card("dd_c2", 850, 480, 400, 100,
+              "UnmappedCodeCount", "Unmapped Codes", 202),
     ]
-    pages.append(({"id": "DeductionDeepDive",
-                   "displayName": "Deduction Deep-Dive"}, p2))
+    pages.append(({"id": "WasteBreakdown",
+                   "displayName": "Where the Waste Goes"}, p2))
 
-    # ── Page 3: Promo Performance ───────────────────────────────
-    p3 = _cards([
-        ("PromoCount", "Promo Count"),
-        ("PromoCost", "Total Promo Cost"),
-        ("AvgROI", "Avg Promo ROI"),
-        ("IncrementalRevenue", "Incremental Revenue"),
-        ("GhostPromoCount", "Ghost Promos"),
-    ], y=10, prefix="pp_c", z0=0)
-    p3 += [
-        _col_chart("pp_cost_retailer", 10, 120, 620, 280,
-                   "dim_promo", "retailer", "PromoCost",
-                   "Promo Spend by Retailer", 100),
-        _donut("pp_quality", 640, 120, 630, 280,
+    # ── Page 3: Which Promos Work ──────────────────────────────
+    p3 = _page_header("pp", "p3")
+    # Hero — scatter (cost vs. incremental revenue)
+    p3.append(
+        _vc("pp_scatter", 20, 110, 820, 380, "scatterChart", {
+            "X": {"projections": [
+                _proj(_mref("PromoCost"), "_Measures.PromoCost")
+            ]},
+            "Y": {"projections": [
+                _proj(_mref("IncrementalRevenue"),
+                      "_Measures.IncrementalRevenue")
+            ]},
+            "Category": {"projections": [
+                _proj(_cref("dim_promo", "promo_id"),
+                      "dim_promo.promo_id", "promo_id")
+            ]},
+        }, "Promo Cost vs. Incremental Revenue", 100),
+    )
+    # Supporting — data quality donut
+    p3.append(
+        _donut("pp_donut", 870, 110, 380, 200,
                "dim_promo", "data_quality", "PromoCount",
-               "Data Quality Distribution", 200),
-        _table_vis("pp_table", 10, 410, 1260, 300, [
-            ("dim_promo", "retailer", False),
-            ("_Measures", "PromoCount", True),
-            ("_Measures", "PromoCost", True),
-            ("_Measures", "IncrementalRevenue", True),
-            ("_Measures", "PromoROI", True),
-            ("_Measures", "GhostPromoTotal", True),
-        ], "Promo Performance by Retailer", 300),
+               "POS Data Coverage", 200),
+    )
+    # KPI cards stacked vertically (right side)
+    p3 += [
+        _card("pp_c0", 870, 330, 380, 70,
+              "AvgROI", "Avg Promo ROI", 300),
+        _card("pp_c1", 870, 410, 380, 70,
+              "GhostPromoCount", "Ghost Promos", 301),
+        _card("pp_c2", 870, 490, 380, 70,
+              "GhostPromoTotal", "Ghost Promo Exposure", 302),
     ]
     pages.append(({"id": "PromoPerformance",
-                   "displayName": "Promo Performance"}, p3))
+                   "displayName": "Which Promos Work"}, p3))
 
-    # ── Page 4: Retailer Comparison ─────────────────────────────
-    p4 = [
-        _card("rc_c0", 10, 10, 300, 100,
-              "HighestRiskRetailer", "Highest Risk Retailer", 0),
-        _card("rc_c1", 320, 10, 300, 100,
-              "TotalSavingsAtTarget", "Savings at Target Rate", 1),
-        _slicer("rc_slicer", 940, 10, 330, 100,
-                "TargetAllInRate", "TargetAllInRate Value",
-                "Target All-In Rate", 2),
-        _col_chart("rc_margin_chart", 10, 120, 1260, 280,
-                   "dim_retailer", "retailer_name", "NetNetMarginPct",
+    # ── Page 4: The Retailer Problem ───────────────────────────
+    p4 = _page_header("rc", "p4")
+    # Hero — net-net margin by retailer
+    p4.append(
+        _col_chart("rc_margin", 20, 110, 1240, 320,
+                   "dim_retailer", "retailer_name",
+                   "NetNetMarginPct",
                    "Net-Net Margin by Retailer", 100),
-        _table_vis("rc_table", 10, 410, 1260, 300, [
-            ("dim_retailer", "retailer_name", False),
-            ("_Measures", "Revenue", True),
-            ("_Measures", "GrossMarginPct", True),
-            ("_Measures", "StructuralRate", True),
-            ("_Measures", "OpDedRate", True),
-            ("_Measures", "PromoBBRate", True),
-            ("_Measures", "NetNetMarginPct", True),
-            ("_Measures", "SavingsAtTarget", True),
-        ], "Retailer Margin Comparison", 300),
-    ]
-    pages.append(({"id": "RetailerComparison",
-                   "displayName": "Retailer Comparison"}, p4))
+    )
+    # Supporting — concentration risk (revenue share + deduction share)
+    p4.append(
+        _vc("rc_conc", 20, 450, 780, 250, "barChart", {
+            "Category": {"projections": [
+                _proj(_cref("dim_retailer", "retailer_name"),
+                      "dim_retailer.retailer_name", "retailer_name")
+            ]},
+            "Y": {"projections": [
+                _proj(_mref("RevenueShare"),
+                      "_Measures.RevenueShare"),
+                _proj(_mref("DeductionShare"),
+                      "_Measures.DeductionShare"),
+            ]},
+        }, "Revenue Share vs. Deduction Share", 200,
+        sort=_sort_desc("RevenueShare")),
+    )
+    # KPI card — highest risk retailer
+    p4.append(
+        _card("rc_c0", 830, 450, 430, 250,
+              "HighestRiskRetailer", "Highest Risk Retailer", 300),
+    )
+    pages.append(({"id": "RetailerProblem",
+                   "displayName": "The Retailer Problem"}, p4))
 
     return pages
 

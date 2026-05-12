@@ -1,6 +1,6 @@
 {
   "name": "SavingsAtTarget",
-  "expression": "VAR CurrentAllIn = [StructuralRate] + [OpDedRate] + [PromoBBRate]\nVAR Target = [TargetAllInRate Value]\nVAR Rev = SELECTEDVALUE(dim_retailer[revenue], 0)\nRETURN\nIF(\n    CurrentAllIn > Target,\n    (CurrentAllIn - Target) * Rev,\n    0\n)",
+  "expression": "VAR CurrentAllIn = [StructuralRate] + [OpDedRate] + [PromoBBRate]\nVAR Target = [TargetAllInRate Value]\nVAR Rev = SELECTEDVALUE(dim_retailer[revenue], 0)\nRETURN\nIF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    IF(CurrentAllIn > Target, (CurrentAllIn - Target) * Rev, 0),\n    [TotalSavingsAtTarget]\n)",
   "formatString": "$#,##0",
   "displayFolder": "Retailer Comparison"
 }

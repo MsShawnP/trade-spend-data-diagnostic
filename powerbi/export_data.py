@@ -232,13 +232,17 @@ def export_dim_promo(conn):
         start_idx = _nearest_idx(start_wk)
         end_idx = _nearest_idx(end_wk)
 
-        pre_vols = []
-        for offset in range(window, 0, -1):
+        # Collect volumes matching workbook logic: 12-week lookback/forward,
+        # quality check on first 4 entries (weeks 9-12 before / 1-4 after).
+        # Baseline calculation still uses the closer `window` weeks.
+        _QC_WINDOW = 12
+        pre_vols_all = []
+        for offset in range(_QC_WINDOW, 0, -1):
             idx = start_idx - offset
             if 0 <= idx < len(all_weeks):
-                v = weekly.get(all_weeks[idx], 0)
-                if v > 0:
-                    pre_vols.append(v)
+                pre_vols_all.append(weekly.get(all_weeks[idx], 0))
+            else:
+                pre_vols_all.append(None)
 
         during_vols = []
         for idx in range(start_idx, min(end_idx + 1, len(all_weeks))):
@@ -246,15 +250,27 @@ def export_dim_promo(conn):
             if v > 0:
                 during_vols.append(v)
 
-        has_pre = len(pre_vols) > 0
-        has_during = len(during_vols) > 0
+        post_vols_all = []
+        for offset in range(1, _QC_WINDOW + 1):
+            idx = end_idx + offset
+            if idx < len(all_weeks):
+                post_vols_all.append(weekly.get(all_weeks[idx], 0))
+            else:
+                post_vols_all.append(None)
 
-        if has_pre and has_during:
+        has_pre = any(v is not None and v > 0 for v in pre_vols_all[:4])
+        has_during = len(during_vols) > 0
+        has_post = any(v is not None and v > 0 for v in post_vols_all[:4])
+
+        if has_pre and has_during and has_post:
             quality = "Full"
-        elif has_during:
+        elif has_during and (has_pre or has_post):
             quality = "Partial"
         else:
             quality = "No POS"
+
+        # For baseline, use the closer `window` weeks (positive values only)
+        pre_vols = [v for v in pre_vols_all[-window:] if v is not None and v > 0]
 
         baseline = sum(pre_vols) / len(pre_vols) if pre_vols else None
         during_avg = sum(during_vols) / len(during_vols) if during_vols else None

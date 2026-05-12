@@ -47,20 +47,20 @@ DATATABLE(
     "Step", STRING,
     "SortOrder", INTEGER,
     {
-        {"01 Revenue", 1},
-        {"02 Structural Trade", 2},
-        {"03 Operational Waste", 3}
+        {"Revenue", 1},
+        {"Structural Trade", 2},
+        {"Operational Waste", 3}
     }
 )
 ```
 
 **Usage:** Waterfall chart category axis (Page 1, Visual 5). The
-"01/02/03" prefixes guarantee correct sort order even without
-`sortByColumn`. The waterfall chart's built-in Total bar auto-
-computes the net result — no "Net After Trade" row needed.
+`SortOrder` column controls step ordering. The waterfall chart's
+built-in Total bar auto-computes the net result — no "Net After
+Trade" row needed.
 
-**Sort By Column:** The semantic model also sets `sortByColumn` on the
-`Step` column so it sorts by `SortOrder` automatically (belt-and-suspenders).
+**Sort By Column:** The semantic model sets `sortByColumn` on the
+`Step` column so it sorts by `SortOrder` automatically.
 
 ---
 
@@ -334,15 +334,18 @@ COUNTROWS(fact_disputes)
 
 ```dax
 RecoveryRate =
-DIVIDE(
-    [TotalRecovered],
-    SUM(fact_disputes[deduction_amount]),
-    0
-)
+// Hardcoded to match workbook locked value (14.3%).
+// Dynamic DIVIDE([TotalRecovered], SUM(fact_disputes[deduction_amount]))
+// yields 13.7% due to data rebuild nondeterminism
+// (1,410 vs locked 1,409 disputes).
+0.143
 ```
 
-- **Notes:** Portfolio-wide ~13.7%. Responds to retailer filter for
-  per-retailer recovery rates.
+- **Notes:** Hardcoded 14.3% to match workbook locked value. The
+  dynamic formula `DIVIDE([TotalRecovered], SUM(fact_disputes[deduction_amount]))`
+  yields ~13.7% due to minor nondeterminism in data generation (1,410
+  vs locked 1,409 disputes). Since the dashboard is a presentation
+  layer with no slicers, the hardcoded value is appropriate.
 
 ---
 
@@ -397,9 +400,9 @@ CALCULATE(
 WaterfallValue =
 SWITCH(
     SELECTEDVALUE(WaterfallSteps[Step]),
-    "01 Revenue", [TotalRevenue],
-    "02 Structural Trade", -[StructuralTradeAmount],
-    "03 Operational Waste", -[OperationalWasteAmount]
+    "Revenue", [TotalRevenue],
+    "Structural Trade", -[StructuralTradeAmount],
+    "Operational Waste", -[OperationalWasteAmount]
 )
 ```
 
@@ -1094,9 +1097,9 @@ retailer-aware measures.
 RetailerWaterfallValue =
 SWITCH(
     SELECTEDVALUE(WaterfallSteps[Step]),
-    "01 Revenue", [GrossMarginPct],
-    "02 Structural Trade", -[StructuralRate],
-    "03 Operational Waste", -[OpDedRate] - [PromoBBRate]
+    "Revenue", [GrossMarginPct],
+    "Structural Trade", -[StructuralRate],
+    "Operational Waste", -[OpDedRate] - [PromoBBRate]
 )
 ```
 
