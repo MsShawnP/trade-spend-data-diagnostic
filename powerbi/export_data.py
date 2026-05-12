@@ -287,8 +287,31 @@ def export_dim_promo(conn):
 
 
 def export_fact_deductions(conn, max_scan):
-    """Trailing-365 deductions with code translations and dispute status."""
-    rows = conn.execute("""
+    """Deductions export: trailing-365 window plus all-time risk flags.
+
+    Includes rows outside the trailing window if they are double-dip
+    events or ghost promo deductions, so those KPI cards show the
+    correct all-time totals (matching the workbook).  An
+    ``in_trailing_window`` flag lets DAX measures scope aggregations
+    to the trailing period when needed.
+    """
+    window_start = f"date('{max_scan}', '-365 days')"
+
+    # Ghost promo detection — all-time, no date filter (matches workbook)
+    ghost_ids = set(r[0] for r in conn.execute("""
+        SELECT d.deduction_id
+        FROM deductions d
+        WHERE d.deduction_type = 'promo_billback'
+          AND NOT EXISTS (
+              SELECT 1 FROM promotions p
+              WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
+                AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
+                                         AND date(p.end_week, '+90 days')
+          )
+    """).fetchall())
+
+    # Main query: trailing-365 window + double-dip + ghost promo rows
+    raw = conn.execute("""
         SELECT
             d.deduction_id,
             d.retailer_id,
@@ -316,13 +339,70 @@ def export_fact_deductions(conn, max_scan):
                 WHEN dis.filed_date IS NOT NULL
                 THEN CAST(julianday(?) - julianday(d.deduction_date) AS INTEGER)
                 ELSE NULL
-            END AS days_outstanding
+            END AS days_outstanding,
+            CASE
+                WHEN d.deduction_date > date(?, '-365 days')
+                     AND d.deduction_date <= ?
+                THEN 1 ELSE 0
+            END AS in_trailing_window
         FROM deductions d
         LEFT JOIN deduction_codes dc ON d.code_id = dc.code_id
         LEFT JOIN disputes dis ON dis.deduction_id = d.deduction_id
-        WHERE d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?
+        WHERE (d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?)
+           OR d.is_double_dip = 1
         ORDER BY d.deduction_date DESC, d.amount DESC
+    """, (max_scan, max_scan, max_scan, max_scan, max_scan)).fetchall()
+
+    # Also pull ghost promo deductions outside the trailing window
+    ghost_outside = conn.execute("""
+        SELECT
+            d.deduction_id,
+            d.retailer_id,
+            d.deduction_date,
+            d.deduction_type,
+            d.amount,
+            d.code_as_remitted,
+            COALESCE(dc.name, 'Unmapped') AS translated_code,
+            COALESCE(dc.deduction_type, d.deduction_type) AS standardized_category,
+            d.order_id,
+            d.shipment_id,
+            d.remittance_id,
+            d.remittance_description,
+            d.dispute_deadline,
+            d.is_vague,
+            d.is_post_audit,
+            d.is_double_dip,
+            dis.outcome AS dispute_outcome,
+            dis.recovered_amount,
+            dis.filed_date AS dispute_filed_date,
+            dis.closed_date AS dispute_closed_date,
+            CASE
+                WHEN dis.closed_date IS NOT NULL
+                THEN CAST(julianday(dis.closed_date) - julianday(d.deduction_date) AS INTEGER)
+                WHEN dis.filed_date IS NOT NULL
+                THEN CAST(julianday(?) - julianday(d.deduction_date) AS INTEGER)
+                ELSE NULL
+            END AS days_outstanding,
+            0 AS in_trailing_window
+        FROM deductions d
+        LEFT JOIN deduction_codes dc ON d.code_id = dc.code_id
+        LEFT JOIN disputes dis ON dis.deduction_id = d.deduction_id
+        WHERE d.deduction_type = 'promo_billback'
+          AND NOT (d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?)
+          AND d.is_double_dip = 0
+        ORDER BY d.deduction_date DESC
     """, (max_scan, max_scan, max_scan)).fetchall()
+
+    # Merge and deduplicate (double-dip rows may overlap with ghost)
+    seen = set()
+    rows = []
+    for r in list(raw) + list(ghost_outside):
+        ded_id = r[0]
+        if ded_id in seen:
+            continue
+        seen.add(ded_id)
+        is_ghost = 1 if ded_id in ghost_ids else 0
+        rows.append(r + (is_ghost,))
 
     headers = [
         "deduction_id", "retailer_id", "deduction_date", "deduction_type",
@@ -332,6 +412,7 @@ def export_fact_deductions(conn, max_scan):
         "is_vague", "is_post_audit", "is_double_dip",
         "dispute_outcome", "recovered_amount",
         "dispute_filed_date", "dispute_closed_date", "days_outstanding",
+        "in_trailing_window", "is_ghost_promo",
     ]
     _write_csv("fact_deductions.csv", headers, rows)
     return len(rows)
@@ -545,7 +626,27 @@ def validate(conn, oldest_week, max_scan, ded_count, dispute_count):
     """, (max_scan, max_scan)).fetchone()[0]
     _check("Operational waste", waste, 1010940, 2000)
 
-    _check("Deduction count", ded_count, 2374, 5)
+    trailing_ded_count = 0
+    ghost_count = 0
+    ghost_total = 0
+    dd_count = 0
+    dd_total = 0
+    with open(OUT / "fact_deductions.csv", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.get("in_trailing_window") == "1":
+                trailing_ded_count += 1
+            if row["is_ghost_promo"] == "1":
+                ghost_count += 1
+                ghost_total += float(row["amount"])
+            if row.get("is_double_dip") == "1":
+                dd_count += 1
+                dd_total += float(row["amount"])
+    _check("Deduction count (trailing window)", trailing_ded_count, 2374, 5)
+    print(f"  INFO  Total CSV rows (incl. out-of-window): {ded_count}")
+    print(f"  INFO  Double-dip: count={dd_count}, total=${dd_total:,.0f}")
+    print(f"  INFO  Ghost promos: count={ghost_count}, total=${ghost_total:,.0f}")
+
     _check("Dispute count", dispute_count, 1409, 2)
 
     rec = conn.execute("SELECT SUM(recovered_amount) FROM disputes").fetchone()[0]

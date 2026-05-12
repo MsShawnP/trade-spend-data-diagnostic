@@ -1,285 +1,435 @@
 # Power BI Dashboard — Design Specification
 
-4 pages. Every visual must justify the interactive medium — no
-replicated Excel charts.
+---
+
+## Design Philosophy
+
+The Excel workbook and the Power BI dashboard serve different jobs.
+The workbook is the interactive deliverable — seven tabs of detail,
+adjustable inputs, auto-filtered ledgers. A prospect opens it after
+the meeting, drills into their data, adjusts parameters, builds
+conviction. The workbook is where analysis happens.
+
+The dashboard is the presentation layer. It is what you show in the
+meeting. It answers four questions in four pages, with the answer
+stated on-screen in plain English so no one has to derive it from a
+chart. Each page has one hero visual, one or two supporting elements,
+and enough white space to focus attention. If someone wants the
+underlying table, that's what the workbook is for.
+
+This separation follows the decision in DECISIONS.md: Power BI adds
+value only where it does something Excel cannot — cross-filtering,
+scatter distributions, side-by-side comparison at a glance. Every
+visual in this spec justifies the interactive medium. Nothing is
+here because "dashboards should have charts."
+
+### Design rules
+
+1. **One takeaway per page.** The answer is a sentence, not a chart.
+   The chart is evidence.
+2. **Maximum 3 visuals per page.** One hero (large, center), one or
+   two supporting (smaller, flanking). No tables unless the table IS
+   the insight.
+3. **White space is a feature.** A page with one chart, two KPIs, and
+   a sentence of text in a well-balanced layout looks more professional
+   than six packed visuals.
+4. **Narrative text boxes.** Each page gets a 1–2 sentence takeaway —
+   a finding, not a title. Declarative, specific, data-forward.
+5. **Color encodes meaning.** Blue (`#2E5090`) = revenue/neutral data.
+   Red (`#C44E52`) = waste/loss. Green (`#4C9A6E`) = positive outcome.
+   Gray (`#8C8C8C`) = reference/context. No gradients, no 3D, no
+   decoration.
+6. **KPI cards: fewer, bigger.** 2–3 per page maximum. Large enough to
+   read from across a conference table.
 
 ---
 
-## Page 1: Executive Overview
+## Page 1: "The Gap"
 
-**Purpose:** The same two-bucket punchline as Tab 1, but with
-cross-filtering that lets a CEO click a retailer and instantly see
-how the waterfall, waste breakdown, and KPIs change for that retailer
-alone.
+**Question answered:** How much is Cinderhaven spending on trade, and
+how much of that is unplanned?
 
-**Corresponding workbook tab:** Tab 1 (Executive Pulse) — static KPI
-trio, static waterfall chart, static responsibility matrix. All values
-are portfolio-wide with no ability to filter.
+### Takeaway text
 
-**Power BI value-add:** Cross-filter the waterfall by clicking a
-retailer in the bar chart. In Excel, the waterfall shows one fixed
-portfolio view. In Power BI, clicking "Walmart" redraws the waterfall
-for Walmart's revenue → structural trade → operational waste → net
-after trade. This is impossible in Excel without VBA or separate
-worksheets per retailer.
+> Cinderhaven budgets 17.3% of revenue for trade spend — $4.4 million
+> in negotiated rate-card allowances. Actual all-in cost is 21.3%.
+> The 4-point gap is $1 million in annual operational waste: retailer
+> deductions beyond the rate card, largely uncontested.
 
-### Visuals
+Position: top of page, below the title strip. Full width. Segoe UI,
+12pt, `#333333`. This is the first thing someone reads.
 
-| # | Visual type | Fields | Purpose |
-|---|-------------|--------|---------|
-| 1 | KPI card | Measure: `AllInTradeRate` (21.3%) | Headline metric — all-in trade rate |
-| 2 | KPI card | Measure: `StructuralTradeRate` (17.3%) | Planned trade rate |
-| 3 | KPI card | Measure: `OperationalWasteRate` (4.0%) | Waste rate |
-| 4 | KPI card | Measure: `TotalRevenue` ($25.6M) | Revenue context |
-| 5 | Waterfall chart | Categories: [Revenue, Structural Trade, Operational Waste, Net After Trade]; Values: measure `WaterfallValue` | Shows margin erosion; redraws when retailer slicer is active |
-| 6 | Clustered bar chart | Axis: `deductions[deduction_type]`; Values: measure `WasteAmount`; Legend: none | Waste breakdown — clicking a bar cross-filters the waterfall and KPIs to show that category's contribution |
-| 7 | Donut chart | Legend: `dim_retailer[retailer]`; Values: measure `RetailerRevenue` | Revenue share — clicking a segment cross-filters everything on the page |
-| 8 | Multi-row card | Measures: `RecoveryRate`, `DisputeCount`, `TotalRecovered` | Recovery snapshot — updates when filtered by retailer |
+### Hero visual — Margin Erosion Waterfall
+
+The single most important chart in the dashboard. It shows $25.6M in
+revenue eroding through two layers of trade cost to a net position.
+
+| Property | Value |
+|----------|-------|
+| Type | Waterfall chart |
+| Position | Center, below takeaway text. Full width, ~60% of page height |
+| Category axis | `WaterfallSteps[Step]` — "01 Revenue", "02 Structural Trade", "03 Operational Waste" |
+| Values | Measure: `WaterfallValue` |
+| Sort | By `WaterfallSteps[SortOrder]` ascending |
+| Colors | Increase (Revenue): `#2E5090`. Decrease (Structural, Operational): `#C44E52`. Total bar: `#4C9A6E` |
+| Data labels | ON, Segoe UI 10pt, `$#,##0` format |
+| Legend | OFF (single series) |
+| Gridlines | OFF or `#F0F0F0` |
+
+### Supporting — KPI cards (3)
+
+Three cards in a row below the waterfall, right-aligned or centered.
+Large format: 28pt values, 10pt labels.
+
+| Card | Measure | Display value | Purpose |
+|------|---------|---------------|---------|
+| 1 | `AllInTradeRate` | 21.3% | The headline rate — the number that should be 17.3% |
+| 2 | `OperationalWasteAmount` | ~$1,012,455 | The dollar cost of the gap |
+| 3 | `RecoveryRate` | 13.7% | How much is being recovered today |
+
+### What was removed (vs. prior design)
+
+| Visual | Reason | Where it lives now |
+|--------|--------|--------------------|
+| Revenue by Retailer column chart | Revenue breakdown is context, not the takeaway. Distracts from the gap story | Workbook Tab 1 (revenue column), Dashboard Page 4 (revenue share) |
+| Retailer Summary table (6 columns) | Tables are workbook territory. This page answers one question — the gap | Workbook Tab 1 (responsibility matrix), Tab 4 (full P&L) |
+| KPI cards for TotalRevenue, StructuralTradeRate | Revenue is visible in the waterfall. Structural rate is stated in the takeaway text | Workbook Tab 1 |
 
 ### Slicers
 
-| Slicer | Field | Type | Default |
-|--------|-------|------|---------|
-| Retailer | `dim_retailer[retailer]` | Dropdown multi-select | All selected |
-| Date range | `dim_date[date]` | Between slider | Trailing 365 days |
-
-### Drill-through
-
-- Right-click any retailer segment in the donut → drills to **Page 4:
-  Retailer Comparison**, pre-filtered to that retailer.
-- Right-click any deduction type bar → drills to **Page 2: Deduction
-  Deep-Dive**, pre-filtered to that category.
-
-### Conditional formatting
-
-- KPI cards: `OperationalWasteRate` uses red background when > 5%,
-  yellow when 3–5%, green when < 3%.
-- Waterfall chart: "Structural Trade" and "Operational Waste" segments
-  use red fill; "Revenue" and "Net After Trade" use blue.
+None. This page presents the portfolio-level punchline. Filtering
+by retailer is Page 4's job.
 
 ---
 
-## Page 2: Deduction Deep-Dive
+## Page 2: "Where the Waste Goes"
 
-**Purpose:** Investigate deductions by time, retailer, category, and
-individual record — with drill-through to the specific deduction rows
-that drove a spike.
+**Question answered:** What categories of deductions make up the $1M
+in operational waste?
 
-**Corresponding workbook tabs:** Tab 2 (Leak Diagnostic) — static
-category table with totals; Tab 5 (Deduction Ledger) — flat 2,374-row
-table with auto-filters; Tab 6 (Deduction Code Crosswalk) — static
-reference. In Excel, you can filter the ledger but you cannot see
-time trends, cannot click a category to see only its deductions, and
-cannot visualize spikes.
+### Takeaway text
 
-**Power BI value-add:** Time-series line chart of deductions by month
-with category overlay. Excel Tab 2 shows totals only — no time
-dimension. In Power BI, an analyst can spot a spike in "short_ship"
-deductions in November, click that data point, and the table below
-instantly filters to show only November short-ship deductions with
-full detail. This exploratory pattern is impossible in a static Excel
-table.
+> Three categories account for two-thirds of operational waste: vague
+> deductions ($294K), label fines ($197K), and short-ship charges
+> ($184K). Three deductions totaling $19,306 are confirmed
+> double-payments — the same promotion billed twice through different
+> mechanisms.
 
-### Visuals
+Position: top of page, below title strip. Full width.
 
-| # | Visual type | Fields | Purpose |
-|---|-------------|--------|---------|
-| 1 | Area chart (stacked) | Axis: `dim_date[year_month]`; Values: measure `DeductionAmount`; Legend: `deductions[deduction_type]` | Time trend of deductions by category — shows seasonal patterns and spikes that the workbook totals hide |
-| 2 | Treemap | Group: `deductions[deduction_type]`; Values: measure `DeductionAmount` | Proportional category breakdown — clicking a block filters the page |
-| 3 | Matrix | Rows: `deductions[deduction_type]`; Columns: `dim_retailer[retailer]`; Values: measure `DeductionAmount` | Cross-tab: which retailers generate which types of waste. Heat-map conditional formatting shows concentrations |
-| 4 | Table (detail) | Columns: `deduction_id`, `deduction_date`, `retailer`, `translated_code`, `deduction_type`, `amount`, `dispute_outcome`, `recovered_amount` | Drill-through target — shows individual deduction records filtered by page context |
-| 5 | KPI card | Measure: `DoubleDipCount` (3) and `DoubleDipTotal` ($19,306) | Double-dip alert — persistent callout |
-| 6 | Card | Measure: `UnmappedCodeCount` (292) | Data quality indicator — deductions missing crosswalk translation |
+### Hero visual — Waste Category Ranking
+
+A single horizontal bar chart showing all 8 deduction categories,
+largest to smallest. The shape of the distribution — dominated by
+three categories — is the insight.
+
+| Property | Value |
+|----------|-------|
+| Type | Horizontal bar chart (barChart) |
+| Position | Center, below takeaway text. Full width, ~55% of page height |
+| Y-axis (category) | `fact_deductions[standardized_category]` |
+| X-axis (value) | Measure: `WasteAmount` |
+| Sort | Descending by `WasteAmount` |
+| Bar color | `#C44E52` (waste = red) |
+| Data labels | ON, outside end, Segoe UI 9pt, `$#,##0` format |
+| X-axis labels | `#666666`, Segoe UI 9pt |
+| Gridlines | OFF |
+| Legend | OFF |
+| Visual filter | `fact_deductions[deduction_type] <> "promo_billback"` (operational waste only) |
+
+### Supporting — KPI cards (3)
+
+Three cards in a row below the bar chart.
+
+| Card | Measure | Display value | Purpose |
+|------|---------|---------------|---------|
+| 1 | `OperationalWasteAmount` | ~$1,012,455 | Total operational waste (anchors the bar chart) |
+| 2 | `DoubleDipTotal` | $19,306 | Double-payment finding — small dollars, significant process gap |
+| 3 | `UnmappedCodeCount` | 292 | Data quality — deductions with no crosswalk translation |
+
+### What was removed (vs. prior design)
+
+| Visual | Reason | Where it lives now |
+|--------|--------|--------------------|
+| Deductions by Retailer bar chart | Which retailers generate waste is Page 4's story. This page answers where, not who | Dashboard Page 4 (deduction share), Workbook Tab 2 |
+| Deduction Detail by Retailer table | Detailed breakdowns belong in the workbook. This page has one chart | Workbook Tab 2 (leak diagnostic matrix), Tab 5 (full ledger) |
+| DeductionCount KPI card | Count is less meaningful than dollars in a presentation. The 2,374 number is in the workbook | Workbook Tab 2 |
+| AvgDaysToResolve KPI card | Resolution speed is an operational metric, not a presentation insight | Workbook Tab 5 (ledger, sortable by days_outstanding) |
 
 ### Slicers
 
-| Slicer | Field | Type | Default |
-|--------|-------|------|---------|
-| Retailer | `dim_retailer[retailer]` | Dropdown multi-select | All |
-| Deduction type | `deductions[deduction_type]` | Checkbox list | All |
-| Date range | `dim_date[date]` | Between slider | Trailing 365 days |
-| Vague flag | `deductions[is_vague]` | Single-select (Yes/No/All) | All |
-
-### Drill-through
-
-- This page IS the drill-through target from Page 1's category bar
-  chart. Arriving here pre-filters to the selected `deduction_type`.
-- Right-click a row in the detail table → drills to a tooltip page
-  showing full deduction metadata (remittance description, order ref,
-  shipment ref, crosswalk translation).
-
-### Conditional formatting
-
-- Matrix cells: 3-color gradient (white → yellow → red) based on
-  `DeductionAmount` value.
-- Detail table `dispute_outcome` column: green for `won_full`,
-  yellow for `won_partial`, red for `lost`, gray for `pending`.
-- Area chart: each deduction type uses a consistent color across all
-  pages (defined in theme JSON).
+None. The waste breakdown is a portfolio-level finding. Per-retailer
+filtering lives on Page 4.
 
 ---
 
-## Page 3: Promo Performance
+## Page 3: "Which Promos Work"
 
-**Purpose:** Evaluate which promotions created value and which
-destroyed it, with the ability to filter by retailer, promo type,
-and funding mechanism — and drill through to individual promo detail.
+**Question answered:** What share of promotions generate positive ROI,
+and how much promotional spend is unaccounted for?
 
-**Corresponding workbook tab:** Tab 3 (Promo Efficacy) — 188-row table
-with formula-based ROI, adjustable window parameter, ghost promo
-section. In Excel, you can sort and filter the table, but you cannot
-visualize the portfolio distribution, cannot see cost-vs-lift
-relationships, and cannot compare across retailers simultaneously.
+### Takeaway text
 
-**Power BI value-add:** Scatter plot of promo cost vs. incremental
-revenue, with quadrant reference lines. In Excel, 188 rows of numbers
-hide the distribution — you can't see at a glance that most promotions
-cluster in the low-cost/low-lift quadrant while 5 outliers drive
-disproportionate value. The scatter makes portfolio-level patterns
-visible and clickable. Additionally, a parameter slicer for the
-pre-period window (1–8 weeks) lets an analyst adjust the baseline
-calculation and watch the scatter redraw — something the workbook does
-with a single input cell that requires manual inspection of each row.
+> Of 160 measurable promotions, 104 destroyed value — the cost
+> exceeded the incremental revenue. 137 promo-billback deductions
+> totaling $95,826 reference promotions that don't appear in the
+> planning calendar.
 
-### Visuals
+Position: top of page, below title strip. Full width.
 
-| # | Visual type | Fields | Purpose |
-|---|-------------|--------|---------|
-| 1 | Scatter chart | X-axis: measure `PromoCost` (actual or planned); Y-axis: measure `IncrementalRevenue`; Size: `promotions[duration_weeks]`; Color: `promotions[promo_type]`; Detail: `promotions[promo_id]` | Cost vs. value — quadrant lines at ROI = 1.0 separate winners from losers |
-| 2 | Histogram | Axis: bins of measure `PromoROI` (width 0.5); Values: count of promos | ROI distribution — shows how many promos are above/below breakeven |
-| 3 | Clustered bar | Axis: `promotions[promo_type]`; Values: measure `AvgROI`, measure `PromoCount` | Average ROI by promo type — identifies which promotion strategies work |
-| 4 | Card cluster | Measures: `GhostPromoCount` (137), `GhostPromoTotal` ($95,826) | Ghost promo callout — persistent warning about unmatched deductions |
-| 5 | Table (detail) | Columns: `promo_id`, `retailer`, `sku`, `promo_type`, `start_week`, `planned_cost`, `actual_cost`, `incremental_revenue`, `roi`, `data_quality` | Drill-through target — individual promo detail |
-| 6 | Card | Measures: `FullDataCount`, `PartialDataCount`, `NoPOSCount` | Data coverage summary |
+### Hero visual — Promo Cost vs. Incremental Revenue Scatter
+
+This is the visual that justifies Power BI over Excel. 160 data
+points on a cost-vs-lift plane, with a diagonal breakeven line
+separating winners from losers. The clustering pattern — most
+promotions in the low-cost/negative-lift quadrant — is invisible
+in a 188-row spreadsheet.
+
+| Property | Value |
+|----------|-------|
+| Type | Scatter chart |
+| Position | Center-left, below takeaway text. ~65% width, ~55% height |
+| X-axis | Measure: `PromoCost` |
+| Y-axis | Measure: `IncrementalRevenue` |
+| Detail | `dim_promo[promo_id]` (one dot per promo) |
+| Legend | `dim_promo[promo_type]` (TPR, Feature, Display, BOGO) |
+| Size | `dim_promo[duration_weeks]` |
+| Analytics | Constant line at Y=0. Trend line optional |
+| Visual filter | Exclude rows where IncrementalRevenue is blank |
+| Dot colors | By promo_type: TPR `#2E5090`, Feature `#8C8C8C`, Display `#4C9A6E`, BOGO `#F4A940` |
+| Gridlines | Light, `#F0F0F0` |
+| Axis labels | Segoe UI 9pt, `#666666` |
+
+### Supporting — KPI cards (3)
+
+Right side of the scatter or below it. Stacked vertically if right-
+side, horizontal if below.
+
+| Card | Measure | Display value | Purpose |
+|------|---------|---------------|---------|
+| 1 | `AvgROI` | ~0.85 | Portfolio average ROI — below breakeven |
+| 2 | `GhostPromoCount` | 137 | Unmatched promo deductions — process gap indicator |
+| 3 | `GhostPromoTotal` | $95,826 | Dollar exposure from ghost promos |
+
+### Supporting — Data Quality Donut
+
+Small donut chart showing how many promotions have sufficient data
+for ROI measurement.
+
+| Property | Value |
+|----------|-------|
+| Type | Donut chart |
+| Position | Below KPI cards or bottom-right. Small (~250×200px) |
+| Category | `dim_promo[data_quality]` |
+| Values | Measure: `PromoCount` |
+| Slice colors | Full: `#4C9A6E`, Partial: `#F4A940`, No POS: `#C44E52` |
+| Labels | Category name + percentage |
+| Inner radius | 50% |
+| Title | "POS Data Coverage" |
+
+### What was removed (vs. prior design)
+
+| Visual | Reason | Where it lives now |
+|--------|--------|--------------------|
+| Promo Spend by Retailer bar chart | Redundant with Page 4's retailer-level view. This page is about promo quality, not retailer allocation | Workbook Tab 3 (promo table, sortable by retailer) |
+| Promo Performance table (6 columns) | 188-row tables belong in the workbook. The scatter shows the distribution; the table adds nothing in a presentation | Workbook Tab 3 (full promo table with ROI, data quality, cost source) |
+| ROI histogram | The scatter already shows the distribution. Two distribution charts on one page is redundant | Workbook Tab 3 (sortable ROI column) |
+| WindowWeeks slicer | What-if baseline adjustment is a workbook feature. The dashboard uses the default 4-week baseline | Workbook Tab 3 (adjustable window parameter cell) |
 
 ### Slicers
 
-| Slicer | Field | Type | Default |
-|--------|-------|------|---------|
-| Retailer | `dim_retailer[retailer]` | Dropdown multi-select | All |
-| Promo type | `promotions[promo_type]` | Checkbox list | All |
-| Funding mechanism | `promotions[funding_mechanism]` | Checkbox list | All |
-| Data quality | `promo_detail[data_quality]` | Single-select (Full/Partial/No POS/All) | All |
-| Pre-period window | What-if parameter `WindowWeeks` (1–8) | Numeric slider | 4 |
-
-### Drill-through
-
-- Right-click any dot in the scatter → drills to the detail table
-  showing that promo's full record plus the weekly volume profile
-  (pre, during, post).
-- Right-click a promo_type bar → filters the scatter to show only
-  that type.
-
-### Conditional formatting
-
-- Scatter: quadrant shading — green fill behind top-right (ROI > 1,
-  revenue > median), red fill behind bottom-left (ROI < 1, low revenue).
-- Detail table `roi` column: green > 1.5, yellow 0.8–1.5, red < 0.8.
-- Detail table `data_quality`: green "Full", yellow "Partial", red "No POS".
+None. The scatter shows the full portfolio. Filtering by retailer or
+promo type is available via cross-filtering (click a legend entry to
+highlight that promo type).
 
 ---
 
-## Page 4: Retailer Comparison
+## Page 4: "The Retailer Problem"
 
-**Purpose:** Compare retailers side-by-side on margin erosion, trade
-cost composition, and what-if scenarios — with a what-if parameter
-that Power BI handles natively but Excel requires formula gymnastics.
+**Question answered:** Which retailers generate the most margin
+erosion, and where does revenue concentration create risk?
 
-**Corresponding workbook tab:** Tab 4 (Retailer Risk) — static P&L
-table, two bar charts (concentration risk, margin erosion), what-if
-section with yellow input cells. In Excel, what-if requires manually
-changing each input cell and eyeballing the result. You cannot compare
-two different target scenarios simultaneously.
+### Takeaway text
 
-**Power BI value-add:** What-if parameter slider for target all-in
-trade rate, with a calculated measure showing savings at the selected
-rate across all retailers simultaneously. In Excel, each retailer has
-its own yellow input cell — you can't batch-change them or see the
-portfolio savings at a uniform target. Power BI's what-if parameter
-applies one target rate and instantly shows which retailers generate
-the most savings at that rate, sorted dynamically. Also: small
-multiples — one mini-chart per retailer showing their margin waterfall
-— which would require 10 separate Excel charts.
+> Net-net margin ranges from 33.8% (Mountain Pantry Co) to 12.5%
+> (Walmart). Walmart contributes 51% of revenue but its 21.5%
+> structural rate compresses margin to less than half the portfolio
+> average.
 
-### Visuals
+Position: top of page, below title strip. Full width.
 
-| # | Visual type | Fields | Purpose |
-|---|-------------|--------|---------|
-| 1 | Stacked bar (100%) | Axis: `dim_retailer[retailer]`; Values: measures `StructuralRate`, `OpDedRate`, `PromoBBRate`, `NetNetMargin` | Margin composition — shows how each retailer's gross margin erodes through trade layers. 100% stacking makes proportions comparable regardless of revenue size |
-| 2 | Clustered bar | Axis: `dim_retailer[retailer]`; Values: measures `RevenueShare`, `DeductionShare` | Concentration risk — retailers taking more deduction share than revenue share are overrepresented risks |
-| 3 | Waterfall chart (small multiples) | One waterfall per retailer; Steps: Gross Margin → After Structural → Net-Net | Margin erosion per retailer — small multiples layout impossible in Excel |
-| 4 | Table | Rows: `dim_retailer[retailer]`; Values: `Revenue`, `GrossMarginPct`, `StructuralRate`, `OpDedRate`, `NetNetMarginPct`, `SavingsAtTarget` | P&L summary with dynamic savings column |
-| 5 | Card | Measure: `TotalSavingsAtTarget` | Portfolio savings at the selected target rate |
-| 6 | Card | Measure: `HighestRiskRetailer` (retailer with lowest net-net margin) | Risk callout |
+### Hero visual — Net-Net Margin by Retailer
+
+A single vertical bar chart showing every retailer's effective
+margin after all trade costs. Sorted descending, colored by margin
+tier. The shape — DTC at 62.5%, regionals clustered at 28–34%,
+Walmart at the bottom — tells the story.
+
+| Property | Value |
+|----------|-------|
+| Type | Clustered column chart |
+| Position | Center, below takeaway text. Full width, ~50% of page height |
+| X-axis (category) | `dim_retailer[retailer_name]` |
+| Y-axis (value) | Measure: `NetNetMarginPct` |
+| Sort | Descending by `NetNetMarginPct` |
+| Data labels | ON, outside end, format `0.0%` |
+| Conditional colors | > 30%: `#4C9A6E` (green). 15–30%: `#2E5090` (blue). < 15%: `#C44E52` (red) |
+| Gridlines | OFF |
+| Legend | OFF |
+| Axis labels | Segoe UI 9pt, `#666666` |
+| Analytics | Constant line at portfolio average margin, dashed, `#8C8C8C` |
+
+### Supporting — Concentration Risk Bars
+
+Revenue share vs. deduction share for the top retailers. The
+mismatch — when a retailer's share of deductions exceeds its share
+of revenue — is the concentration risk insight.
+
+| Property | Value |
+|----------|-------|
+| Type | Clustered bar chart (horizontal) |
+| Position | Bottom-left, ~55% width, ~30% height |
+| Y-axis | `dim_retailer[retailer_name]` (top 5–6 retailers by revenue) |
+| X-axis | Measures: `RevenueShare`, `DeductionShare` |
+| Colors | Revenue: `#2E5090`, Deductions: `#C44E52` |
+| Sort | Descending by `RevenueShare` |
+| Data labels | ON, format `0.0%` |
+| Legend | Top, Segoe UI 9pt |
+| Visual filter | Top N = 6 by TotalRevenue (reduces noise from small retailers) |
+
+### Supporting — KPI card (1)
+
+| Card | Measure | Display value | Purpose |
+|------|---------|---------------|---------|
+| 1 | `HighestRiskRetailer` | (retailer name) | Names the retailer with the lowest net-net margin. Red text (`#C44E52`), prominent position |
+
+Position: bottom-right, large card. Callout value in `#C44E52`
+(red) at 28pt. Category label "Highest Risk Retailer" in 10pt
+`#666666`.
+
+### What was removed (vs. prior design)
+
+| Visual | Reason | Where it lives now |
+|--------|--------|--------------------|
+| Retailer Margin Comparison table (8 columns) | This is the workbook's centerpiece (Tab 4). Duplicating it here adds visual noise without adding insight — the bar chart shows the ranking | Workbook Tab 4 (full P&L with all rate columns) |
+| TargetAllInRate what-if slicer | What-if scenario modeling is a workbook feature. The dashboard presents findings, not tools | Workbook Tab 4 (yellow input cells for per-retailer target rates) |
+| SavingsAtTarget / TotalSavingsAtTarget cards | Depends on the removed what-if slicer. The savings calculation is in the workbook | Workbook Tab 4 (savings column, updates with target rate input) |
+| Per-Retailer Waterfall (small multiples) | Visually impressive but requires explanation. The margin bar chart delivers the same ranking more clearly | Could be added back as a drill-through detail page if needed |
+| 100% Stacked bar (margin composition) | Shows the same data as the margin bar chart but harder to read. One view is enough | Workbook Tab 4 (margin composition columns) |
 
 ### Slicers
 
-| Slicer | Field | Type | Default |
-|--------|-------|------|---------|
-| Target trade rate | What-if parameter `TargetAllInRate` (0%–50%) | Percentage slider | 18% |
-| Exclude DTC | `dim_retailer[retailer]` | Pre-filter removing DTC (zero-trade benchmark) | DTC excluded |
-
-### Drill-through
-
-- This page IS the drill-through target from Page 1's donut chart.
-  Arriving here pre-filters to the selected retailer.
-- Right-click any retailer in the stacked bar → drills to **Page 2:
-  Deduction Deep-Dive** filtered to that retailer's deductions.
-
-### Conditional formatting
-
-- Stacked bar: consistent colors per layer (blue = gross, yellow =
-  structural trade, orange = operational, red = promo billback,
-  green = remaining net-net).
-- Table `NetNetMarginPct` column: red < 15%, yellow 15–25%, green > 25%.
-- Table `SavingsAtTarget` column: data bars showing relative magnitude.
-- Concentration risk bars: red outline on retailers where
-  `DeductionShare` > `RevenueShare` (overrepresented risk).
+None. This page presents the full portfolio comparison. The workbook
+is where per-retailer drill-in happens.
 
 ---
 
-## Cross-Page Navigation
+## What Moved to the Workbook
 
-- Page tab strip at the bottom (standard Power BI).
-- Bookmark buttons in a top navigation strip: "Overview", "Deductions",
-  "Promos", "Retailers" — styled as tab-like buttons for the CEO
-  audience who expects workbook-like navigation.
-- "Back to Overview" button on Pages 2–4 for returning from drill-through.
+Every visual and table removed from the dashboard exists in the
+workbook. This is by design — the dashboard presents findings, the
+workbook supports investigation.
+
+| Removed visual | Was on page | Workbook location |
+|----------------|-------------|-------------------|
+| Revenue by Retailer column chart | Page 1 | Tab 1: revenue column in responsibility matrix |
+| Retailer Summary table | Page 1 | Tab 1: responsibility matrix; Tab 4: full P&L |
+| Deductions by Retailer bar chart | Page 2 | Tab 2: retailer rows in leak diagnostic |
+| Deduction Detail table | Page 2 | Tab 5: full 2,374-row ledger with auto-filters |
+| Promo Spend by Retailer bar chart | Page 3 | Tab 3: promo table, sortable by retailer |
+| Promo Performance table | Page 3 | Tab 3: full 188-row promo table |
+| ROI histogram | Page 3 | Tab 3: sortable ROI column |
+| Retailer Margin Comparison table | Page 4 | Tab 4: full P&L with 8 columns per retailer |
+| What-if slicer + savings cards | Page 4 | Tab 4: yellow input cells for target trade rates |
+| Per-retailer waterfall (small multiples) | Page 4 | No direct equivalent — margin bar chart replaces |
+| Margin composition stacked bar | Page 4 | Tab 4: rate breakdown columns |
 
 ---
 
-## Value-Add Summary (vs. Excel)
+## DAX Measures — Dashboard Usage
 
-| # | Feature | Page | Why Excel can't do this |
-|---|---------|------|------------------------|
-| 1 | Cross-filter waterfall by retailer | Page 1 | Excel waterfall is static; separate worksheets per retailer would be needed |
-| 2 | Time-series deduction trend with click-to-filter | Page 2 | Excel Tab 2 shows totals only, no time axis; Tab 5 is a flat table with no visualization |
-| 3 | Scatter plot with quadrant lines + click-through | Page 3 | 188 rows of numbers hide distribution patterns; Excel scatter exists but can't filter the page on click |
-| 4 | What-if parameter slider applied to all retailers simultaneously | Page 4 | Excel requires one input cell per retailer; batch comparison is manual |
-| 5 | Small multiples (per-retailer waterfall) | Page 4 | Would require 10 separate Excel charts with no linked scaling |
-| 6 | Drill-through from summary to detail | Pages 1→2, 1→4, 3→detail, 4→2 | Excel hyperlinks can navigate but can't pre-filter the destination to the clicked context |
+Measures are retained in `generate_pbix_model.py` for compatibility
+with the workbook and future use. The following are **no longer
+directly visualized** in the dashboard but remain in the model.
+
+### Still used on the dashboard
+
+| Measure | Page | Visual |
+|---------|------|--------|
+| `WaterfallValue` | 1 | Waterfall (hero) |
+| `AllInTradeRate` | 1 | KPI card |
+| `OperationalWasteAmount` | 1, 2 | KPI card |
+| `RecoveryRate` | 1 | KPI card |
+| `TotalRevenue` | — | Dependency of WaterfallValue, AllInTradeRate |
+| `StructuralTradeAmount` | — | Dependency of WaterfallValue, AllInTradeCost |
+| `AllInTradeCost` | — | Dependency of AllInTradeRate |
+| `WasteAmount` | 2 | Bar chart (hero) |
+| `DoubleDipTotal` | 2 | KPI card |
+| `DoubleDipCount` | 2 | KPI card (secondary) |
+| `UnmappedCodeCount` | 2 | KPI card |
+| `PromoCost` | 3 | Scatter X-axis |
+| `IncrementalRevenue` | 3 | Scatter Y-axis |
+| `AvgROI` | 3 | KPI card |
+| `GhostPromoCount` | 3 | KPI card |
+| `GhostPromoTotal` | 3 | KPI card |
+| `PromoCount` | 3 | Donut values |
+| `FullDataCount` | 3 | Donut (data quality) |
+| `PartialDataCount` | 3 | Donut (data quality) |
+| `NoPOSCount` | 3 | Donut (data quality) |
+| `NetNetMarginPct` | 4 | Bar chart (hero) |
+| `NetNetMargin` | — | Dependency of NetNetMarginPct |
+| `GrossMarginPct` | — | Dependency of NetNetMargin |
+| `StructuralRate` | — | Dependency of NetNetMargin |
+| `OpDedRate` | — | Dependency of NetNetMargin |
+| `PromoBBRate` | — | Dependency of NetNetMargin |
+| `RevenueShare` | 4 | Concentration risk bars |
+| `DeductionShare` | 4 | Concentration risk bars |
+| `HighestRiskRetailer` | 4 | KPI card |
+
+### Not visualized in dashboard (retained for workbook / future use)
+
+| Measure | Was on | Reason removed |
+|---------|--------|----------------|
+| `RetailerRevenue` | Page 1 | Revenue by Retailer chart removed |
+| `StructuralTradeRate` | Page 1 | KPI removed — rate is in takeaway text |
+| `OperationalWasteRate` | Page 1 | KPI removed — dollar amount used instead |
+| `DeductionCount` | Page 2 | KPI removed — dollars more meaningful than counts |
+| `DeductionAmount` | Page 2 | Replaced by WasteAmount (excludes promo_billback) |
+| `DisputeCount` | Page 1 | Multi-row card removed |
+| `TotalRecovered` | Page 1 | Multi-row card removed |
+| `AvgDaysToResolve` | Page 2 | Operational detail, not presentation insight |
+| `PromoROI` | Page 3 | Histogram removed — scatter shows distribution |
+| `PromoROIDynamic` | Page 3 | Dynamic measures removed with what-if slicer |
+| `BaselineVolume` | Page 3 | Detail metric, not visualized |
+| `BaselineVolumeDynamic` | Page 3 | Dynamic measures removed with what-if slicer |
+| `IncrementalRevenueDynamic` | Page 3 | Dynamic measures removed with what-if slicer |
+| `Revenue` (Page 4) | Page 4 | Table removed |
+| `SavingsAtTarget` | Page 4 | What-if slicer removed |
+| `TotalSavingsAtTarget` | Page 4 | What-if slicer removed |
+| `RetailerWaterfallValue` | Page 4 | Small multiples waterfall removed |
+| `WindowWeeks Value` | Page 3 | What-if slicer removed |
+| `TargetAllInRate Value` | Page 4 | What-if slicer removed |
+
+### Calculated tables — dashboard usage
+
+| Table | Status |
+|-------|--------|
+| `WaterfallSteps` | **Used** — Page 1 waterfall category axis |
+| `dim_date` | **Used** — model relationships |
+| `WindowWeeks` | **Not visualized** — what-if slicer removed |
+| `TargetAllInRate` | **Not visualized** — what-if slicer removed |
 
 ---
 
-## Data Model Requirements (for `powerbi/data/` export task)
+## Visual Count Summary
 
-Tables needed:
+| Page | Title | Hero | Supporting | KPIs | Total visuals |
+|------|-------|------|------------|------|---------------|
+| 1 | The Gap | 1 waterfall | — | 3 | 4 |
+| 2 | Where the Waste Goes | 1 bar chart | — | 3 | 4 |
+| 3 | Which Promos Work | 1 scatter | 1 donut | 3 | 5 |
+| 4 | The Retailer Problem | 1 column chart | 1 bar chart | 1 | 3 |
+| **Total** | | **4** | **2** | **10** | **16** |
 
-| Table | Source | Key columns for visuals |
-|-------|--------|------------------------|
-| `fact_scan_data` | scan_data (trailing 52w) | week_ending, store_id, sku, dollars_sold, units_sold |
-| `fact_deductions` | deductions (trailing 365d) + deduction_codes join | deduction_id, deduction_date, retailer_id, deduction_type, amount, translated_code, is_vague, is_double_dip, dispute_outcome, recovered_amount |
-| `fact_promotions` | promotions + promo performance calc | promo_id, sku, retailer, promo_type, start_week, end_week, planned_cost, actual_cost, incremental_revenue, roi, data_quality, funding_mechanism |
-| `dim_retailer` | stores (distinct retailers) + sku_costs rates + computed margins | retailer, channel_type, trade_rate, gross_margin, structural_trade_dollars, op_deductions, net_net_margin |
-| `dim_date` | generated calendar | date, year, month, year_month, week_ending, is_trailing_52w, is_trailing_365d |
-| `dim_sku` | sku_costs | sku, brand, category, cogs_per_unit |
-| `crosswalk` | deduction_codes | retailer_id, code, name, deduction_type, status |
-
-Relationships:
-- `fact_scan_data[store_id]` → join via stores to `dim_retailer[retailer]`
-- `fact_scan_data[week_ending]` → `dim_date[week_ending]`
-- `fact_scan_data[sku]` → `dim_sku[sku]`
-- `fact_deductions[retailer_id]` → `dim_retailer[retailer]` (via slug normalization)
-- `fact_deductions[deduction_date]` → `dim_date[date]`
-- `fact_promotions[retailer]` → `dim_retailer[retailer]`
-- `fact_promotions[sku]` → `dim_sku[sku]`
+Prior design: 28 visuals across 4 pages. New design: 16 visuals
+(plus 4 text boxes for takeaway text). The reduction is intentional.

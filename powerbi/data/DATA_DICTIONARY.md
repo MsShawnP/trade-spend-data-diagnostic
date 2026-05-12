@@ -85,10 +85,12 @@ One row per promotion. Includes pre-computed ROI and lift metrics.
 
 ---
 
-## fact_deductions.csv (2,374 rows)
+## fact_deductions.csv (~2,461 rows)
 
-One row per deduction in the trailing-365-day window. Includes code
-translation and dispute outcome.
+Deductions from the trailing-365-day window, plus out-of-window rows
+for risk flags (double-dip, ghost promo). The `in_trailing_window`
+column distinguishes them: general measures filter on it; risk flag
+measures (DoubleDip, GhostPromo) do not.
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -113,8 +115,14 @@ translation and dispute outcome.
 | dispute_filed_date | date | When dispute was filed |
 | dispute_closed_date | date | When dispute was resolved |
 | days_outstanding | int | Days from deduction to resolution/today |
+| in_trailing_window | boolean | 1 if within trailing-365 window, 0 if out-of-window risk flag row |
+| is_ghost_promo | boolean | 1 if promo_billback with no matching planned promotion (all-time detection) |
 
 **Key:** `deduction_id` (unique). **Joins:** `retailer_id` → dim_retailer (via slug).
+
+**Row composition:** ~2,374 trailing-window rows + ~87 out-of-window
+rows (3 double-dip from 2024 + ghost promo_billbacks outside window,
+deduplicated).
 
 ---
 
@@ -209,7 +217,11 @@ fact_deductions ── fact_disputes (deduction_id)
 |--------|----------|-----------|
 | Total revenue (sum of fact_scan_data.dollars_sold) | $25,593,052 | exact |
 | Structural trade (sum of fact_structural_trade.structural_trade_dollars) | $4,435,052 | exact |
-| Operational waste (fact_deductions where type ≠ promo_billback) | $1,010,940 | ±$2,000 |
-| Deduction count (fact_deductions rows) | 2,374 | exact |
+| Operational waste (fact_deductions where type ≠ promo_billback, in_trailing_window=1) | $1,010,940 | ±$2,000 |
+| Deduction count (fact_deductions where in_trailing_window=1) | 2,374 | exact |
+| Double-dip count (fact_deductions where is_double_dip=1) | 3 | exact |
+| Double-dip total | $19,306 | exact |
+| Ghost promo count (fact_deductions where is_ghost_promo=1) | 137 | exact |
+| Ghost promo total | $95,826 | exact |
 | Dispute count (fact_disputes rows) | 1,409 | ±2 |
 | Total recovered (sum of fact_disputes.recovered_amount) | $98,216 | ±$500 |

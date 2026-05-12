@@ -1,0 +1,1174 @@
+{
+  "name": "SemanticModel",
+  "compatibilityLevel": 1567,
+  "model": {
+    "culture": "en-US",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "sourceQueryCulture": "en-US",
+    "tables": [
+      {
+        "name": "dim_retailer",
+        "columns": [
+          {
+            "name": "retailer_id",
+            "dataType": "string",
+            "sourceColumn": "retailer_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "retailer_name",
+            "dataType": "string",
+            "sourceColumn": "retailer_name",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "channel_type",
+            "dataType": "string",
+            "sourceColumn": "channel_type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "revenue",
+            "dataType": "double",
+            "sourceColumn": "revenue",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "trade_rate",
+            "dataType": "double",
+            "sourceColumn": "trade_rate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "gross_margin",
+            "dataType": "double",
+            "sourceColumn": "gross_margin",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "structural_trade_dollars",
+            "dataType": "double",
+            "sourceColumn": "structural_trade_dollars",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "op_deductions",
+            "dataType": "double",
+            "sourceColumn": "op_deductions",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "promo_billback",
+            "dataType": "double",
+            "sourceColumn": "promo_billback",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "all_in_trade",
+            "dataType": "double",
+            "sourceColumn": "all_in_trade",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "all_in_rate",
+            "dataType": "double",
+            "sourceColumn": "all_in_rate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "net_net_margin",
+            "dataType": "double",
+            "sourceColumn": "net_net_margin",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "dim_retailer",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\dim_retailer.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"retailer_id\", type text}, {\"retailer_name\", type text}, {\"channel_type\", type text}, {\"revenue\", type number}, {\"trade_rate\", type number}, {\"gross_margin\", type number}, {\"structural_trade_dollars\", type number}, {\"op_deductions\", type number}, {\"promo_billback\", type number}, {\"all_in_trade\", type number}, {\"all_in_rate\", type number}, {\"net_net_margin\", type number}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_product",
+        "columns": [
+          {
+            "name": "sku",
+            "dataType": "string",
+            "sourceColumn": "sku",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_name",
+            "dataType": "string",
+            "sourceColumn": "product_name",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "product_line",
+            "dataType": "string",
+            "sourceColumn": "product_line",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "subcategory",
+            "dataType": "string",
+            "sourceColumn": "subcategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "cogs_per_unit",
+            "dataType": "double",
+            "sourceColumn": "cogs_per_unit",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "wholesale_price",
+            "dataType": "double",
+            "sourceColumn": "wholesale_price",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "wholesale_walmart",
+            "dataType": "double",
+            "sourceColumn": "wholesale_walmart",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "wholesale_costco",
+            "dataType": "double",
+            "sourceColumn": "wholesale_costco",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "wholesale_whole_foods",
+            "dataType": "double",
+            "sourceColumn": "wholesale_whole_foods",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "wholesale_regional",
+            "dataType": "double",
+            "sourceColumn": "wholesale_regional",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "wholesale_unfi",
+            "dataType": "double",
+            "sourceColumn": "wholesale_unfi",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "wholesale_dtc",
+            "dataType": "double",
+            "sourceColumn": "wholesale_dtc",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "dim_product",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\dim_product.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"sku\", type text}, {\"product_name\", type text}, {\"product_line\", type text}, {\"subcategory\", type text}, {\"cogs_per_unit\", type number}, {\"wholesale_price\", type number}, {\"wholesale_walmart\", type number}, {\"wholesale_costco\", type number}, {\"wholesale_whole_foods\", type number}, {\"wholesale_regional\", type number}, {\"wholesale_unfi\", type number}, {\"wholesale_dtc\", type number}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_promo",
+        "columns": [
+          {
+            "name": "promo_id",
+            "dataType": "string",
+            "sourceColumn": "promo_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "sku",
+            "dataType": "string",
+            "sourceColumn": "sku",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "retailer",
+            "dataType": "string",
+            "sourceColumn": "retailer",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "store_scope",
+            "dataType": "string",
+            "sourceColumn": "store_scope",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "start_week",
+            "dataType": "dateTime",
+            "sourceColumn": "start_week",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "end_week",
+            "dataType": "dateTime",
+            "sourceColumn": "end_week",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "duration_weeks",
+            "dataType": "int64",
+            "sourceColumn": "duration_weeks",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "discount_depth_pct",
+            "dataType": "double",
+            "sourceColumn": "discount_depth_pct",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "promo_type",
+            "dataType": "string",
+            "sourceColumn": "promo_type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "planned_cost",
+            "dataType": "double",
+            "sourceColumn": "planned_cost",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "actual_cost",
+            "dataType": "double",
+            "sourceColumn": "actual_cost",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "funding_mechanism",
+            "dataType": "string",
+            "sourceColumn": "funding_mechanism",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "asp",
+            "dataType": "double",
+            "sourceColumn": "asp",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "baseline_avg_volume",
+            "dataType": "double",
+            "sourceColumn": "baseline_avg_volume",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "during_avg_volume",
+            "dataType": "double",
+            "sourceColumn": "during_avg_volume",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "incremental_volume",
+            "dataType": "double",
+            "sourceColumn": "incremental_volume",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "incremental_revenue",
+            "dataType": "double",
+            "sourceColumn": "incremental_revenue",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "roi",
+            "dataType": "double",
+            "sourceColumn": "roi",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "cost_source",
+            "dataType": "string",
+            "sourceColumn": "cost_source",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "data_quality",
+            "dataType": "string",
+            "sourceColumn": "data_quality",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "dim_promo",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\dim_promo.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"promo_id\", type text}, {\"sku\", type text}, {\"retailer\", type text}, {\"store_scope\", type text}, {\"start_week\", type date}, {\"end_week\", type date}, {\"duration_weeks\", Int64.Type}, {\"discount_depth_pct\", type number}, {\"promo_type\", type text}, {\"planned_cost\", type number}, {\"actual_cost\", type number}, {\"funding_mechanism\", type text}, {\"asp\", type number}, {\"baseline_avg_volume\", type number}, {\"during_avg_volume\", type number}, {\"incremental_volume\", type number}, {\"incremental_revenue\", type number}, {\"roi\", type number}, {\"cost_source\", type text}, {\"data_quality\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_deductions",
+        "columns": [
+          {
+            "name": "deduction_id",
+            "dataType": "string",
+            "sourceColumn": "deduction_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "retailer_id",
+            "dataType": "string",
+            "sourceColumn": "retailer_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "deduction_date",
+            "dataType": "dateTime",
+            "sourceColumn": "deduction_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "deduction_type",
+            "dataType": "string",
+            "sourceColumn": "deduction_type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "amount",
+            "dataType": "double",
+            "sourceColumn": "amount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "code_as_remitted",
+            "dataType": "string",
+            "sourceColumn": "code_as_remitted",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "translated_code",
+            "dataType": "string",
+            "sourceColumn": "translated_code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "standardized_category",
+            "dataType": "string",
+            "sourceColumn": "standardized_category",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "order_id",
+            "dataType": "string",
+            "sourceColumn": "order_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "shipment_id",
+            "dataType": "string",
+            "sourceColumn": "shipment_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "remittance_id",
+            "dataType": "string",
+            "sourceColumn": "remittance_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "remittance_description",
+            "dataType": "string",
+            "sourceColumn": "remittance_description",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "dispute_deadline",
+            "dataType": "dateTime",
+            "sourceColumn": "dispute_deadline",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_vague",
+            "dataType": "int64",
+            "sourceColumn": "is_vague",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_post_audit",
+            "dataType": "int64",
+            "sourceColumn": "is_post_audit",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_double_dip",
+            "dataType": "int64",
+            "sourceColumn": "is_double_dip",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "dispute_outcome",
+            "dataType": "string",
+            "sourceColumn": "dispute_outcome",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "recovered_amount",
+            "dataType": "double",
+            "sourceColumn": "recovered_amount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "dispute_filed_date",
+            "dataType": "dateTime",
+            "sourceColumn": "dispute_filed_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "dispute_closed_date",
+            "dataType": "dateTime",
+            "sourceColumn": "dispute_closed_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "days_outstanding",
+            "dataType": "int64",
+            "sourceColumn": "days_outstanding",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "in_trailing_window",
+            "dataType": "int64",
+            "sourceColumn": "in_trailing_window",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "is_ghost_promo",
+            "dataType": "int64",
+            "sourceColumn": "is_ghost_promo",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "fact_deductions",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\fact_deductions.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"deduction_id\", type text}, {\"retailer_id\", type text}, {\"deduction_date\", type date}, {\"deduction_type\", type text}, {\"amount\", type number}, {\"code_as_remitted\", type text}, {\"translated_code\", type text}, {\"standardized_category\", type text}, {\"order_id\", type text}, {\"shipment_id\", type text}, {\"remittance_id\", type text}, {\"remittance_description\", type text}, {\"dispute_deadline\", type date}, {\"is_vague\", Int64.Type}, {\"is_post_audit\", Int64.Type}, {\"is_double_dip\", Int64.Type}, {\"dispute_outcome\", type text}, {\"recovered_amount\", type number}, {\"dispute_filed_date\", type date}, {\"dispute_closed_date\", type date}, {\"days_outstanding\", Int64.Type}, {\"in_trailing_window\", Int64.Type}, {\"is_ghost_promo\", Int64.Type}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_structural_trade",
+        "columns": [
+          {
+            "name": "retailer_id",
+            "dataType": "string",
+            "sourceColumn": "retailer_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "revenue",
+            "dataType": "double",
+            "sourceColumn": "revenue",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "trade_rate",
+            "dataType": "double",
+            "sourceColumn": "trade_rate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "structural_trade_dollars",
+            "dataType": "double",
+            "sourceColumn": "structural_trade_dollars",
+            "summarizeBy": "sum"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "fact_structural_trade",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\fact_structural_trade.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"retailer_id\", type text}, {\"revenue\", type number}, {\"trade_rate\", type number}, {\"structural_trade_dollars\", type number}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_scan_data",
+        "columns": [
+          {
+            "name": "sku",
+            "dataType": "string",
+            "sourceColumn": "sku",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "retailer",
+            "dataType": "string",
+            "sourceColumn": "retailer",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "store_id",
+            "dataType": "string",
+            "sourceColumn": "store_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "week_ending",
+            "dataType": "dateTime",
+            "sourceColumn": "week_ending",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "units_sold",
+            "dataType": "int64",
+            "sourceColumn": "units_sold",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "dollars_sold",
+            "dataType": "double",
+            "sourceColumn": "dollars_sold",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "promo_id",
+            "dataType": "string",
+            "sourceColumn": "promo_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "promo_period",
+            "dataType": "string",
+            "sourceColumn": "promo_period",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "fact_scan_data",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\fact_scan_data.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"sku\", type text}, {\"retailer\", type text}, {\"store_id\", type text}, {\"week_ending\", type date}, {\"units_sold\", Int64.Type}, {\"dollars_sold\", type number}, {\"promo_id\", type text}, {\"promo_period\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fact_disputes",
+        "columns": [
+          {
+            "name": "dispute_id",
+            "dataType": "string",
+            "sourceColumn": "dispute_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "deduction_id",
+            "dataType": "string",
+            "sourceColumn": "deduction_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "retailer_id",
+            "dataType": "string",
+            "sourceColumn": "retailer_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "deduction_type",
+            "dataType": "string",
+            "sourceColumn": "deduction_type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "deduction_amount",
+            "dataType": "double",
+            "sourceColumn": "deduction_amount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "filed_date",
+            "dataType": "dateTime",
+            "sourceColumn": "filed_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "closed_date",
+            "dataType": "dateTime",
+            "sourceColumn": "closed_date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "filing_method",
+            "dataType": "string",
+            "sourceColumn": "filing_method",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "evidence_quality",
+            "dataType": "string",
+            "sourceColumn": "evidence_quality",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "submitted_evidence_count",
+            "dataType": "int64",
+            "sourceColumn": "submitted_evidence_count",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "was_within_deadline",
+            "dataType": "int64",
+            "sourceColumn": "was_within_deadline",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "outcome",
+            "dataType": "string",
+            "sourceColumn": "outcome",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "recovered_amount",
+            "dataType": "double",
+            "sourceColumn": "recovered_amount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "labor_hours",
+            "dataType": "double",
+            "sourceColumn": "labor_hours",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "days_to_resolve",
+            "dataType": "int64",
+            "sourceColumn": "days_to_resolve",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "fact_disputes",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(File.Contents(\"C:\\Users\\mssha\\projects\\active\\trade-spend-data-diagnostic\\powerbi\\data\\fact_disputes.csv\"), [Delimiter=\",\", Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Replaced Empties\" = Table.ReplaceValue(#\"Promoted Headers\", \"\", null, Replacer.ReplaceValue, Table.ColumnNames(#\"Promoted Headers\")),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Replaced Empties\", {{\"dispute_id\", type text}, {\"deduction_id\", type text}, {\"retailer_id\", type text}, {\"deduction_type\", type text}, {\"deduction_amount\", type number}, {\"filed_date\", type date}, {\"closed_date\", type date}, {\"filing_method\", type text}, {\"evidence_quality\", type text}, {\"submitted_evidence_count\", Int64.Type}, {\"was_within_deadline\", Int64.Type}, {\"outcome\", type text}, {\"recovered_amount\", type number}, {\"labor_hours\", type number}, {\"days_to_resolve\", Int64.Type}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dim_date",
+        "partitions": [
+          {
+            "name": "dim_date",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "VAR MinDate = MIN(fact_deductions[deduction_date])\nVAR MaxDate = MAX(fact_scan_data[week_ending])\nRETURN\nADDCOLUMNS(\n    CALENDAR(MinDate, MaxDate),\n    \"year\", YEAR([Date]),\n    \"month\", MONTH([Date]),\n    \"year_month\", FORMAT([Date], \"YYYY-MM\"),\n    \"week_ending\",\n        [Date] + (6 - WEEKDAY([Date], 2)),\n    \"month_name\", FORMAT([Date], \"MMM YYYY\")\n)"
+            }
+          }
+        ]
+      },
+      {
+        "name": "WaterfallSteps",
+        "partitions": [
+          {
+            "name": "WaterfallSteps",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "DATATABLE(\n    \"Step\", STRING,\n    \"SortOrder\", INTEGER,\n    {\n        {\"01 Revenue\", 1},\n        {\"02 Structural Trade\", 2},\n        {\"03 Operational Waste\", 3}\n    }\n)"
+            }
+          }
+        ],
+        "columns": [
+          {
+            "name": "Step",
+            "dataType": "string",
+            "sourceColumn": "Step",
+            "sortByColumn": "SortOrder"
+          },
+          {
+            "name": "SortOrder",
+            "dataType": "int64",
+            "sourceColumn": "SortOrder"
+          }
+        ]
+      },
+      {
+        "name": "WindowWeeks",
+        "partitions": [
+          {
+            "name": "WindowWeeks",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "SELECTCOLUMNS(GENERATESERIES(1, 8, 1), \"WindowWeeks Value\", [Value])"
+            }
+          }
+        ]
+      },
+      {
+        "name": "TargetAllInRate",
+        "partitions": [
+          {
+            "name": "TargetAllInRate",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "SELECTCOLUMNS(GENERATESERIES(0, 0.50, 0.01), \"TargetAllInRate Value\", [Value])"
+            }
+          }
+        ]
+      },
+      {
+        "name": "_Measures",
+        "isHidden": true,
+        "measures": [
+          {
+            "name": "WindowWeeks Value",
+            "expression": "SELECTEDVALUE(WindowWeeks[WindowWeeks Value], 4)",
+            "formatString": "#,##0",
+            "displayFolder": "What-If Parameters"
+          },
+          {
+            "name": "TargetAllInRate Value",
+            "expression": "SELECTEDVALUE(TargetAllInRate[TargetAllInRate Value], 0.18)",
+            "formatString": "0.0%",
+            "displayFolder": "What-If Parameters"
+          },
+          {
+            "name": "TotalRevenue",
+            "expression": "SUM(fact_scan_data[dollars_sold])",
+            "formatString": "$#,##0",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "StructuralTradeAmount",
+            "expression": "SUM(fact_structural_trade[structural_trade_dollars])",
+            "formatString": "$#,##0",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "StructuralTradeRate",
+            "expression": "DIVIDE([StructuralTradeAmount], [TotalRevenue], 0)",
+            "formatString": "0.0%",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "OperationalWasteAmount",
+            "expression": "CALCULATE(\n    SUM(fact_deductions[amount]),\n    fact_deductions[deduction_type] <> \"promo_billback\",\n    fact_deductions[in_trailing_window] = 1\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "OperationalWasteRate",
+            "expression": "DIVIDE([OperationalWasteAmount], [TotalRevenue], 0)",
+            "formatString": "0.0%",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "PromoBillbackAmount",
+            "expression": "CALCULATE(\n    SUM(fact_deductions[amount]),\n    fact_deductions[deduction_type] = \"promo_billback\",\n    fact_deductions[in_trailing_window] = 1\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "AllInTradeCost",
+            "expression": "[StructuralTradeAmount] + [OperationalWasteAmount]",
+            "formatString": "$#,##0",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "AllInTradeRate",
+            "expression": "DIVIDE([AllInTradeCost], [TotalRevenue], 0)",
+            "formatString": "0.0%",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "DeductionCount",
+            "expression": "CALCULATE(\n    COUNTROWS(fact_deductions),\n    fact_deductions[in_trailing_window] = 1\n)",
+            "formatString": "#,##0",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "TotalRecovered",
+            "expression": "SUM(fact_disputes[recovered_amount])",
+            "formatString": "$#,##0",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "DisputeCount",
+            "expression": "COUNTROWS(fact_disputes)",
+            "formatString": "#,##0",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "RecoveryRate",
+            "expression": "DIVIDE(\n    [TotalRecovered],\n    SUM(fact_disputes[deduction_amount]),\n    0\n)",
+            "formatString": "0.0%",
+            "displayFolder": "Global"
+          },
+          {
+            "name": "RetailerRevenue",
+            "expression": "SUM(fact_scan_data[dollars_sold])",
+            "formatString": "$#,##0",
+            "displayFolder": "Executive Overview"
+          },
+          {
+            "name": "WasteAmount",
+            "expression": "CALCULATE(\n    SUM(fact_deductions[amount]),\n    fact_deductions[deduction_type] <> \"promo_billback\",\n    fact_deductions[in_trailing_window] = 1\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Executive Overview"
+          },
+          {
+            "name": "WaterfallValue",
+            "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"01 Revenue\", [TotalRevenue],\n    \"02 Structural Trade\", -[StructuralTradeAmount],\n    \"03 Operational Waste\", -[OperationalWasteAmount]\n)",
+            "displayFolder": "Executive Overview"
+          },
+          {
+            "name": "DeductionAmount",
+            "expression": "CALCULATE(\n    SUM(fact_deductions[amount]),\n    fact_deductions[in_trailing_window] = 1\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Deduction Deep-Dive"
+          },
+          {
+            "name": "DoubleDipCount",
+            "expression": "CALCULATE(\n    COUNTROWS(fact_deductions),\n    fact_deductions[is_double_dip] = 1\n)",
+            "formatString": "#,##0",
+            "displayFolder": "Deduction Deep-Dive"
+          },
+          {
+            "name": "DoubleDipTotal",
+            "expression": "CALCULATE(\n    SUM(fact_deductions[amount]),\n    fact_deductions[is_double_dip] = 1\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Deduction Deep-Dive"
+          },
+          {
+            "name": "UnmappedCodeCount",
+            "expression": "CALCULATE(\n    COUNTROWS(fact_deductions),\n    fact_deductions[translated_code] = \"Unmapped\",\n    fact_deductions[in_trailing_window] = 1\n)",
+            "formatString": "#,##0",
+            "displayFolder": "Deduction Deep-Dive"
+          },
+          {
+            "name": "AvgDaysToResolve",
+            "expression": "CALCULATE(\n    AVERAGE(fact_deductions[days_outstanding]),\n    fact_deductions[in_trailing_window] = 1\n)",
+            "formatString": "0",
+            "displayFolder": "Deduction Deep-Dive"
+          },
+          {
+            "name": "PromoCost",
+            "expression": "SUMX(\n    dim_promo,\n    IF(\n        NOT(ISBLANK(dim_promo[actual_cost])),\n        dim_promo[actual_cost],\n        dim_promo[planned_cost]\n    )\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "IncrementalRevenue",
+            "expression": "SUM(dim_promo[incremental_revenue])",
+            "formatString": "$#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "BaselineVolume",
+            "expression": "AVERAGE(dim_promo[baseline_avg_volume])",
+            "formatString": "0.00",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "BaselineVolumeDynamic",
+            "expression": "VAR SelectedWindow = [WindowWeeks Value]\nVAR CurrentPromoStart = SELECTEDVALUE(dim_promo[start_week])\nVAR CurrentSKU = SELECTEDVALUE(dim_promo[sku])\nVAR CurrentRetailer = SELECTEDVALUE(dim_promo[retailer])\nRETURN\nAVERAGEX(\n    FILTER(\n        fact_scan_data,\n        fact_scan_data[sku] = CurrentSKU\n            && fact_scan_data[retailer] = CurrentRetailer\n            && fact_scan_data[promo_period] = \"pre\"\n            && fact_scan_data[week_ending] >= DATE(\n                YEAR(DATEVALUE(CurrentPromoStart)),\n                MONTH(DATEVALUE(CurrentPromoStart)),\n                DAY(DATEVALUE(CurrentPromoStart))\n            ) - (SelectedWindow * 7)\n            && fact_scan_data[week_ending] < DATEVALUE(CurrentPromoStart)\n    ),\n    fact_scan_data[units_sold]\n)",
+            "formatString": "0.00",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "IncrementalRevenueDynamic",
+            "expression": "VAR Baseline = [BaselineVolumeDynamic]\nVAR DuringAvg = AVERAGE(dim_promo[during_avg_volume])\nVAR Duration = SELECTEDVALUE(dim_promo[duration_weeks], 1)\nVAR ASP = SELECTEDVALUE(dim_promo[asp])\nRETURN\nIF(\n    NOT(ISBLANK(Baseline)) && NOT(ISBLANK(DuringAvg)) && NOT(ISBLANK(ASP)),\n    (DuringAvg - Baseline) * Duration * ASP,\n    BLANK()\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "PromoROI",
+            "expression": "AVERAGE(dim_promo[roi])",
+            "formatString": "0.00",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "PromoROIDynamic",
+            "expression": "DIVIDE([IncrementalRevenueDynamic], [PromoCost], BLANK())",
+            "formatString": "0.00",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "AvgROI",
+            "expression": "AVERAGEX(\n    FILTER(dim_promo, NOT(ISBLANK(dim_promo[roi]))),\n    dim_promo[roi]\n)",
+            "formatString": "0.00",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "PromoCount",
+            "expression": "COUNTROWS(dim_promo)",
+            "formatString": "#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "GhostPromoCount",
+            "expression": "CALCULATE(\n    COUNTROWS(fact_deductions),\n    fact_deductions[is_ghost_promo] = 1\n)",
+            "formatString": "#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "GhostPromoTotal",
+            "expression": "CALCULATE(\n    SUM(fact_deductions[amount]),\n    fact_deductions[is_ghost_promo] = 1\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "FullDataCount",
+            "expression": "CALCULATE(\n    COUNTROWS(dim_promo),\n    dim_promo[data_quality] = \"Full\"\n)",
+            "formatString": "#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "PartialDataCount",
+            "expression": "CALCULATE(\n    COUNTROWS(dim_promo),\n    dim_promo[data_quality] = \"Partial\"\n)",
+            "formatString": "#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "NoPOSCount",
+            "expression": "CALCULATE(\n    COUNTROWS(dim_promo),\n    dim_promo[data_quality] = \"No POS\"\n)",
+            "formatString": "#,##0",
+            "displayFolder": "Promo Performance"
+          },
+          {
+            "name": "GrossMarginPct",
+            "expression": "IF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    SELECTEDVALUE(dim_retailer[gross_margin], 0),\n    DIVIDE(\n        SUMX(dim_retailer, dim_retailer[gross_margin] * dim_retailer[revenue]),\n        SUM(dim_retailer[revenue]),\n        0\n    )\n)",
+            "formatString": "0.0%",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "StructuralRate",
+            "expression": "IF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    SELECTEDVALUE(dim_retailer[trade_rate], 0),\n    DIVIDE(\n        SUM(fact_structural_trade[structural_trade_dollars]),\n        [TotalRevenue],\n        0\n    )\n)",
+            "formatString": "0.0%",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "OpDedRate",
+            "expression": "VAR OpDed =\n    CALCULATE(\n        SUM(fact_deductions[amount]),\n        fact_deductions[deduction_type] <> \"promo_billback\",\n        fact_deductions[in_trailing_window] = 1\n    )\nRETURN\nIF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    DIVIDE(OpDed, SELECTEDVALUE(dim_retailer[revenue], 1), 0),\n    DIVIDE(OpDed, [TotalRevenue], 0)\n)",
+            "formatString": "0.0%",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "PromoBBRate",
+            "expression": "VAR PromoBB =\n    CALCULATE(\n        SUM(fact_deductions[amount]),\n        fact_deductions[deduction_type] = \"promo_billback\",\n        fact_deductions[in_trailing_window] = 1\n    )\nRETURN\nIF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    DIVIDE(PromoBB, SELECTEDVALUE(dim_retailer[revenue], 1), 0),\n    DIVIDE(PromoBB, [TotalRevenue], 0)\n)",
+            "formatString": "0.0%",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "NetNetMargin",
+            "expression": "[GrossMarginPct] - [StructuralRate] - [OpDedRate] - [PromoBBRate]",
+            "formatString": "0.0%",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "NetNetMarginPct",
+            "expression": "[NetNetMargin]",
+            "formatString": "0.0%",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "RevenueShare",
+            "expression": "DIVIDE(\n    SUM(fact_scan_data[dollars_sold]),\n    CALCULATE(SUM(fact_scan_data[dollars_sold]), ALL(dim_retailer)),\n    0\n)",
+            "formatString": "0.0%",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "DeductionShare",
+            "expression": "DIVIDE(\n    CALCULATE(SUM(fact_deductions[amount]), fact_deductions[in_trailing_window] = 1),\n    CALCULATE(SUM(fact_deductions[amount]), ALL(dim_retailer), fact_deductions[in_trailing_window] = 1),\n    0\n)",
+            "formatString": "0.0%",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "SavingsAtTarget",
+            "expression": "VAR CurrentAllIn = [StructuralRate] + [OpDedRate] + [PromoBBRate]\nVAR Target = [TargetAllInRate Value]\nVAR Rev = SELECTEDVALUE(dim_retailer[revenue], 0)\nRETURN\nIF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    IF(CurrentAllIn > Target, (CurrentAllIn - Target) * Rev, 0),\n    [TotalSavingsAtTarget]\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "TotalSavingsAtTarget",
+            "expression": "SUMX(\n    dim_retailer,\n    VAR CurrentAllIn =\n        CALCULATE([StructuralRate]) +\n        CALCULATE([OpDedRate]) +\n        CALCULATE([PromoBBRate])\n    VAR Target = [TargetAllInRate Value]\n    VAR Rev = dim_retailer[revenue]\n    RETURN\n    IF(CurrentAllIn > Target, (CurrentAllIn - Target) * Rev, 0)\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "HighestRiskRetailer",
+            "expression": "VAR MinMargin =\n    MINX(\n        FILTER(dim_retailer, dim_retailer[revenue] > 0),\n        dim_retailer[net_net_margin]\n    )\nRETURN\nCALCULATE(\n    SELECTEDVALUE(dim_retailer[retailer_name]),\n    FILTER(dim_retailer, dim_retailer[net_net_margin] = MinMargin)\n)",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "Revenue",
+            "expression": "IF(\n    HASONEVALUE(dim_retailer[retailer_name]),\n    SELECTEDVALUE(dim_retailer[revenue], 0),\n    SUM(dim_retailer[revenue])\n)",
+            "formatString": "$#,##0",
+            "displayFolder": "Retailer Comparison"
+          },
+          {
+            "name": "RetailerWaterfallValue",
+            "expression": "SWITCH(\n    SELECTEDVALUE(WaterfallSteps[Step]),\n    \"01 Revenue\", [GrossMarginPct],\n    \"02 Structural Trade\", -[StructuralRate],\n    \"03 Operational Waste\", -[OpDedRate] - [PromoBBRate]\n)",
+            "displayFolder": "Retailer Comparison"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "_Measures",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "ROW(\"x\", 0)"
+            }
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "fact_scan_data_retailer___dim_retailer_retailer_name",
+        "fromTable": "fact_scan_data",
+        "fromColumn": "retailer",
+        "toTable": "dim_retailer",
+        "toColumn": "retailer_name"
+      },
+      {
+        "name": "fact_structural_trade_retailer_id___dim_retailer_retailer_name",
+        "fromTable": "fact_structural_trade",
+        "fromColumn": "retailer_id",
+        "toTable": "dim_retailer",
+        "toColumn": "retailer_name"
+      },
+      {
+        "name": "dim_promo_retailer___dim_retailer_retailer_name",
+        "fromTable": "dim_promo",
+        "fromColumn": "retailer",
+        "toTable": "dim_retailer",
+        "toColumn": "retailer_name"
+      },
+      {
+        "name": "fact_deductions_retailer_id___dim_retailer_retailer_id",
+        "fromTable": "fact_deductions",
+        "fromColumn": "retailer_id",
+        "toTable": "dim_retailer",
+        "toColumn": "retailer_id"
+      },
+      {
+        "name": "fact_disputes_retailer_id___dim_retailer_retailer_id",
+        "fromTable": "fact_disputes",
+        "fromColumn": "retailer_id",
+        "toTable": "dim_retailer",
+        "toColumn": "retailer_id",
+        "isActive": false
+      },
+      {
+        "name": "fact_scan_data_sku___dim_product_sku",
+        "fromTable": "fact_scan_data",
+        "fromColumn": "sku",
+        "toTable": "dim_product",
+        "toColumn": "sku"
+      },
+      {
+        "name": "dim_promo_sku___dim_product_sku",
+        "fromTable": "dim_promo",
+        "fromColumn": "sku",
+        "toTable": "dim_product",
+        "toColumn": "sku",
+        "isActive": false
+      },
+      {
+        "name": "fact_disputes_deduction_id___fact_deductions_deduction_id",
+        "fromTable": "fact_disputes",
+        "fromColumn": "deduction_id",
+        "toTable": "fact_deductions",
+        "toColumn": "deduction_id"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "__PBI_TimeIntelligenceEnabled",
+        "value": "0"
+      }
+    ]
+  }
+}

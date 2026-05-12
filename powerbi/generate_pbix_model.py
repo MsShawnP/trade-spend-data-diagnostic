@@ -57,7 +57,8 @@ MEASURES = [
         "expression": (
             "CALCULATE(\n"
             "    SUM(fact_deductions[amount]),\n"
-            '    fact_deductions[deduction_type] <> "promo_billback"\n'
+            '    fact_deductions[deduction_type] <> "promo_billback",\n'
+            "    fact_deductions[in_trailing_window] = 1\n"
             ")"
         ),
         "formatString": "$#,##0",
@@ -74,7 +75,8 @@ MEASURES = [
         "expression": (
             "CALCULATE(\n"
             "    SUM(fact_deductions[amount]),\n"
-            '    fact_deductions[deduction_type] = "promo_billback"\n'
+            '    fact_deductions[deduction_type] = "promo_billback",\n'
+            "    fact_deductions[in_trailing_window] = 1\n"
             ")"
         ),
         "formatString": "$#,##0",
@@ -82,7 +84,7 @@ MEASURES = [
     },
     {
         "name": "AllInTradeCost",
-        "expression": "[StructuralTradeAmount] + [OperationalWasteAmount] + [PromoBillbackAmount]",
+        "expression": "[StructuralTradeAmount] + [OperationalWasteAmount]",
         "formatString": "$#,##0",
         "displayFolder": "Global",
     },
@@ -94,7 +96,12 @@ MEASURES = [
     },
     {
         "name": "DeductionCount",
-        "expression": "COUNTROWS(fact_deductions)",
+        "expression": (
+            "CALCULATE(\n"
+            "    COUNTROWS(fact_deductions),\n"
+            "    fact_deductions[in_trailing_window] = 1\n"
+            ")"
+        ),
         "formatString": "#,##0",
         "displayFolder": "Global",
     },
@@ -135,7 +142,8 @@ MEASURES = [
         "expression": (
             "CALCULATE(\n"
             "    SUM(fact_deductions[amount]),\n"
-            '    fact_deductions[deduction_type] <> "promo_billback"\n'
+            '    fact_deductions[deduction_type] <> "promo_billback",\n'
+            "    fact_deductions[in_trailing_window] = 1\n"
             ")"
         ),
         "formatString": "$#,##0",
@@ -146,10 +154,9 @@ MEASURES = [
         "expression": (
             "SWITCH(\n"
             "    SELECTEDVALUE(WaterfallSteps[Step]),\n"
-            '    "Revenue", [TotalRevenue],\n'
-            '    "Structural Trade", -[StructuralTradeAmount],\n'
-            '    "Operational Waste", -[OperationalWasteAmount],\n'
-            '    "Net After Trade", [TotalRevenue] - [StructuralTradeAmount] - [OperationalWasteAmount]\n'
+            '    "01 Revenue", [TotalRevenue],\n'
+            '    "02 Structural Trade", -[StructuralTradeAmount],\n'
+            '    "03 Operational Waste", -[OperationalWasteAmount]\n'
             ")"
         ),
         "formatString": "",
@@ -159,7 +166,12 @@ MEASURES = [
     # ── Page 2: Deduction Deep-Dive ────────────────────────────
     {
         "name": "DeductionAmount",
-        "expression": "SUM(fact_deductions[amount])",
+        "expression": (
+            "CALCULATE(\n"
+            "    SUM(fact_deductions[amount]),\n"
+            "    fact_deductions[in_trailing_window] = 1\n"
+            ")"
+        ),
         "formatString": "$#,##0",
         "displayFolder": "Deduction Deep-Dive",
     },
@@ -190,7 +202,8 @@ MEASURES = [
         "expression": (
             "CALCULATE(\n"
             "    COUNTROWS(fact_deductions),\n"
-            '    fact_deductions[translated_code] = "Unmapped"\n'
+            '    fact_deductions[translated_code] = "Unmapped",\n'
+            "    fact_deductions[in_trailing_window] = 1\n"
             ")"
         ),
         "formatString": "#,##0",
@@ -198,7 +211,12 @@ MEASURES = [
     },
     {
         "name": "AvgDaysToResolve",
-        "expression": "AVERAGE(fact_deductions[days_outstanding])",
+        "expression": (
+            "CALCULATE(\n"
+            "    AVERAGE(fact_deductions[days_outstanding]),\n"
+            "    fact_deductions[in_trailing_window] = 1\n"
+            ")"
+        ),
         "formatString": "0",
         "displayFolder": "Deduction Deep-Dive",
     },
@@ -307,15 +325,10 @@ MEASURES = [
     {
         "name": "GhostPromoCount",
         "expression": (
-            "VAR TotalPromoBB =\n"
-            "    CALCULATE(\n"
-            "        COUNTROWS(fact_deductions),\n"
-            '        fact_deductions[deduction_type] = "promo_billback"\n'
-            "    )\n"
-            "VAR MatchedCount =\n"
-            "    COUNTROWS(FILTER(dim_promo, NOT(ISBLANK(dim_promo[actual_cost]))))\n"
-            "RETURN\n"
-            "TotalPromoBB - MatchedCount"
+            "CALCULATE(\n"
+            "    COUNTROWS(fact_deductions),\n"
+            "    fact_deductions[is_ghost_promo] = 1\n"
+            ")"
         ),
         "formatString": "#,##0",
         "displayFolder": "Promo Performance",
@@ -323,18 +336,10 @@ MEASURES = [
     {
         "name": "GhostPromoTotal",
         "expression": (
-            "VAR TotalPromoBBAmount =\n"
-            "    CALCULATE(\n"
-            "        SUM(fact_deductions[amount]),\n"
-            '        fact_deductions[deduction_type] = "promo_billback"\n'
-            "    )\n"
-            "VAR MatchedAmount =\n"
-            "    SUMX(\n"
-            "        FILTER(dim_promo, NOT(ISBLANK(dim_promo[actual_cost]))),\n"
-            "        dim_promo[actual_cost]\n"
-            "    )\n"
-            "RETURN\n"
-            "TotalPromoBBAmount - MatchedAmount"
+            "CALCULATE(\n"
+            "    SUM(fact_deductions[amount]),\n"
+            "    fact_deductions[is_ghost_promo] = 1\n"
+            ")"
         ),
         "formatString": "$#,##0",
         "displayFolder": "Promo Performance",
@@ -376,26 +381,50 @@ MEASURES = [
     # ── Page 4: Retailer Comparison ────────────────────────────
     {
         "name": "GrossMarginPct",
-        "expression": "SELECTEDVALUE(dim_retailer[gross_margin], 0)",
+        "expression": (
+            "IF(\n"
+            "    HASONEVALUE(dim_retailer[retailer_name]),\n"
+            "    SELECTEDVALUE(dim_retailer[gross_margin], 0),\n"
+            "    DIVIDE(\n"
+            "        SUMX(dim_retailer, dim_retailer[gross_margin] * dim_retailer[revenue]),\n"
+            "        SUM(dim_retailer[revenue]),\n"
+            "        0\n"
+            "    )\n"
+            ")"
+        ),
         "formatString": "0.0%",
         "displayFolder": "Retailer Comparison",
     },
     {
         "name": "StructuralRate",
-        "expression": "SELECTEDVALUE(dim_retailer[trade_rate], 0)",
+        "expression": (
+            "IF(\n"
+            "    HASONEVALUE(dim_retailer[retailer_name]),\n"
+            "    SELECTEDVALUE(dim_retailer[trade_rate], 0),\n"
+            "    DIVIDE(\n"
+            "        SUM(fact_structural_trade[structural_trade_dollars]),\n"
+            "        [TotalRevenue],\n"
+            "        0\n"
+            "    )\n"
+            ")"
+        ),
         "formatString": "0.0%",
         "displayFolder": "Retailer Comparison",
     },
     {
         "name": "OpDedRate",
         "expression": (
-            "DIVIDE(\n"
+            "VAR OpDed =\n"
             "    CALCULATE(\n"
             "        SUM(fact_deductions[amount]),\n"
-            '        fact_deductions[deduction_type] <> "promo_billback"\n'
-            "    ),\n"
-            "    SELECTEDVALUE(dim_retailer[revenue], 1),\n"
-            "    0\n"
+            '        fact_deductions[deduction_type] <> "promo_billback",\n'
+            "        fact_deductions[in_trailing_window] = 1\n"
+            "    )\n"
+            "RETURN\n"
+            "IF(\n"
+            "    HASONEVALUE(dim_retailer[retailer_name]),\n"
+            "    DIVIDE(OpDed, SELECTEDVALUE(dim_retailer[revenue], 1), 0),\n"
+            "    DIVIDE(OpDed, [TotalRevenue], 0)\n"
             ")"
         ),
         "formatString": "0.0%",
@@ -404,13 +433,17 @@ MEASURES = [
     {
         "name": "PromoBBRate",
         "expression": (
-            "DIVIDE(\n"
+            "VAR PromoBB =\n"
             "    CALCULATE(\n"
             "        SUM(fact_deductions[amount]),\n"
-            '        fact_deductions[deduction_type] = "promo_billback"\n'
-            "    ),\n"
-            "    SELECTEDVALUE(dim_retailer[revenue], 1),\n"
-            "    0\n"
+            '        fact_deductions[deduction_type] = "promo_billback",\n'
+            "        fact_deductions[in_trailing_window] = 1\n"
+            "    )\n"
+            "RETURN\n"
+            "IF(\n"
+            "    HASONEVALUE(dim_retailer[retailer_name]),\n"
+            "    DIVIDE(PromoBB, SELECTEDVALUE(dim_retailer[revenue], 1), 0),\n"
+            "    DIVIDE(PromoBB, [TotalRevenue], 0)\n"
             ")"
         ),
         "formatString": "0.0%",
@@ -444,8 +477,8 @@ MEASURES = [
         "name": "DeductionShare",
         "expression": (
             "DIVIDE(\n"
-            "    SUM(fact_deductions[amount]),\n"
-            "    CALCULATE(SUM(fact_deductions[amount]), ALL(dim_retailer)),\n"
+            "    CALCULATE(SUM(fact_deductions[amount]), fact_deductions[in_trailing_window] = 1),\n"
+            "    CALCULATE(SUM(fact_deductions[amount]), ALL(dim_retailer), fact_deductions[in_trailing_window] = 1),\n"
             "    0\n"
             ")"
         ),
@@ -460,9 +493,9 @@ MEASURES = [
             "VAR Rev = SELECTEDVALUE(dim_retailer[revenue], 0)\n"
             "RETURN\n"
             "IF(\n"
-            "    CurrentAllIn > Target,\n"
-            "    (CurrentAllIn - Target) * Rev,\n"
-            "    0\n"
+            "    HASONEVALUE(dim_retailer[retailer_name]),\n"
+            "    IF(CurrentAllIn > Target, (CurrentAllIn - Target) * Rev, 0),\n"
+            "    [TotalSavingsAtTarget]\n"
             ")"
         ),
         "formatString": "$#,##0",
@@ -505,7 +538,13 @@ MEASURES = [
     },
     {
         "name": "Revenue",
-        "expression": "SELECTEDVALUE(dim_retailer[revenue], 0)",
+        "expression": (
+            "IF(\n"
+            "    HASONEVALUE(dim_retailer[retailer_name]),\n"
+            "    SELECTEDVALUE(dim_retailer[revenue], 0),\n"
+            "    SUM(dim_retailer[revenue])\n"
+            ")"
+        ),
         "formatString": "$#,##0",
         "displayFolder": "Retailer Comparison",
     },
@@ -514,10 +553,9 @@ MEASURES = [
         "expression": (
             "SWITCH(\n"
             "    SELECTEDVALUE(WaterfallSteps[Step]),\n"
-            '    "Revenue", [GrossMarginPct],\n'
-            '    "Structural Trade", -[StructuralRate],\n'
-            '    "Operational Waste", -[OpDedRate] - [PromoBBRate],\n'
-            '    "Net After Trade", [NetNetMargin]\n'
+            '    "01 Revenue", [GrossMarginPct],\n'
+            '    "02 Structural Trade", -[StructuralRate],\n'
+            '    "03 Operational Waste", -[OpDedRate] - [PromoBBRate]\n'
             ")"
         ),
         "formatString": "",
@@ -553,10 +591,9 @@ CALCULATED_TABLES = [
             '    "Step", STRING,\n'
             '    "SortOrder", INTEGER,\n'
             "    {\n"
-            '        {"Revenue", 1},\n'
-            '        {"Structural Trade", 2},\n'
-            '        {"Operational Waste", 3},\n'
-            '        {"Net After Trade", 4}\n'
+            '        {"01 Revenue", 1},\n'
+            '        {"02 Structural Trade", 2},\n'
+            '        {"03 Operational Waste", 3}\n'
             "    }\n"
             ")"
         ),

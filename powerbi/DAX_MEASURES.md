@@ -47,16 +47,20 @@ DATATABLE(
     "Step", STRING,
     "SortOrder", INTEGER,
     {
-        {"Revenue", 1},
-        {"Structural Trade", 2},
-        {"Operational Waste", 3},
-        {"Net After Trade", 4}
+        {"01 Revenue", 1},
+        {"02 Structural Trade", 2},
+        {"03 Operational Waste", 3}
     }
 )
 ```
 
-**Usage:** Waterfall chart category axis (Page 1, Visual 5). Sort by
-`SortOrder` ascending.
+**Usage:** Waterfall chart category axis (Page 1, Visual 5). The
+"01/02/03" prefixes guarantee correct sort order even without
+`sortByColumn`. The waterfall chart's built-in Total bar auto-
+computes the net result — no "Net After Trade" row needed.
+
+**Sort By Column:** The semantic model also sets `sortByColumn` on the
+`Step` column so it sorts by `SortOrder` automatically (belt-and-suspenders).
 
 ---
 
@@ -190,12 +194,15 @@ DIVIDE([StructuralTradeAmount], [TotalRevenue], 0)
 OperationalWasteAmount =
 CALCULATE(
     SUM(fact_deductions[amount]),
-    fact_deductions[deduction_type] <> "promo_billback"
+    fact_deductions[deduction_type] <> "promo_billback",
+    fact_deductions[in_trailing_window] = 1
 )
 ```
 
 - **Notes:** Excludes promo_billback to match the "operational waste"
-  definition (two-bucket framing). Locked value: ~$1,010,940.
+  definition (two-bucket framing). Filtered to `in_trailing_window = 1`
+  so out-of-window risk flag rows (double-dip, ghost) don't inflate the
+  total. Locked value: ~$1,010,940.
 
 ---
 
@@ -225,12 +232,14 @@ DIVIDE([OperationalWasteAmount], [TotalRevenue], 0)
 PromoBillbackAmount =
 CALCULATE(
     SUM(fact_deductions[amount]),
-    fact_deductions[deduction_type] = "promo_billback"
+    fact_deductions[deduction_type] = "promo_billback",
+    fact_deductions[in_trailing_window] = 1
 )
 ```
 
 - **Notes:** Separated from operational waste because promo billbacks
-  are a distinct trade cost layer in the margin erosion model.
+  are a distinct trade cost layer in the margin erosion model. Filtered
+  to `in_trailing_window = 1` to exclude out-of-window risk flag rows.
 
 ---
 
@@ -238,16 +247,17 @@ CALCULATE(
 
 - **Page(s):** Page 1 (implied by AllInTradeRate), Page 4 (table)
 - **Visual:** Drives AllInTradeRate calculation
-- **Purpose:** Total trade cost: structural + operational + promo billback
+- **Purpose:** Total trade cost: structural + operational (two-bucket model)
 
 ```dax
 AllInTradeCost =
-[StructuralTradeAmount] + [OperationalWasteAmount] + [PromoBillbackAmount]
+[StructuralTradeAmount] + [OperationalWasteAmount]
 ```
 
-- **Notes:** Locked value: $5,445,992 (sum of $4,435,052 + ~$1,010,940).
-  In practice the deductions sum may include some promo billback overlap
-  with structural — the locked all-in rate of 21.3% is the reference.
+- **Notes:** Two-bucket model matching the workbook: structural trade +
+  operational waste. Promo billback is tracked separately (not included
+  here) because the workbook excludes it from All-In. Locked value:
+  ~$5,447,507 ($4,435,052 + ~$1,012,455). Locked rate: ~21.3%.
 
 ---
 
@@ -274,11 +284,15 @@ DIVIDE([AllInTradeCost], [TotalRevenue], 0)
 
 ```dax
 DeductionCount =
-COUNTROWS(fact_deductions)
+CALCULATE(
+    COUNTROWS(fact_deductions),
+    fact_deductions[in_trailing_window] = 1
+)
 ```
 
-- **Notes:** Locked value: 2,374 when unfiltered. Responds to all
-  slicers via filter context.
+- **Notes:** Filtered to `in_trailing_window = 1` so out-of-window
+  risk flag rows are excluded from general counts. Locked value: 2,374
+  when unfiltered. Responds to all slicers via filter context.
 
 ---
 
@@ -361,11 +375,13 @@ SUM(fact_scan_data[dollars_sold])
 WasteAmount =
 CALCULATE(
     SUM(fact_deductions[amount]),
-    fact_deductions[deduction_type] <> "promo_billback"
+    fact_deductions[deduction_type] <> "promo_billback",
+    fact_deductions[in_trailing_window] = 1
 )
 ```
 
-- **Notes:** Same filter as OperationalWasteAmount. Broken out by
+- **Notes:** Same filter as OperationalWasteAmount plus
+  `in_trailing_window = 1`. Broken out by
   `fact_deductions[deduction_type]` on the bar axis. Clicking a bar
   cross-filters the waterfall and KPIs.
 
@@ -381,18 +397,16 @@ CALCULATE(
 WaterfallValue =
 SWITCH(
     SELECTEDVALUE(WaterfallSteps[Step]),
-    "Revenue", [TotalRevenue],
-    "Structural Trade", -[StructuralTradeAmount],
-    "Operational Waste", -[OperationalWasteAmount],
-    "Net After Trade", [TotalRevenue] - [StructuralTradeAmount] - [OperationalWasteAmount]
+    "01 Revenue", [TotalRevenue],
+    "02 Structural Trade", -[StructuralTradeAmount],
+    "03 Operational Waste", -[OperationalWasteAmount]
 )
 ```
 
 - **Notes:** Uses the disconnected WaterfallSteps table on the category
-  axis. "Revenue" and "Net After Trade" should be marked as totals in
-  the waterfall visual formatting. Negative values show as decrease
-  steps. Cross-filters with retailer slicer — all component measures
-  respond to filter context.
+  axis. The waterfall chart auto-generates a Total bar at the end.
+  Negative values show as decrease steps. Cross-filters with retailer
+  slicer — all component measures respond to filter context.
 
 ---
 
@@ -406,13 +420,16 @@ SWITCH(
 
 ```dax
 DeductionAmount =
-SUM(fact_deductions[amount])
+CALCULATE(
+    SUM(fact_deductions[amount]),
+    fact_deductions[in_trailing_window] = 1
+)
 ```
 
-- **Notes:** Includes all deduction types (unlike WasteAmount which
-  excludes promo_billback). Area chart uses `dim_date[year_month]` on
-  axis with `fact_deductions[deduction_type]` as legend. Matrix uses
-  deduction_type on rows and retailer on columns.
+- **Notes:** Filtered to `in_trailing_window = 1` so out-of-window rows
+  don't inflate totals. Includes all deduction types (unlike WasteAmount
+  which excludes promo_billback). Area chart uses `dim_date[year_month]`
+  on axis with `fact_deductions[deduction_type]` as legend.
 
 ---
 
@@ -430,9 +447,9 @@ CALCULATE(
 )
 ```
 
-- **Notes:** Locked value: 3. Persistent callout that doesn't respond
-  to category slicers (always shows portfolio total). Consider using
-  ALL(fact_deductions[deduction_type]) if needed to prevent filtering.
+- **Notes:** Locked value: 3 (all 3 are from 2024, outside the trailing
+  window, but included in the export with `in_trailing_window = 0`).
+  No window filter applied — double-dip is an all-time risk flag.
 
 ---
 
@@ -450,7 +467,9 @@ CALCULATE(
 )
 ```
 
-- **Notes:** Locked value: $19,306. Paired with DoubleDipCount.
+- **Notes:** Locked value: $19,306. No window filter — double-dip rows
+  are included in the CSV regardless of trailing window to ensure this
+  risk flag always shows its full value.
 
 ---
 
@@ -464,12 +483,14 @@ CALCULATE(
 UnmappedCodeCount =
 CALCULATE(
     COUNTROWS(fact_deductions),
-    fact_deductions[translated_code] = "Unmapped"
+    fact_deductions[translated_code] = "Unmapped",
+    fact_deductions[in_trailing_window] = 1
 )
 ```
 
 - **Notes:** Locked value: 292. Data quality indicator — these are
   deductions with retailer codes not yet in the crosswalk table.
+  Filtered to trailing window.
 
 ---
 
@@ -481,11 +502,15 @@ CALCULATE(
 
 ```dax
 AvgDaysToResolve =
-AVERAGE(fact_deductions[days_outstanding])
+CALCULATE(
+    AVERAGE(fact_deductions[days_outstanding]),
+    fact_deductions[in_trailing_window] = 1
+)
 ```
 
-- **Notes:** Only meaningful when filtered to deductions that have
-  disputes. NULL values (no dispute filed) are ignored by AVERAGE.
+- **Notes:** Filtered to trailing window. Only meaningful when filtered
+  to deductions that have disputes. NULL values (no dispute filed) are
+  ignored by AVERAGE.
 
 ---
 
@@ -690,49 +715,16 @@ COUNTROWS(dim_promo)
 GhostPromoCount =
 CALCULATE(
     COUNTROWS(fact_deductions),
-    fact_deductions[deduction_type] = "promo_billback",
-    ISBLANK(RELATED(dim_promo[promo_id]))
+    fact_deductions[is_ghost_promo] = 1
 )
 ```
 
-- **Notes:** Locked value: 137. Alternative approach if relationship
-  doesn't exist: count deductions where deduction_type = promo_billback
-  and no matching promo window found. If the relationship between
-  fact_deductions and dim_promo is not practical, use:
-
-```dax
-GhostPromoCount =
-VAR MatchedDeductions =
-    CALCULATETABLE(
-        VALUES(fact_deductions[deduction_id]),
-        fact_deductions[deduction_type] = "promo_billback",
-        FILTER(
-            CROSSJOIN(fact_deductions, dim_promo),
-            fact_deductions[retailer_id] = LOWER(SUBSTITUTE(dim_promo[retailer], " ", "_"))
-                && fact_deductions[deduction_date] >= DATE(YEAR(DATEVALUE(dim_promo[start_week])), MONTH(DATEVALUE(dim_promo[start_week])), DAY(DATEVALUE(dim_promo[start_week]))) - 14
-                && fact_deductions[deduction_date] <= DATE(YEAR(DATEVALUE(dim_promo[end_week])), MONTH(DATEVALUE(dim_promo[end_week])), DAY(DATEVALUE(dim_promo[end_week]))) + 90
-        )
-    )
-RETURN
-CALCULATE(
-    COUNTROWS(fact_deductions),
-    fact_deductions[deduction_type] = "promo_billback"
-) - COUNTROWS(MatchedDeductions)
-```
-
-Simpler alternative using pre-computed data:
-
-```dax
-GhostPromoCount =
-CALCULATE(
-    COUNTROWS(dim_promo),
-    ISBLANK(dim_promo[actual_cost])
-) -- Inversion: count promos WITHOUT matched deductions
-```
-
-- **Notes:** The simplest reliable approach is to add a `is_ghost`
-  flag column to fact_deductions in the export script. See BUILD_GUIDE
-  for the recommended implementation.
+- **Notes:** Uses the pre-computed `is_ghost_promo` flag added by
+  `export_data.py`. A deduction is flagged as ghost if it has
+  `deduction_type = "promo_billback"` and no matching promotion exists
+  (matched by retailer ID + date range within start_week-14d to
+  end_week+90d). No window filter — all-time detection matches the
+  workbook. Current value: 137.
 
 ---
 
@@ -746,17 +738,12 @@ CALCULATE(
 GhostPromoTotal =
 CALCULATE(
     SUM(fact_deductions[amount]),
-    fact_deductions[deduction_type] = "promo_billback",
-    fact_deductions[is_double_dip] = 0
-) - SUMX(
-    FILTER(dim_promo, NOT(ISBLANK(dim_promo[actual_cost]))),
-    dim_promo[actual_cost]
+    fact_deductions[is_ghost_promo] = 1
 )
 ```
 
-- **Notes:** Locked value: $95,826. This is total promo billback
-  deductions minus those matched to planned promotions. For simplicity,
-  pre-compute a ghost flag in the export — see GhostPromoCount notes.
+- **Notes:** Current value: $95,826. Uses the same pre-computed
+  `is_ghost_promo` flag as GhostPromoCount. All-time (no window filter).
 
 ---
 
@@ -820,11 +807,20 @@ CALCULATE(
 
 ```dax
 GrossMarginPct =
-SELECTEDVALUE(dim_retailer[gross_margin], 0)
+IF(
+    HASONEVALUE(dim_retailer[retailer_name]),
+    SELECTEDVALUE(dim_retailer[gross_margin], 0),
+    DIVIDE(
+        SUMX(dim_retailer, dim_retailer[gross_margin] * dim_retailer[revenue]),
+        SUM(dim_retailer[revenue]),
+        0
+    )
+)
 ```
 
-- **Notes:** Pre-computed in dim_retailer using channel-average COGS
-  and wholesale prices. Evaluates per retailer via the visual axis.
+- **Notes:** Per-retailer: reads pre-computed value from dim_retailer.
+  Total row: revenue-weighted average across all retailers. The
+  HASONEVALUE guard prevents the total row from returning 0.
 
 ---
 
@@ -836,12 +832,20 @@ SELECTEDVALUE(dim_retailer[gross_margin], 0)
 
 ```dax
 StructuralRate =
-SELECTEDVALUE(dim_retailer[trade_rate], 0)
+IF(
+    HASONEVALUE(dim_retailer[retailer_name]),
+    SELECTEDVALUE(dim_retailer[trade_rate], 0),
+    DIVIDE(
+        SUM(fact_structural_trade[structural_trade_dollars]),
+        [TotalRevenue],
+        0
+    )
+)
 ```
 
-- **Notes:** Channel-average trade rate from dim_retailer. In the 100%
-  stacked bar, this represents the structural trade layer of margin
-  erosion.
+- **Notes:** Per-retailer: reads pre-computed trade rate from
+  dim_retailer. Total row: computes aggregate rate from fact table.
+  The HASONEVALUE guard prevents the total row from returning 0.
 
 ---
 
@@ -853,19 +857,23 @@ SELECTEDVALUE(dim_retailer[trade_rate], 0)
 
 ```dax
 OpDedRate =
-DIVIDE(
+VAR OpDed =
     CALCULATE(
         SUM(fact_deductions[amount]),
-        fact_deductions[deduction_type] <> "promo_billback"
-    ),
-    SELECTEDVALUE(dim_retailer[revenue], 1),
-    0
+        fact_deductions[deduction_type] <> "promo_billback",
+        fact_deductions[in_trailing_window] = 1
+    )
+RETURN
+IF(
+    HASONEVALUE(dim_retailer[retailer_name]),
+    DIVIDE(OpDed, SELECTEDVALUE(dim_retailer[revenue], 1), 0),
+    DIVIDE(OpDed, [TotalRevenue], 0)
 )
 ```
 
-- **Notes:** Operational deductions as percentage of retailer revenue.
-  Uses fact_deductions (responds to filters) divided by dim_retailer
-  revenue.
+- **Notes:** Filtered to `in_trailing_window = 1`. Per-retailer: divides
+  by that retailer's revenue. Total row: divides by total portfolio
+  revenue. The HASONEVALUE guard prevents division by 1 on the total row.
 
 ---
 
@@ -877,18 +885,23 @@ DIVIDE(
 
 ```dax
 PromoBBRate =
-DIVIDE(
+VAR PromoBB =
     CALCULATE(
         SUM(fact_deductions[amount]),
-        fact_deductions[deduction_type] = "promo_billback"
-    ),
-    SELECTEDVALUE(dim_retailer[revenue], 1),
-    0
+        fact_deductions[deduction_type] = "promo_billback",
+        fact_deductions[in_trailing_window] = 1
+    )
+RETURN
+IF(
+    HASONEVALUE(dim_retailer[retailer_name]),
+    DIVIDE(PromoBB, SELECTEDVALUE(dim_retailer[revenue], 1), 0),
+    DIVIDE(PromoBB, [TotalRevenue], 0)
 )
 ```
 
-- **Notes:** Separate from OpDedRate to show as its own layer in the
-  margin erosion stacked bar.
+- **Notes:** Filtered to `in_trailing_window = 1`. Same HASONEVALUE
+  pattern as OpDedRate. Separate from OpDedRate to show as its own
+  layer in the margin erosion stacked bar.
 
 ---
 
@@ -955,15 +968,15 @@ DIVIDE(
 ```dax
 DeductionShare =
 DIVIDE(
-    SUM(fact_deductions[amount]),
-    CALCULATE(SUM(fact_deductions[amount]), ALL(dim_retailer)),
+    CALCULATE(SUM(fact_deductions[amount]), fact_deductions[in_trailing_window] = 1),
+    CALCULATE(SUM(fact_deductions[amount]), ALL(dim_retailer), fact_deductions[in_trailing_window] = 1),
     0
 )
 ```
 
-- **Notes:** Retailers where DeductionShare > RevenueShare are
-  overrepresented risks. Conditional formatting: red outline when
-  DeductionShare > RevenueShare.
+- **Notes:** Both numerator and denominator filtered to
+  `in_trailing_window = 1`. Retailers where DeductionShare >
+  RevenueShare are overrepresented risks.
 
 ---
 
@@ -980,15 +993,15 @@ VAR Target = [TargetAllInRate Value]
 VAR Rev = SELECTEDVALUE(dim_retailer[revenue], 0)
 RETURN
 IF(
-    CurrentAllIn > Target,
-    (CurrentAllIn - Target) * Rev,
-    0
+    HASONEVALUE(dim_retailer[retailer_name]),
+    IF(CurrentAllIn > Target, (CurrentAllIn - Target) * Rev, 0),
+    [TotalSavingsAtTarget]
 )
 ```
 
-- **Notes:** Only shows savings for retailers above the target rate.
-  Updates dynamically when the TargetAllInRate slider moves. Table
-  column uses data bars for relative magnitude.
+- **Notes:** Per-retailer: savings if that retailer's rate were reduced
+  to target. Total row: delegates to TotalSavingsAtTarget (SUMX across
+  all retailers). Updates dynamically with the TargetAllInRate slider.
 
 ---
 
@@ -1053,11 +1066,15 @@ CALCULATE(
 
 ```dax
 Revenue =
-SELECTEDVALUE(dim_retailer[revenue], 0)
+IF(
+    HASONEVALUE(dim_retailer[retailer_name]),
+    SELECTEDVALUE(dim_retailer[revenue], 0),
+    SUM(dim_retailer[revenue])
+)
 ```
 
-- **Notes:** Uses pre-computed dim_retailer value. For cross-filter
-  consistency with date slicers, substitute SUM(fact_scan_data[dollars_sold]).
+- **Notes:** Per-retailer: reads pre-computed value. Total row: sums
+  across all retailers. HASONEVALUE guard prevents showing 0 on total.
 
 ---
 
@@ -1077,16 +1094,16 @@ retailer-aware measures.
 RetailerWaterfallValue =
 SWITCH(
     SELECTEDVALUE(WaterfallSteps[Step]),
-    "Revenue", [GrossMarginPct],
-    "Structural Trade", -[StructuralRate],
-    "Operational Waste", -[OpDedRate] - [PromoBBRate],
-    "Net After Trade", [NetNetMargin]
+    "01 Revenue", [GrossMarginPct],
+    "02 Structural Trade", -[StructuralRate],
+    "03 Operational Waste", -[OpDedRate] - [PromoBBRate]
 )
 ```
 
 - **Notes:** Uses margin percentages (not dollars) so retailers are
   comparable regardless of revenue size. Small multiples splits by
-  `dim_retailer[retailer_name]`. First and last steps marked as
+  `dim_retailer[retailer_name]`. The waterfall chart auto-generates
+  the Total bar. First and last steps marked as
   totals in waterfall formatting.
 
 ---

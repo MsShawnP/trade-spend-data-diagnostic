@@ -9,6 +9,18 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-11 — Power BI bug fixes and presentation redesign
+
+**Started from:** All five arcs complete. Dashboard had data bugs and needed visual polish.
+
+**Did:** Fixed 5 data bugs (All-In Trade Cost double-count, waterfall sort, double-dip $0, ghost promo context, total row explosion). Wrote visual formatting spec. Redesigned dashboard from analysis tool to presentation layer — 28 visuals down to 16, narrative takeaways per page, tables/slicers removed.
+
+**State:** All arcs complete. Power BI data/measures match locked figures. DESIGN.md and BUILD_GUIDE.md rewritten for presentation approach. Dashboard assembly in Power BI Desktop is the only remaining manual step.
+
+**Next:** Open Power BI Desktop, follow BUILD_GUIDE.md Sections 4 and 7 to rebuild the 4 pages as presentation layout.
+
+---
+
 ## [2026-05-10] Session Wrap-Up — Arc 5 complete, all arcs done
 
 **Session focus:** Complete Arc 5 (written walkthrough) — the final arc. Write

@@ -1,0 +1,130 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "pp_table",
+  "position": {
+    "x": 10,
+    "y": 410,
+    "z": 300,
+    "width": 1260,
+    "height": 300,
+    "tabOrder": 300
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_promo"
+                    }
+                  },
+                  "Property": "retailer"
+                }
+              },
+              "queryRef": "dim_promo.retailer",
+              "nativeQueryRef": "retailer"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "PromoCount"
+                }
+              },
+              "queryRef": "_Measures.PromoCount",
+              "nativeQueryRef": "PromoCount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "PromoCost"
+                }
+              },
+              "queryRef": "_Measures.PromoCost",
+              "nativeQueryRef": "PromoCost"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "IncrementalRevenue"
+                }
+              },
+              "queryRef": "_Measures.IncrementalRevenue",
+              "nativeQueryRef": "IncrementalRevenue"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "PromoROI"
+                }
+              },
+              "queryRef": "_Measures.PromoROI",
+              "nativeQueryRef": "PromoROI"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "GhostPromoTotal"
+                }
+              },
+              "queryRef": "_Measures.GhostPromoTotal",
+              "nativeQueryRef": "GhostPromoTotal"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Promo Performance by Retailer'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
