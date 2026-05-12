@@ -9,27 +9,21 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
-## 2026-05-12 20:00
+## 2026-05-12 — Workbook bug fixes and validation enforcement
 
-**What changed:** Workbook formatting overhaul complete — charts stripped, Excel Tables added, input cells enhanced, tab colors fixed, data validation enforced, ROI conditional formatting corrected, CEO takeaway text fixed. All interactive inputs tested and working.
+**Started from:** Workbook formatting overhaul complete (charts stripped, Tables added, input cells enhanced). Four bugs identified during visual testing in Excel.
 
-**Why:** Workbook needed to function as a controller-grade data tool, not a dashboard. Charts belonged in Power BI. Interactivity (pivot-ready Tables, input cells with cascading formulas) is the value proposition for a hands-on CEO.
+**Did:**
+- Fixed Tab 3 circular reference when pre/post window > 8 (`_MAX_WINDOW` 8→12, write `None` not empty string for No POS rows)
+- Fixed Tab 3 data validation accepting out-of-range values — added `errorStyle="stop"` and `showErrorMessage=True`
+- Applied same `showErrorMessage=True` fix to Tab 2 (recovery rate) and Tab 4 (what-if trade rates)
+- Fixed Tab 3 ROI conditional formatting — reordered rules (red < 1.0 first with `stopIfTrue=True`)
+- Fixed Tab 1 CEO takeaway text truncation — expanded merge range B7:D7 → B7:F7
+- All three input cells tested live: validation rejects out-of-range values with stop errors
 
-**State:** Workbook generates clean via `python build_workbook.py`. 59/59 validation checks passing. All three input cells tested (recovery rate, promo window, what-if trade rates). Data validation rejects out-of-range values. ROI < 1.0 shows red. No circular references. Ready to move to Power BI dashboard.
+**State:** Workbook generates clean via `python build_workbook.py`. 59/59 validation checks passing. All interactive inputs enforced. ROI < 1.0 shows red. No circular references. Ready to move to Power BI dashboard assembly.
 
-**Next:** Review and fix Power BI dashboard for consistency with workbook data and formatting.
-
----
-
-## 2026-05-11 — Power BI bug fixes and presentation redesign
-
-**Started from:** All five arcs complete. Dashboard had data bugs and needed visual polish.
-
-**Did:** Fixed 5 data bugs (All-In Trade Cost double-count, waterfall sort, double-dip $0, ghost promo context, total row explosion). Wrote visual formatting spec. Redesigned dashboard from analysis tool to presentation layer — 28 visuals down to 16, narrative takeaways per page, tables/slicers removed. Rewrote DESIGN.md and BUILD_GUIDE.md for presentation approach.
-
-**State:** All arcs complete. Power BI data/measures match locked figures. Dashboard assembly in Power BI Desktop is the only remaining manual step.
-
-**Next:** Open Power BI Desktop, follow BUILD_GUIDE.md to rebuild the 4 pages as presentation layout.
+**Next:** Assemble Power BI dashboard in Power BI Desktop following `powerbi/BUILD_GUIDE.md`.
 
 ---
 
@@ -42,6 +36,18 @@ For things that didn't work, see FAILURES.md.
 **State:** Workbook generates clean. Not yet visually verified in Excel — data bars and table formatting need human eye pass. Interactive input cells not yet tested live.
 
 **Next:** Open .xlsx in Excel, visually verify in-cell waterfall and table formatting, test all three interactive input cells (recovery rate, promo window, what-if trade rates). Then decide next move.
+
+---
+
+## 2026-05-11 — Power BI bug fixes and presentation redesign
+
+**Started from:** All five arcs complete. Dashboard had data bugs and needed visual polish.
+
+**Did:** Fixed 5 data bugs (All-In Trade Cost double-count, waterfall sort, double-dip $0, ghost promo context, total row explosion). Wrote visual formatting spec. Redesigned dashboard from analysis tool to presentation layer — 28 visuals down to 16, narrative takeaways per page, tables/slicers removed. Rewrote DESIGN.md and BUILD_GUIDE.md for presentation approach.
+
+**State:** All arcs complete. Power BI data/measures match locked figures. Dashboard assembly in Power BI Desktop is the only remaining manual step.
+
+**Next:** Open Power BI Desktop, follow BUILD_GUIDE.md to rebuild the 4 pages as presentation layout.
 
 ---
 
