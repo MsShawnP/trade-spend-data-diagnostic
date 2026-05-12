@@ -4,22 +4,18 @@ import sqlite3
 from datetime import date
 from pathlib import Path
 
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.styles import (
     ALIGN_CENTER,
-    ALIGN_LEFT,
     ALIGN_RIGHT,
-    BORDER_THIN,
-    FONT_BODY,
     FONT_HEADER,
     FONT_SMALL,
     NUM_FMT_DOLLAR,
 )
-
-FILL_ALT_ROW = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
 
 COLUMNS = [
     ("Deduction ID", 14),
@@ -96,7 +92,6 @@ def _query_ledger(db_path: Path) -> tuple[list[tuple], str, str]:
 def build_deduction_ledger(ws: Worksheet, db_path: Path) -> None:
     rows, oldest_week, max_scan = _query_ledger(db_path)
 
-    # Gridlines ON for data tab
     ws.sheet_view.showGridLines = True
 
     # --- Header ---
@@ -119,28 +114,18 @@ def build_deduction_ledger(ws: Worksheet, db_path: Path) -> None:
     for c, (name, width) in enumerate(COLUMNS, 1):
         cell = ws.cell(row=header_row, column=c, value=name)
         cell.font = header_font
-        cell.border = BORDER_THIN
         cell.alignment = ALIGN_CENTER
         ws.column_dimensions[get_column_letter(c)].width = width
 
-    # Freeze panes: header row + first column (Deduction ID)
     ws.freeze_panes = "B5"
-
-    # Auto-filter
-    last_col = get_column_letter(len(COLUMNS))
-    ws.auto_filter.ref = f"A{header_row}:{last_col}{header_row + len(rows)}"
 
     # --- Data rows ---
     for i, row_data in enumerate(rows):
         rw = header_row + 1 + i
-        alt_fill = FILL_ALT_ROW if i % 2 == 1 else None
 
         for c, val in enumerate(row_data, 1):
-            cell = ws.cell(row=rw, column=c, value=val)
-            if alt_fill:
-                cell.fill = alt_fill
+            ws.cell(row=rw, column=c, value=val)
 
-        # Format specific columns
         # Amount (col 7)
         ws.cell(row=rw, column=7).number_format = NUM_FMT_DOLLAR
         ws.cell(row=rw, column=7).alignment = ALIGN_RIGHT
@@ -154,3 +139,16 @@ def build_deduction_ledger(ws: Worksheet, db_path: Path) -> None:
             cell = ws.cell(row=rw, column=flag_col)
             cell.value = "Yes" if cell.value == 1 else ""
             cell.alignment = ALIGN_CENTER
+
+    # --- Excel Table ---
+    last_col = get_column_letter(len(COLUMNS))
+    table_end = header_row + len(rows)
+    table_ref = f"A{header_row}:{last_col}{table_end}"
+
+    style = TableStyleInfo(
+        name="TableStyleMedium2", showFirstColumn=False,
+        showLastColumn=False, showRowStripes=True, showColumnStripes=False,
+    )
+    table = Table(displayName="tbl_DeductionLedger", ref=table_ref)
+    table.tableStyleInfo = style
+    ws.add_table(table)

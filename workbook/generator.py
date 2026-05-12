@@ -15,13 +15,13 @@ from workbook.tab_retailer_risk import build_retailer_risk
 
 
 TAB_SPEC = [
-    ("Executive Pulse", "228B22"),
-    ("Leak Diagnostic", "228B22"),
-    ("Promo Efficacy", "228B22"),
-    ("Retailer Risk", "228B22"),
+    ("Executive Pulse", "00B050"),
+    ("Leak Diagnostic", "00B050"),
+    ("Promo Efficacy", "00B050"),
+    ("Retailer Risk", "00B050"),
     ("Deduction Ledger", "4472C4"),
-    ("Deduction Code Crosswalk", "808080"),
-    ("Methodology & Logic", "808080"),
+    ("Deduction Code Crosswalk", "A5A5A5"),
+    ("Methodology & Logic", "A5A5A5"),
 ]
 
 
@@ -35,7 +35,13 @@ def _add_named_ranges(wb: Workbook) -> None:
         "StructuralTrade": "'Executive Pulse'!$D$12",
         "OperationalWaste": "'Executive Pulse'!$D$13",
         "AllInTradeCost": "'Executive Pulse'!$D$12+'Executive Pulse'!$D$13",
-        "RecoveryRate": "'Executive Pulse'!$C$37",
+        "RecoveryRate": "'Executive Pulse'!$C$25",
+        "KPI_AllInTradeRate": "'Executive Pulse'!$B$5",
+        "KPI_PlannedTradeRate": "'Executive Pulse'!$C$5",
+        "KPI_OperationalWaste": "'Executive Pulse'!$D$5",
+        "KPI_Revenue": "'Executive Pulse'!$D$11",
+        "KPI_StructuralTrade": "'Executive Pulse'!$D$12",
+        "KPI_OpWasteAmount": "'Executive Pulse'!$D$13",
     }
     for name, ref in ranges.items():
         dn = DefinedName(name, attr_text=ref)

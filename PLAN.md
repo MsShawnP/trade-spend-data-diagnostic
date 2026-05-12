@@ -5,56 +5,32 @@ session. For session-by-session state, see HANDOFF.md.
 
 ---
 
-## Goal
+## Current arc
 
-Write the narrative walkthrough that ties the diagnostic deliverables
-together. This is the portfolio piece — the document a prospect reads
-to understand what a trade spend diagnostic looks like, what it finds,
-and what a real engagement would add.
-
-## Why this arc, why now
-
-Four arcs of technical work are done: data, workbook, SQL library,
-dashboard. The deliverables exist but nothing explains them as a
-coherent story. The walkthrough is the front door — it frames the
-problem, walks through the methodology and findings, and positions
-the deliverables as evidence. Without it, the portfolio is a pile
-of files.
-
-## Business question this arc answers
-
-What does a trade spend diagnostic actually reveal, and why should
-a CPG company in the $15M–$30M revenue band care?
-
-## Tasks
-
-- [x] Define the walkthrough structure in a brief outline — sections
-      follow the diagnostic narrative arc from problem to engagement
-- [x] Write `walkthrough.md` — full narrative, Economist style (sober,
-      declarative, data-forward), with specific Cinderhaven numbers
-- [x] Write project-level `README.md` — positioning, repo structure,
-      quick start, links to all deliverables
-
-## Out of scope for this arc
-
-- Video walkthrough or slide deck
-- Client-facing proposal template
-- Additional data generation or workbook changes
-- Power BI visual assembly (documented in BUILD_GUIDE.md, done manually)
-
-## Definition of done for this arc
-
-- [x] `walkthrough.md` covers problem, methodology, findings,
-      deliverables, and real-engagement upsell — with specific numbers
-- [x] Voice is consistent: declarative, data-forward, no marketing
-      language ("unlocking value", "driving insights", "leveraging")
-- [x] Project-level `README.md` orients a cold reader to the repo
-- [x] All numbers in the walkthrough match verified actuals from the
-      data foundation
+No active arc. All five planned arcs are complete. Post-arc refinement
+work has been done on the workbook and Power BI deliverables — see
+arc history below and HANDOFF.md for session details.
 
 ---
 
 ## Arc history
+
+### Post-arc: Power BI bug fixes and presentation redesign (2026-05-11)
+- Fixed 5 data bugs (AllInTradeCost double-count, waterfall sort,
+  double-dip $0, ghost promo context, total row explosion)
+- Redesigned dashboard as presentation layer (28→16 visuals,
+  narrative takeaways, tables/slicers removed)
+- DESIGN.md and BUILD_GUIDE.md rewritten
+
+### Post-arc: Workbook restructuring (2026-05-11)
+- Stripped openpyxl charts from tabs 2–4, replaced Tab 1 chart with
+  in-cell data bar waterfall
+- Converted all data ranges to Excel Tables (ListObject) — 9 named
+  tables across 6 tabs
+- Enhanced interactive input cells (FFF2CC fill, Protection(locked=False),
+  data validation, cell comments)
+- Fixed tab colors (00B050 green, A5A5A5 gray), added 6 KPI named ranges
+- 10 files modified, 59/59 validation checks passing
 
 ### Arc 5: Written walkthrough (completed 2026-05-10)
 - **Goal:** Write the narrative walkthrough and project README that

@@ -175,6 +175,16 @@ off-invoice, $4.5M total trade, 42/38/20 category split.~~
 - **Do not:** Build sophisticated baseline models. Acknowledge the
   limitation in the documentation.
 
+### 2026-05-11 — Workbook is a data tool, not a dashboard. No openpyxl charts.
+- **Why:** openpyxl charts are basic and send mixed signals next to
+  controller-grade data. Power BI handles visualization. The workbook
+  handles exploration — Excel Tables (pivot-ready), interactive input
+  cells, named ranges. A CEO who right-clicks and gets "Summarize with
+  PivotTable" trusts the tool.
+- **Scope:** Excel workbook generation, all tabs
+- **Do not:** Add openpyxl chart objects back. The one visual element
+  is the in-cell data bar waterfall on Tab 1.
+
 ---
 
 ## Writing & Voice

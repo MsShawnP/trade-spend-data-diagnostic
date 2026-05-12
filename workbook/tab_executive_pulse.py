@@ -4,16 +4,16 @@ import sqlite3
 from datetime import date
 from pathlib import Path
 
-from openpyxl.chart import BarChart, Reference
-from openpyxl.styles import Font
+from openpyxl.formatting.rule import DataBarRule
+from openpyxl.styles import Border, Font, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_LEFT,
     ALIGN_RIGHT,
-    BORDER_THIN,
     FONT_BODY,
     FONT_HEADER,
     FONT_KPI_LABEL,
@@ -46,11 +46,15 @@ NAV_TABS = [
     "Methodology & Logic",
 ]
 
+TABLE_STYLE = TableStyleInfo(
+    name="TableStyleMedium2", showFirstColumn=False,
+    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
+)
+
 
 def _query_metrics(db_path: Path) -> dict:
     conn = sqlite3.connect(db_path)
 
-    # Trailing 52 weeks = 52 most recent distinct week_ending values
     weeks = conn.execute(
         "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
@@ -61,8 +65,6 @@ def _query_metrics(db_path: Path) -> dict:
         (oldest_week,),
     ).fetchone()[0]
 
-    # Structural trade: channel avg trade_spend_pct × channel revenue
-    # (matches verification methodology)
     channel_rev = conn.execute("""
         SELECT s.retailer, SUM(sd.dollars_sold)
         FROM scan_data sd
@@ -87,8 +89,6 @@ def _query_metrics(db_path: Path) -> dict:
     for retailer, rev in channel_rev:
         channel_trade += rev * rates.get(retailer, regional_rate)
 
-    # Trailing 365 deductions excl promo_billback
-    # Use deduction dates that fall within a year ending at the max scan date
     max_scan = weeks[0][0]
     deductions_by_type = conn.execute("""
         SELECT deduction_type, COUNT(*), SUM(amount)
@@ -101,7 +101,6 @@ def _query_metrics(db_path: Path) -> dict:
 
     operational_waste = sum(r[2] for r in deductions_by_type)
 
-    # Disputes and recovery
     dispute_stats = conn.execute("""
         SELECT COUNT(*), SUM(recovered_amount)
         FROM disputes
@@ -173,16 +172,18 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
         cell_lbl.alignment = ALIGN_CENTER
 
     ws.merge_cells("B7:D7")
-    ws["B7"] = "You budgeted 17%. You’re spending 21%. The extra 4 points is operational waste."
+    ws["B7"] = "You budgeted 17%. You're spending 21%. The extra 4 points is operational waste."
     ws["B7"].font = Font(name="Calibri", size=11, italic=True)
     ws["B7"].alignment = ALIGN_LEFT
 
-    # --- Waterfall chart (rows 9-20) ---
-    row = 9
-    ws.cell(row=row, column=2, value="Waterfall: Revenue to Net-After-Trade").font = FONT_SECTION
+    section_sep = Border(bottom=Side(style="thin", color="CCCCCC"))
+    for col in range(2, 7):
+        ws.cell(row=8, column=col).border = section_sep
 
-    # Data for waterfall: invisible base + visible bar
-    chart_start = row + 1
+    # --- Hidden source data (rows 10-14) for named ranges ---
+    ws.cell(row=9, column=2, value="Waterfall: Revenue to Net-After-Trade").font = FONT_SECTION
+
+    chart_start = 10
     headers = ["Category", "Base", "Value"]
     for c, h in enumerate(headers, 2):
         ws.cell(row=chart_start, column=c, value=h).font = FONT_BODY
@@ -199,45 +200,44 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
         ws.cell(row=r, column=3, value=base).number_format = NUM_FMT_DOLLAR
         ws.cell(row=r, column=4, value=val).number_format = NUM_FMT_DOLLAR
 
-    chart = BarChart()
-    chart.type = "col"
-    chart.grouping = "stacked"
-    chart.title = None
-    chart.y_axis.numFmt = '#,##0'
-    chart.x_axis.delete = False
-    chart.legend = None
-    chart.width = 16
-    chart.height = 10
+    for r in range(chart_start, chart_start + 5):
+        ws.row_dimensions[r].hidden = True
 
-    cats = Reference(ws, min_col=2, min_row=chart_start + 1, max_row=chart_start + 4)
-    base_data = Reference(ws, min_col=3, min_row=chart_start, max_row=chart_start + 4)
-    val_data = Reference(ws, min_col=4, min_row=chart_start, max_row=chart_start + 4)
+    # --- In-cell waterfall (rows 16-19) ---
+    waterfall_visible = [
+        ("Revenue", f"=D{chart_start + 1}", "2F5496"),
+        ("Structural Trade", f"=D{chart_start + 2}", "ED7D31"),
+        ("Operational Waste", f"=D{chart_start + 3}", "C00000"),
+        ("Net After Trade", f"=D{chart_start + 4}", "2F5496"),
+    ]
+    for i, (label, formula, color) in enumerate(waterfall_visible):
+        r = 16 + i
+        ws.cell(row=r, column=2, value=label).font = FONT_BODY
+        val_cell = ws.cell(row=r, column=4, value=formula)
+        val_cell.number_format = NUM_FMT_DOLLAR
+        val_cell.alignment = ALIGN_RIGHT
 
-    chart.add_data(base_data, titles_from_data=True)
-    chart.add_data(val_data, titles_from_data=True)
-    chart.set_categories(cats)
+        ws.conditional_formatting.add(
+            f"D{r}",
+            DataBarRule(
+                start_type="num", start_value=0,
+                end_type="num", end_value=revenue,
+                color=color,
+            ),
+        )
 
-    # Make base series invisible
-    base_series = chart.series[0]
-    base_series.graphicalProperties.noFill = True
-    base_series.graphicalProperties.line.noFill = True
+    for col in range(2, 7):
+        ws.cell(row=21, column=col).border = section_sep
 
-    # Color the value series
-    val_series = chart.series[1]
-    val_series.graphicalProperties.solidFill = "2F5496"
+    # --- Addressable Improvement (rows 22-30) ---
+    ws.cell(row=22, column=2, value="Addressable Improvement").font = FONT_SECTION
 
-    ws.add_chart(chart, "B16")
-
-    # --- Addressable Improvement (rows 34-42) ---
-    row = 34
-    ws.cell(row=row, column=2, value="Addressable Improvement").font = FONT_SECTION
-
-    row += 1
-    table_headers = ["Metric", "Value"]
-    for c, h in enumerate(table_headers, 2):
-        cell = ws.cell(row=row, column=c, value=h)
+    imp_header_row = 23
+    imp_headers = ["Metric", "Value"]
+    for c, h in enumerate(imp_headers, 2):
+        cell = ws.cell(row=imp_header_row, column=c, value=h)
         cell.font = FONT_BODY
-        cell.border = BORDER_THIN
+        cell.alignment = ALIGN_CENTER
 
     improvement_rows = [
         ("Operational waste (trailing 365d)", waste, NUM_FMT_DOLLAR),
@@ -249,40 +249,51 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
         ("Incremental at 50% vs. current", waste * 0.50 - total_recovered, NUM_FMT_DOLLAR),
     ]
     for i, (label, val, fmt) in enumerate(improvement_rows):
-        r = row + 1 + i
-        c_label = ws.cell(row=r, column=2, value=label)
-        c_label.font = FONT_BODY
-        c_label.border = BORDER_THIN
+        r = imp_header_row + 1 + i
+        ws.cell(row=r, column=2, value=label).font = FONT_BODY
         c_val = ws.cell(row=r, column=3, value=val)
         c_val.font = FONT_BODY
         c_val.number_format = fmt
-        c_val.border = BORDER_THIN
         c_val.alignment = ALIGN_RIGHT
 
-    # --- Responsibility Matrix (rows 44-55) ---
-    row = 44
-    ws.cell(row=row, column=2, value="Responsibility Matrix — Who Owns the Waste").font = FONT_SECTION
+    imp_end_row = imp_header_row + len(improvement_rows)
 
-    row += 1
+    imp_table = Table(displayName="tbl_AddressableImprovement", ref=f"B{imp_header_row}:C{imp_end_row}")
+    imp_table.tableStyleInfo = TABLE_STYLE
+    ws.add_table(imp_table)
+
+    for col in range(2, 7):
+        ws.cell(row=imp_end_row + 1, column=col).border = section_sep
+
+    # --- Responsibility Matrix (rows 32+) ---
+    resp_title_row = imp_end_row + 2
+    ws.cell(row=resp_title_row, column=2, value="Responsibility Matrix — Who Owns the Waste").font = FONT_SECTION
+
+    resp_header_row = resp_title_row + 1
     resp_headers = ["Deduction Type", "Amount", "Owner", "Root Cause"]
     for c, h in enumerate(resp_headers, 2):
-        cell = ws.cell(row=row, column=c, value=h)
+        cell = ws.cell(row=resp_header_row, column=c, value=h)
         cell.font = FONT_BODY
-        cell.border = BORDER_THIN
+        cell.alignment = ALIGN_CENTER
 
     for i, (dtype, count, amount) in enumerate(metrics["deductions_by_type"]):
-        r = row + 1 + i
+        r = resp_header_row + 1 + i
         dept, cause = CATEGORY_TO_DEPT.get(dtype, ("Unclassified", ""))
-        ws.cell(row=r, column=2, value=dtype.replace("_", " ").title()).border = BORDER_THIN
+        ws.cell(row=r, column=2, value=dtype.replace("_", " ").title())
         c_amt = ws.cell(row=r, column=3, value=amount)
         c_amt.number_format = NUM_FMT_DOLLAR
-        c_amt.border = BORDER_THIN
         c_amt.alignment = ALIGN_RIGHT
-        ws.cell(row=r, column=4, value=dept).border = BORDER_THIN
-        ws.cell(row=r, column=5, value=cause).border = BORDER_THIN
+        ws.cell(row=r, column=4, value=dept)
+        ws.cell(row=r, column=5, value=cause)
+
+    resp_end_row = resp_header_row + len(metrics["deductions_by_type"])
+
+    resp_table = Table(displayName="tbl_ResponsibilityMatrix", ref=f"B{resp_header_row}:E{resp_end_row}")
+    resp_table.tableStyleInfo = TABLE_STYLE
+    ws.add_table(resp_table)
 
     # --- Navigation hyperlinks ---
-    nav_row = row + 2 + len(metrics["deductions_by_type"])
+    nav_row = resp_end_row + 2
     ws.cell(row=nav_row, column=2, value="Navigate to:").font = FONT_SECTION
 
     nav_row += 1

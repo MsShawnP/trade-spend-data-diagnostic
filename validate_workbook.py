@@ -65,14 +65,14 @@ def main():
     green_tabs = ["Executive Pulse", "Leak Diagnostic", "Promo Efficacy", "Retailer Risk"]
     for tab in green_tabs:
         color = wb[tab].sheet_properties.tabColor.rgb if wb[tab].sheet_properties.tabColor else ""
-        check(f"{tab} is green", "228B22" in color, f"Got {color}")
+        check(f"{tab} is green", "00B050" in color, f"Got {color}")
 
     color = wb["Deduction Ledger"].sheet_properties.tabColor.rgb
     check("Deduction Ledger is blue", "4472C4" in color, f"Got {color}")
 
     for tab in ["Deduction Code Crosswalk", "Methodology & Logic"]:
         color = wb[tab].sheet_properties.tabColor.rgb if wb[tab].sheet_properties.tabColor else ""
-        check(f"{tab} is gray", "808080" in color, f"Got {color}")
+        check(f"{tab} is gray", "A5A5A5" in color, f"Got {color}")
 
     # === LOCKED NUMBERS (Tab 1) ===
     print()
@@ -113,8 +113,7 @@ def main():
     for r in range(1, ws2.max_row + 1):
         cell = ws2.cell(row=r, column=2)
         if cell.value and str(cell.value).startswith("DED-"):
-            # Check if it's in the double-dip section (after row 30)
-            if r > 30:
+            if r > 15:
                 dd_count += 1
                 dd_total += ws2.cell(row=r, column=4).value or 0
 
@@ -178,14 +177,12 @@ def main():
     print("=== Crosswalk Completeness (Tab 6) ===")
     ws6 = wb["Deduction Code Crosswalk"]
 
-    # Get retailers from Tab 5
     tab5_retailers = set()
     for r in range(5, 5 + ledger_rows):
         ret = ws5.cell(row=r, column=3).value
         if ret:
             tab5_retailers.add(ret.lower().replace(" ", "_"))
 
-    # Get retailers from Tab 6
     tab6_retailers = set()
     for r in range(5, ws6.max_row + 1):
         ret = ws6.cell(row=r, column=1).value
@@ -200,7 +197,6 @@ def main():
     print()
     print("=== Cross-Tab Consistency ===")
 
-    # Tab 2 category sum should match Tab 1 operational waste
     tab2_cat_total = 0
     for r in range(6, 14):
         amt = ws2.cell(row=r, column=4).value
@@ -210,7 +206,6 @@ def main():
     check("Tab 2 categories sum ≈ Tab 1 waste", approx(tab2_cat_total, waste),
           f"Tab 2 sum: ${tab2_cat_total:,.0f} vs Tab 1: ${waste:,.0f}")
 
-    # Tab 4 revenue sum matches Tab 1 revenue
     check("Tab 4 rev sum = Tab 1 revenue", approx(retailer_rev_sum, revenue),
           f"${retailer_rev_sum:,.0f} vs ${revenue:,.0f}")
 
@@ -236,27 +231,44 @@ def main():
         "AllInTradeRate", "StructuralTradeRate", "OperationalWasteRate",
         "TotalRevenue", "StructuralTrade", "OperationalWaste",
         "AllInTradeCost", "RecoveryRate",
+        "KPI_AllInTradeRate", "KPI_PlannedTradeRate", "KPI_OperationalWaste",
+        "KPI_Revenue", "KPI_StructuralTrade", "KPI_OpWasteAmount",
     ]
     defined = [dn.name for dn in wb.defined_names.values()]
     for name in expected_names:
         check(f"Named range '{name}' defined", name in defined,
               f"Defined names: {defined}" if name not in defined else "")
 
+    # === EXCEL TABLES ===
+    print()
+    print("=== Excel Tables ===")
+    expected_tables = {
+        "Executive Pulse": ["tbl_AddressableImprovement", "tbl_ResponsibilityMatrix"],
+        "Leak Diagnostic": ["tbl_WasteByCategory", "tbl_DoubleDips"],
+        "Promo Efficacy": ["tbl_PromoEfficacy"],
+        "Retailer Risk": ["tbl_RetailerPnL", "tbl_ConcentrationRisk"],
+        "Deduction Ledger": ["tbl_DeductionLedger"],
+        "Deduction Code Crosswalk": ["tbl_CodeCrosswalk"],
+    }
+    for tab_name, table_names in expected_tables.items():
+        ws = wb[tab_name]
+        actual_tables = [t.displayName for t in ws.tables.values()]
+        for tbl in table_names:
+            check(f"Table '{tbl}' in {tab_name}", tbl in actual_tables,
+                  f"Found tables: {actual_tables}" if tbl not in actual_tables else "")
+
     # === DATA VALIDATION ===
     print()
     print("=== Data Validation ===")
-    # Tab 2: recovery rate input
     ws2_dvs = ws2.data_validations.dataValidation
     check("Tab 2 has data validation", len(ws2_dvs) > 0,
           f"Found {len(ws2_dvs)} validations")
 
-    # Tab 3: promo window
     ws3 = wb["Promo Efficacy"]
     ws3_dvs = ws3.data_validations.dataValidation
     check("Tab 3 has data validation", len(ws3_dvs) > 0,
           f"Found {len(ws3_dvs)} validations")
 
-    # Tab 4: what-if rates
     ws4_dvs = ws4.data_validations.dataValidation
     check("Tab 4 has data validation", len(ws4_dvs) > 0,
           f"Found {len(ws4_dvs)} validations")
@@ -264,6 +276,10 @@ def main():
     # === CONDITIONAL FORMATTING ===
     print()
     print("=== Conditional Formatting ===")
+    ws1_cf = list(ws1.conditional_formatting)
+    check("Tab 1 has conditional formatting (data bars)", len(ws1_cf) >= 4,
+          f"Found {len(ws1_cf)} rules")
+
     ws2_cf = list(ws2.conditional_formatting)
     check("Tab 2 has conditional formatting", len(ws2_cf) > 0,
           f"Found {len(ws2_cf)} rules")

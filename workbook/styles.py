@@ -10,7 +10,7 @@ FONT_BODY = Font(name="Calibri", size=11)
 FONT_SMALL = Font(name="Calibri", size=10, italic=True, color="555555")
 FONT_NAV = Font(name="Calibri", size=10, underline="single", color="0563C1")
 
-FILL_INPUT = PatternFill(start_color="FFFFCC", end_color="FFFFCC", fill_type="solid")
+FILL_INPUT = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
 
 ALIGN_CENTER = Alignment(horizontal="center", vertical="center")
 ALIGN_LEFT = Alignment(horizontal="left", vertical="center", wrap_text=True)
