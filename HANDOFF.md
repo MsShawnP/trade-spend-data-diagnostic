@@ -9,7 +9,29 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
-## 2026-05-11 22:30
+## 2026-05-11 — Power BI bug fixes and presentation redesign (parallel session)
+
+**Started from:** All five arcs complete. Power BI dashboard had 5 data
+bugs and a 28-visual layout that competed with the workbook.
+
+**Did:** Fixed 5 data bugs (AllInTradeCost double-count, waterfall sort
+order, double-dip $0 amounts, ghost promo missing context, total row
+explosion in tables). Redesigned dashboard as a presentation layer:
+28→16 visuals, added narrative takeaway text boxes, removed tables and
+slicers that duplicated workbook functionality. Rewrote DESIGN.md and
+BUILD_GUIDE.md to reflect the new presentation-layer philosophy.
+
+**State:** powerbi/DESIGN.md, BUILD_GUIDE.md, DAX_MEASURES.md,
+export_data.py, generate_pbix_model.py, and fact_deductions.csv updated.
+Changes exist on `master` branch (uncommitted modifications) and in
+parallel worktrees — not yet merged into this branch's tracking files.
+
+**Next:** Merge Power BI changes from master into the default branch.
+Visually assemble the .pbix in Power BI Desktop following BUILD_GUIDE.md.
+
+---
+
+## 2026-05-11 22:30 — Workbook restructuring
 
 **Started from:** All five arcs complete. No active PLAN.md arc. Opened session to fix Excel workbook formatting and consistency.
 
