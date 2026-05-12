@@ -247,6 +247,7 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
 
     dv = DataValidation(type="whole", operator="between", formula1="1", formula2="12")
     dv.errorStyle = "stop"
+    dv.showErrorMessage = True
     dv.error = "Enter an integer between 1 and 12"
     dv.errorTitle = "Invalid window"
     ws.add_data_validation(dv)

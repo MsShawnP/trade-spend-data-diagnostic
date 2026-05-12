@@ -238,6 +238,8 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     input_ref = f"C{recov_row}"
 
     dv = DataValidation(type="decimal", operator="between", formula1="0", formula2="1")
+    dv.errorStyle = "stop"
+    dv.showErrorMessage = True
     dv.error = "Please enter a value between 0% and 100%"
     dv.errorTitle = "Invalid recovery rate"
     ws.add_data_validation(dv)

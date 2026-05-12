@@ -305,6 +305,8 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         cell.alignment = ALIGN_CENTER
 
     dv = DataValidation(type="decimal", operator="between", formula1="0", formula2="0.5")
+    dv.errorStyle = "stop"
+    dv.showErrorMessage = True
     dv.error = "Enter a rate between 0% and 50%"
     dv.errorTitle = "Invalid rate"
     ws.add_data_validation(dv)

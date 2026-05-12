@@ -9,6 +9,18 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-12 20:00
+
+**What changed:** Workbook formatting overhaul complete — charts stripped, Excel Tables added, input cells enhanced, tab colors fixed, data validation enforced, ROI conditional formatting corrected, CEO takeaway text fixed. All interactive inputs tested and working.
+
+**Why:** Workbook needed to function as a controller-grade data tool, not a dashboard. Charts belonged in Power BI. Interactivity (pivot-ready Tables, input cells with cascading formulas) is the value proposition for a hands-on CEO.
+
+**State:** Workbook generates clean via `python build_workbook.py`. 59/59 validation checks passing. All three input cells tested (recovery rate, promo window, what-if trade rates). Data validation rejects out-of-range values. ROI < 1.0 shows red. No circular references. Ready to move to Power BI dashboard.
+
+**Next:** Review and fix Power BI dashboard for consistency with workbook data and formatting.
+
+---
+
 ## 2026-05-11 — Power BI bug fixes and presentation redesign
 
 **Started from:** All five arcs complete. Dashboard had data bugs and needed visual polish.
