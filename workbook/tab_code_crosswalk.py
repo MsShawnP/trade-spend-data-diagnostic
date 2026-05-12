@@ -6,17 +6,14 @@ from pathlib import Path
 from openpyxl.formatting.rule import CellIsRule
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.styles import (
     ALIGN_CENTER,
-    ALIGN_LEFT,
-    BORDER_THIN,
     FONT_HEADER,
     FONT_SMALL,
 )
-
-FILL_ALT_ROW = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
 
 COLUMNS = [
     ("Retailer", 20),
@@ -46,7 +43,7 @@ def _query_crosswalk(db_path: Path) -> list[tuple]:
 def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
     rows = _query_crosswalk(db_path)
 
-    ws.sheet_view.showGridLines = True
+    ws.sheet_view.showGridLines = False
 
     # --- Header ---
     ws.merge_cells("A1:E1")
@@ -67,50 +64,37 @@ def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
     for c, (name, width) in enumerate(COLUMNS, 1):
         cell = ws.cell(row=header_row, column=c, value=name)
         cell.font = header_font
-        cell.border = BORDER_THIN
         cell.alignment = ALIGN_CENTER
         ws.column_dimensions[get_column_letter(c)].width = width
 
     ws.freeze_panes = "A5"
 
-    last_col = get_column_letter(len(COLUMNS))
-    ws.auto_filter.ref = f"A{header_row}:{last_col}{header_row + len(rows)}"
-
     # --- Data rows ---
     for i, row_data in enumerate(rows):
         rw = header_row + 1 + i
-        alt_fill = FILL_ALT_ROW if i % 2 == 1 else None
-
         retailer, code, name, category, status = row_data
 
-        cell = ws.cell(row=rw, column=1, value=retailer.replace("_", " ").title())
-        cell.border = BORDER_THIN
-        if alt_fill:
-            cell.fill = alt_fill
-
-        cell = ws.cell(row=rw, column=2, value=code)
-        cell.border = BORDER_THIN
-        cell.alignment = ALIGN_CENTER
-        if alt_fill:
-            cell.fill = alt_fill
-
-        cell = ws.cell(row=rw, column=3, value=name)
-        cell.border = BORDER_THIN
-        if alt_fill:
-            cell.fill = alt_fill
-
-        cell = ws.cell(row=rw, column=4, value=category.replace("_", " ").title())
-        cell.border = BORDER_THIN
-        if alt_fill:
-            cell.fill = alt_fill
-
-        cell = ws.cell(row=rw, column=5, value=status)
-        cell.border = BORDER_THIN
-        cell.alignment = ALIGN_CENTER
-        if alt_fill:
-            cell.fill = alt_fill
+        ws.cell(row=rw, column=1, value=retailer.replace("_", " ").title())
+        c_code = ws.cell(row=rw, column=2, value=code)
+        c_code.alignment = ALIGN_CENTER
+        ws.cell(row=rw, column=3, value=name)
+        ws.cell(row=rw, column=4, value=category.replace("_", " ").title())
+        c_status = ws.cell(row=rw, column=5, value=status)
+        c_status.alignment = ALIGN_CENTER
 
     table_end = header_row + len(rows)
+
+    # --- Excel Table ---
+    last_col = get_column_letter(len(COLUMNS))
+    table_ref = f"A{header_row}:{last_col}{table_end}"
+
+    style = TableStyleInfo(
+        name="TableStyleMedium2", showFirstColumn=False,
+        showLastColumn=False, showRowStripes=True, showColumnStripes=False,
+    )
+    table = Table(displayName="tbl_CodeCrosswalk", ref=table_ref)
+    table.tableStyleInfo = style
+    ws.add_table(table)
 
     # Conditional formatting on status column
     status_range = f"E{header_row + 1}:E{table_end}"

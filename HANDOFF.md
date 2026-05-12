@@ -9,6 +9,18 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-11 22:30
+
+**Started from:** All five arcs complete. No active PLAN.md arc. Opened session to fix Excel workbook formatting and consistency.
+
+**Did:** Stripped openpyxl charts from tabs 2–4, replaced Tab 1 chart with in-cell data bar waterfall, converted all data ranges to Excel Tables (ListObject), enhanced interactive input cells (yellow fill, data validation, cell comments, Protection(locked=False)), fixed tab colors (blue for tab 5, gray for tabs 6–7), suppressed gridlines on green/gray tabs, added 6 KPI named ranges, added what-if margin column on Tab 4, fixed CEO takeaway trailing "is", compacted layouts. 10 files modified, 59/59 validation checks passing.
+
+**State:** Workbook generates clean. Not yet visually verified in Excel — data bars and table formatting need human eye pass. Interactive input cells not yet tested live.
+
+**Next:** Open .xlsx in Excel, visually verify in-cell waterfall and table formatting, test all three interactive input cells (recovery rate, promo window, what-if trade rates). Then decide next move.
+
+---
+
 ## [2026-05-10] Session Wrap-Up — Arc 5 complete, all arcs done
 
 **Session focus:** Complete Arc 5 (written walkthrough) — the final arc. Write

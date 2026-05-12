@@ -38,7 +38,7 @@ def _write_pair(ws: Worksheet, row: int, label: str, text: str) -> int:
 def build_methodology(ws: Worksheet) -> None:
     ws.sheet_view.showGridLines = False
 
-    ws.column_dimensions["A"].width = 24
+    ws.column_dimensions["A"].width = 35
     ws.column_dimensions["B"].width = 90
 
     # --- Header ---

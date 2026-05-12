@@ -4,19 +4,17 @@ import sqlite3
 from datetime import date
 from pathlib import Path
 
-from openpyxl.chart import BarChart, Reference
 from openpyxl.comments import Comment
 from openpyxl.formatting.rule import ColorScaleRule
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Font, Protection
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.styles import (
     ALIGN_CENTER,
-    ALIGN_LEFT,
     ALIGN_RIGHT,
-    BORDER_THIN,
     FILL_INPUT,
     FONT_BODY,
     FONT_HEADER,
@@ -39,6 +37,11 @@ REGIONAL_RETAILERS = [
     "Prairie Provisions", "Mountain Pantry Co", "Harbor Fresh",
 ]
 
+TABLE_STYLE = TableStyleInfo(
+    name="TableStyleMedium2", showFirstColumn=False,
+    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
+)
+
 
 def _query_retailer_data(db_path: Path) -> dict:
     conn = sqlite3.connect(db_path)
@@ -49,7 +52,6 @@ def _query_retailer_data(db_path: Path) -> dict:
     oldest_week = weeks[-1][0]
     max_scan = weeks[0][0]
 
-    # Revenue by retailer
     rev_rows = conn.execute("""
         SELECT s.retailer, SUM(sd.dollars_sold)
         FROM scan_data sd JOIN stores s ON sd.store_id = s.store_id
@@ -59,13 +61,11 @@ def _query_retailer_data(db_path: Path) -> dict:
     revenue_map = dict(rev_rows)
     total_revenue = sum(revenue_map.values())
 
-    # Structural trade rates
     rates = {}
     for channel, col in CHANNEL_RATE_COLS.items():
         rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
     regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
 
-    # Gross margin by channel
     gm_map = {}
     for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
                           ("Whole Foods", "wholesale_whole_foods"), ("UNFI", "wholesale_unfi"),
@@ -73,7 +73,6 @@ def _query_retailer_data(db_path: Path) -> dict:
         r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM sku_costs").fetchone()
         gm_map[channel] = (r[1] - r[0]) / r[1] if r[1] else 0
 
-    # Operational deductions by retailer (trailing 365, excl promo_billback)
     op_ded_rows = conn.execute("""
         SELECT retailer_id, SUM(amount)
         FROM deductions
@@ -83,7 +82,6 @@ def _query_retailer_data(db_path: Path) -> dict:
     """, (max_scan, max_scan)).fetchall()
     op_ded_map = dict(op_ded_rows)
 
-    # Promo billback by retailer
     pb_rows = conn.execute("""
         SELECT retailer_id, SUM(amount)
         FROM deductions
@@ -95,8 +93,6 @@ def _query_retailer_data(db_path: Path) -> dict:
 
     conn.close()
 
-    # Build retailer data list
-    # Order: major channels first by revenue, then regionals grouped
     channel_order = ["Walmart", "UNFI", "Whole Foods", "Costco", "DTC"] + REGIONAL_RETAILERS
 
     retailers = []
@@ -133,7 +129,6 @@ def _query_retailer_data(db_path: Path) -> dict:
             "total_deductions": total_ded,
         })
 
-    # Also include KeHE (deductions only, no revenue in scan_data)
     kehe_op = op_ded_map.get("kehe", 0)
     kehe_pb = pb_map.get("kehe", 0)
     if kehe_op > 0 or kehe_pb > 0:
@@ -184,7 +179,7 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
     ws["B2"] = f"Trailing 52 weeks ({data['oldest_week']} to {data['max_scan']})  |  Built {date.today().isoformat()}"
     ws["B2"].font = FONT_SMALL
 
-    # --- Summary table ---
+    # --- P&L summary table ---
     row = 4
     ws.cell(row=row, column=2, value="Retailer P&L Summary").font = FONT_SECTION
 
@@ -197,75 +192,66 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
     for c, h in enumerate(headers, 2):
         cell = ws.cell(row=row, column=c, value=h)
         cell.font = Font(name="Calibri", size=10, bold=True)
-        cell.border = BORDER_THIN
         cell.alignment = ALIGN_CENTER
 
     table_start = row + 1
-    ws.auto_filter.ref = f"B{row}:{get_column_letter(len(headers) + 1)}{row + len(retailers)}"
-
     for i, r in enumerate(retailers):
         rw = table_start + i
 
-        ws.cell(row=rw, column=2, value=r["name"]).border = BORDER_THIN
+        ws.cell(row=rw, column=2, value=r["name"])
 
         c = ws.cell(row=rw, column=3, value=r["revenue"])
         c.number_format = NUM_FMT_DOLLAR
-        c.border = BORDER_THIN
         c.alignment = ALIGN_RIGHT
 
         c = ws.cell(row=rw, column=4, value=r["rev_share"])
         c.number_format = NUM_FMT_PCT
-        c.border = BORDER_THIN
         c.alignment = ALIGN_CENTER
 
         c = ws.cell(row=rw, column=5, value=r["structural"])
         c.number_format = NUM_FMT_DOLLAR
-        c.border = BORDER_THIN
         c.alignment = ALIGN_RIGHT
 
         c = ws.cell(row=rw, column=6, value=r["structural_rate"])
         c.number_format = NUM_FMT_PCT
-        c.border = BORDER_THIN
         c.alignment = ALIGN_CENTER
 
         c = ws.cell(row=rw, column=7, value=r["op_deductions"])
         c.number_format = NUM_FMT_DOLLAR
-        c.border = BORDER_THIN
         c.alignment = ALIGN_RIGHT
 
         c = ws.cell(row=rw, column=8, value=r["op_ded_rate"])
         c.number_format = NUM_FMT_PCT
-        c.border = BORDER_THIN
         c.alignment = ALIGN_CENTER
 
         c = ws.cell(row=rw, column=9, value=r["pb_deductions"])
         c.number_format = NUM_FMT_DOLLAR
-        c.border = BORDER_THIN
         c.alignment = ALIGN_RIGHT
 
         c = ws.cell(row=rw, column=10, value=r["all_in"])
         c.number_format = NUM_FMT_DOLLAR
-        c.border = BORDER_THIN
         c.alignment = ALIGN_RIGHT
 
         c = ws.cell(row=rw, column=11, value=r["all_in_rate"])
         c.number_format = NUM_FMT_PCT
-        c.border = BORDER_THIN
         c.alignment = ALIGN_CENTER
 
         c = ws.cell(row=rw, column=12, value=r["gross_margin"])
         c.number_format = NUM_FMT_PCT
-        c.border = BORDER_THIN
         c.alignment = ALIGN_CENTER
 
         c = ws.cell(row=rw, column=13, value=r["net_net_margin"])
         c.number_format = NUM_FMT_PCT
-        c.border = BORDER_THIN
         c.alignment = ALIGN_CENTER
 
     table_end = table_start + len(retailers) - 1
 
-    # Conditional formatting on net-net margin (gradient green to red)
+    # Excel Table for P&L
+    pnl_table = Table(displayName="tbl_RetailerPnL", ref=f"B{row}:M{table_end}")
+    pnl_table.tableStyleInfo = TABLE_STYLE
+    ws.add_table(pnl_table)
+
+    # Conditional formatting on net-net margin
     margin_range = f"M{table_start}:M{table_end}"
     ws.conditional_formatting.add(
         margin_range,
@@ -276,98 +262,46 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         ),
     )
 
-    # --- Concentration risk chart ---
-    chart_row = table_end + 3
-    ws.cell(row=chart_row, column=2, value="Concentration Risk: Revenue Share vs. Deduction Share").font = FONT_SECTION
-
-    # Write chart data (only retailers with revenue)
-    chart_data_row = chart_row + 1
-    ws.cell(row=chart_data_row, column=2, value="Retailer").font = FONT_BODY
-    ws.cell(row=chart_data_row, column=3, value="Revenue Share").font = FONT_BODY
-    ws.cell(row=chart_data_row, column=4, value="Deduction Share").font = FONT_BODY
-
+    # --- Concentration risk data table (no chart) ---
     chart_retailers = [r for r in retailers if r["revenue"] > 0]
+
+    cr_section_row = table_end + 3
+    ws.cell(row=cr_section_row, column=2, value="Concentration Risk: Revenue Share vs. Deduction Share").font = FONT_SECTION
+
+    cr_header_row = cr_section_row + 1
+    ws.cell(row=cr_header_row, column=2, value="Retailer").font = FONT_BODY
+    ws.cell(row=cr_header_row, column=3, value="Revenue Share").font = FONT_BODY
+    ws.cell(row=cr_header_row, column=4, value="Deduction Share").font = FONT_BODY
+
     for i, r in enumerate(chart_retailers):
-        rw = chart_data_row + 1 + i
+        rw = cr_header_row + 1 + i
         ws.cell(row=rw, column=2, value=r["name"])
         ws.cell(row=rw, column=3, value=r["rev_share"]).number_format = NUM_FMT_PCT
         ws.cell(row=rw, column=4, value=r["ded_share"]).number_format = NUM_FMT_PCT
 
-    chart_data_end = chart_data_row + len(chart_retailers)
+    cr_end_row = cr_header_row + len(chart_retailers)
 
-    chart = BarChart()
-    chart.type = "col"
-    chart.grouping = "clustered"
-    chart.title = "Revenue Share vs. Deduction Share"
-    chart.y_axis.numFmt = '0%'
-    chart.width = 18
-    chart.height = 10
+    # Excel Table for concentration risk
+    cr_table = Table(displayName="tbl_ConcentrationRisk", ref=f"B{cr_header_row}:D{cr_end_row}")
+    cr_table.tableStyleInfo = TABLE_STYLE
+    ws.add_table(cr_table)
 
-    cats = Reference(ws, min_col=2, min_row=chart_data_row + 1, max_row=chart_data_end)
-    rev_data = Reference(ws, min_col=3, min_row=chart_data_row, max_row=chart_data_end)
-    ded_data = Reference(ws, min_col=4, min_row=chart_data_row, max_row=chart_data_end)
-    chart.add_data(rev_data, titles_from_data=True)
-    chart.add_data(ded_data, titles_from_data=True)
-    chart.set_categories(cats)
-    chart.series[0].graphicalProperties.solidFill = "2F5496"
-    chart.series[1].graphicalProperties.solidFill = "C00000"
-
-    ws.add_chart(chart, f"B{chart_data_end + 2}")
-
-    # --- Net-net margin chart ---
-    margin_chart_row = chart_data_end + 18
-    ws.cell(row=margin_chart_row, column=2, value="Net-Net Effective Margin by Retailer").font = FONT_SECTION
-
-    margin_data_row = margin_chart_row + 1
-    ws.cell(row=margin_data_row, column=2, value="Retailer").font = FONT_BODY
-    ws.cell(row=margin_data_row, column=3, value="Gross Margin").font = FONT_BODY
-    ws.cell(row=margin_data_row, column=4, value="After Structural").font = FONT_BODY
-    ws.cell(row=margin_data_row, column=5, value="Net-Net (after all trade)").font = FONT_BODY
-
-    for i, r in enumerate(chart_retailers):
-        rw = margin_data_row + 1 + i
-        ws.cell(row=rw, column=2, value=r["name"])
-        ws.cell(row=rw, column=3, value=r["gross_margin"]).number_format = NUM_FMT_PCT
-        ws.cell(row=rw, column=4, value=r["gross_margin"] - r["structural_rate"]).number_format = NUM_FMT_PCT
-        ws.cell(row=rw, column=5, value=r["net_net_margin"]).number_format = NUM_FMT_PCT
-
-    margin_data_end = margin_data_row + len(chart_retailers)
-
-    mchart = BarChart()
-    mchart.type = "col"
-    mchart.grouping = "clustered"
-    mchart.title = "Margin Erosion by Retailer"
-    mchart.y_axis.numFmt = '0%'
-    mchart.width = 18
-    mchart.height = 10
-
-    cats2 = Reference(ws, min_col=2, min_row=margin_data_row + 1, max_row=margin_data_end)
-    for col_idx in range(3, 6):
-        series_data = Reference(ws, min_col=col_idx, min_row=margin_data_row, max_row=margin_data_end)
-        mchart.add_data(series_data, titles_from_data=True)
-    mchart.set_categories(cats2)
-    mchart.series[0].graphicalProperties.solidFill = "70AD47"
-    mchart.series[1].graphicalProperties.solidFill = "FFC000"
-    mchart.series[2].graphicalProperties.solidFill = "2F5496"
-
-    ws.add_chart(mchart, f"B{margin_data_end + 2}")
-
-    # --- What-if trade rate inputs ---
-    whatif_row = margin_data_end + 18
+    # --- What-if trade rate inputs (compact — no chart gap) ---
+    whatif_row = cr_end_row + 2
     ws.cell(row=whatif_row, column=2, value="What-If Trade Rate Scenario").font = FONT_SECTION
 
     whatif_row += 1
-    ws.merge_cells(f"B{whatif_row}:G{whatif_row}")
+    ws.merge_cells(f"B{whatif_row}:I{whatif_row}")
     ws.cell(row=whatif_row, column=2,
             value="Enter target all-in trade rates below. Savings show annual impact of achieving target."
             ).font = FONT_SMALL
 
     whatif_row += 1
-    whatif_headers = ["Retailer", "Revenue", "Current Rate", "Target Rate", "Trade at Target", "Current Trade", "Annual Savings"]
+    whatif_headers = ["Retailer", "Revenue", "Current Rate", "Target Rate",
+                      "Trade at Target", "Current Trade", "Annual Savings", "What-If Margin"]
     for c, h in enumerate(whatif_headers, 2):
         cell = ws.cell(row=whatif_row, column=c, value=h)
         cell.font = Font(name="Calibri", size=10, bold=True)
-        cell.border = BORDER_THIN
         cell.alignment = ALIGN_CENTER
 
     dv = DataValidation(type="decimal", operator="between", formula1="0", formula2="0.5")
@@ -378,59 +312,41 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
     for i, r in enumerate(chart_retailers):
         rw = whatif_row + 1 + i
 
-        ws.cell(row=rw, column=2, value=r["name"]).border = BORDER_THIN
+        ws.cell(row=rw, column=2, value=r["name"])
 
-        # Revenue (static)
         rev_cell = ws.cell(row=rw, column=3, value=r["revenue"])
         rev_cell.number_format = NUM_FMT_DOLLAR
-        rev_cell.border = BORDER_THIN
         rev_cell.alignment = ALIGN_RIGHT
 
-        # Current rate (static)
         cur_cell = ws.cell(row=rw, column=4, value=r["all_in_rate"])
         cur_cell.number_format = NUM_FMT_PCT
-        cur_cell.border = BORDER_THIN
         cur_cell.alignment = ALIGN_CENTER
 
-        # Target rate (input)
         target_cell = ws.cell(row=rw, column=5, value=r["all_in_rate"])
         target_cell.number_format = NUM_FMT_PCT
         target_cell.fill = FILL_INPUT
-        target_cell.border = BORDER_THIN
         target_cell.alignment = ALIGN_CENTER
+        target_cell.protection = Protection(locked=False)
         target_cell.comment = Comment(
             "Enter a target all-in trade rate for this retailer. "
-            "The savings column shows the annual impact of achieving this rate.",
+            "The savings and margin columns show the annual impact.",
             "System", width=260, height=60,
         )
         dv.add(target_cell)
 
-        target_ref = f"F{rw}"
-        rev_ref = f"C{rw}"
-
-        # Trade at target = revenue × target rate (formula)
-        ws.cell(row=rw, column=6, value=f"={rev_ref}*{target_ref}").number_format = NUM_FMT_DOLLAR
-        ws.cell(row=rw, column=6).border = BORDER_THIN
+        # Trade at target = revenue × target rate
+        ws.cell(row=rw, column=6, value=f"=C{rw}*E{rw}").number_format = NUM_FMT_DOLLAR
         ws.cell(row=rw, column=6).alignment = ALIGN_RIGHT
 
-        # Current trade (static)
         cur_trade = ws.cell(row=rw, column=7, value=r["all_in"])
         cur_trade.number_format = NUM_FMT_DOLLAR
-        cur_trade.border = BORDER_THIN
         cur_trade.alignment = ALIGN_RIGHT
 
-        # Annual savings = current trade - trade at target (formula)
-        savings_ref = f"H{rw}"
-        ws.cell(row=rw, column=8, value=f"=H{rw}-G{rw}").number_format = NUM_FMT_DOLLAR
-        ws.cell(row=rw, column=8).border = BORDER_THIN
+        # Annual savings = current trade - trade at target
+        ws.cell(row=rw, column=8, value=f"=G{rw}-F{rw}").number_format = NUM_FMT_DOLLAR
         ws.cell(row=rw, column=8).alignment = ALIGN_RIGHT
 
-    # Fix: savings formula references need to be correct
-    # Column layout: B=retailer, C=rev, D=current_rate, E=target_rate, F=trade_at_target, G=current_trade, H=savings
-    # Let me rewrite the formula references correctly
-    for i, r in enumerate(chart_retailers):
-        rw = whatif_row + 1 + i
-        # Trade at target = C{row} * E{row}
-        ws.cell(row=rw, column=6, value=f"=C{rw}*E{rw}")
-        # Savings = G{row} - F{row}
-        ws.cell(row=rw, column=8, value=f"=G{rw}-F{rw}")
+        # What-if margin = gross_margin - target_rate
+        gm_literal = f"{r['gross_margin']:.6f}"
+        ws.cell(row=rw, column=9, value=f"={gm_literal}-E{rw}").number_format = NUM_FMT_PCT
+        ws.cell(row=rw, column=9).alignment = ALIGN_CENTER
