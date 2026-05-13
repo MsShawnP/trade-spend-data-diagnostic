@@ -56,21 +56,21 @@ def _query_metrics(database_url: str) -> dict:
     conn = connect()
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
 
     revenue = conn.execute(
-        "SELECT SUM(dollars_sold) FROM fct_scan_data WHERE week_ending >= %s",
+        "SELECT SUM(dollars_sold) FROM stg_scan_data WHERE week_ending >= %s",
         (oldest_week,),
     ).fetchone()[0]
 
     channel_rev = conn.execute("""
-        SELECT s.retailer_name, SUM(sd.dollars_sold)
-        FROM fct_scan_data sd
-        JOIN dim_stores s ON sd.store_id = s.store_id
+        SELECT s.retailer, SUM(sd.dollars_sold)
+        FROM stg_scan_data sd
+        JOIN stg_stores s ON sd.store_id = s.store_id
         WHERE sd.week_ending >= %s
-        GROUP BY s.retailer_name
+        GROUP BY s.retailer
     """, (oldest_week,)).fetchall()
 
     channel_rate_cols = {
@@ -82,12 +82,12 @@ def _query_metrics(database_url: str) -> dict:
     }
     rates = {}
     for channel, col in channel_rate_cols.items():
-        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM stg_sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM stg_sku_costs").fetchone()[0]
+        rates[channel] = float(conn.execute(f"SELECT AVG({col}) FROM stg_sku_costs").fetchone()[0] or 0)
+    regional_rate = float(conn.execute("SELECT AVG(trade_spend_pct_regional) FROM stg_sku_costs").fetchone()[0] or 0)
 
     channel_trade = 0.0
     for retailer, rev in channel_rev:
-        channel_trade += rev * rates.get(retailer, regional_rate)
+        channel_trade += float(rev) * rates.get(retailer, regional_rate)
 
     max_scan = weeks[0][0]
     deductions_by_type = conn.execute("""
@@ -109,12 +109,12 @@ def _query_metrics(database_url: str) -> dict:
     conn.close()
 
     return {
-        "revenue": revenue,
+        "revenue": float(revenue or 0),
         "structural_trade": channel_trade,
-        "operational_waste": operational_waste,
-        "deductions_by_type": deductions_by_type,
+        "operational_waste": float(operational_waste or 0),
+        "deductions_by_type": [(t, c, float(a or 0)) for t, c, a in deductions_by_type],
         "dispute_count": dispute_stats[0],
-        "total_recovered": dispute_stats[1],
+        "total_recovered": float(dispute_stats[1] or 0),
         "oldest_week": oldest_week,
         "max_scan": max_scan,
     }

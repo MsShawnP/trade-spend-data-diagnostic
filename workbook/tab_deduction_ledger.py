@@ -45,7 +45,7 @@ def _query_ledger(database_url: str) -> tuple[list[tuple], str, str]:
     conn = connect()
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
     max_scan = weeks[0][0]

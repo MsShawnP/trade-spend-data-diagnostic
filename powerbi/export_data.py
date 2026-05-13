@@ -32,7 +32,7 @@ def _write_csv(filename: str, headers: list[str], rows: list[tuple]):
 
 def _get_trailing_window(conn):
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
     max_scan = weeks[0][0]
@@ -48,10 +48,10 @@ def export_dim_retailer(conn, oldest_week, max_scan):
     """).fetchall()
 
     channel_rev = dict(conn.execute("""
-        SELECT s.retailer_name, SUM(sd.dollars_sold)
-        FROM fct_scan_data sd JOIN dim_stores s ON sd.store_id = s.store_id
+        SELECT s.retailer, SUM(sd.dollars_sold)
+        FROM stg_scan_data sd JOIN stg_stores s ON sd.store_id = s.store_id
         WHERE sd.week_ending >= %s
-        GROUP BY s.retailer_name
+        GROUP BY s.retailer
     """, (oldest_week,)).fetchall())
 
     rates_row = conn.execute("""
@@ -165,38 +165,38 @@ def export_dim_promo(conn):
     import bisect
 
     all_weeks = [r[0] for r in conn.execute(
-        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending"
     ).fetchall()]
 
     promos = conn.execute("""
-        SELECT promo_id, sku, retailer_name, store_scope, start_week, end_week,
+        SELECT promo_id, sku, retailer, store_scope, start_week, end_week,
                duration_weeks, discount_depth_pct, promo_type, promo_cost,
                funding_mechanism
-        FROM fct_promotions ORDER BY promo_id
+        FROM stg_promotions ORDER BY promo_id
     """).fetchall()
 
     actual_costs = dict(conn.execute("""
-        SELECT p.promo_id || '|' || p.sku || '|' || p.retailer_name, SUM(d.amount)
-        FROM fct_promotions p
-        JOIN stg_deductions d ON LOWER(REPLACE(p.retailer_name, ' ', '_')) = d.retailer_id
+        SELECT p.promo_id || '|' || p.sku || '|' || p.retailer, SUM(d.amount)
+        FROM stg_promotions p
+        JOIN stg_deductions d ON LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
             AND d.deduction_type = 'promo_billback'
             AND d.deduction_date BETWEEN (p.start_week - interval '14 days')::date
                                      AND (p.end_week + interval '90 days')::date
-        GROUP BY p.promo_id, p.sku, p.retailer_name
+        GROUP BY p.promo_id, p.sku, p.retailer
     """).fetchall())
 
     asp_map = dict(conn.execute("""
-        SELECT sd.sku || '|' || s.retailer_name, AVG(sd.dollars_sold * 1.0 / sd.units_sold)
-        FROM fct_scan_data sd JOIN dim_stores s ON sd.store_id = s.store_id
+        SELECT sd.sku || '|' || s.retailer, AVG(sd.dollars_sold * 1.0 / sd.units_sold)
+        FROM stg_scan_data sd JOIN stg_stores s ON sd.store_id = s.store_id
         WHERE sd.units_sold > 0
-        GROUP BY sd.sku, s.retailer_name
+        GROUP BY sd.sku, s.retailer
     """).fetchall())
 
     vol_map = {}
     for sku, retailer, week, units in conn.execute("""
-        SELECT sd.sku, s.retailer_name, sd.week_ending, SUM(sd.units_sold)
-        FROM fct_scan_data sd JOIN dim_stores s ON sd.store_id = s.store_id
-        GROUP BY sd.sku, s.retailer_name, sd.week_ending
+        SELECT sd.sku, s.retailer, sd.week_ending, SUM(sd.units_sold)
+        FROM stg_scan_data sd JOIN stg_stores s ON sd.store_id = s.store_id
+        GROUP BY sd.sku, s.retailer, sd.week_ending
     """).fetchall():
         vol_map.setdefault(f"{sku}|{retailer}", {})[week] = units
 
@@ -311,8 +311,8 @@ def export_fact_deductions(conn, max_scan):
         FROM stg_deductions d
         WHERE d.deduction_type = 'promo_billback'
           AND NOT EXISTS (
-              SELECT 1 FROM fct_promotions p
-              WHERE LOWER(REPLACE(p.retailer_name, ' ', '_')) = d.retailer_id
+              SELECT 1 FROM stg_promotions p
+              WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
                 AND d.deduction_date BETWEEN (p.start_week - interval '14 days')::date
                                          AND (p.end_week + interval '90 days')::date
           )
@@ -430,12 +430,12 @@ def export_fact_structural_trade(conn, oldest_week):
     """Structural trade by retailer using channel-average rates."""
     rows = conn.execute("""
         WITH channel_revenue AS (
-            SELECT s.retailer_name,
+            SELECT s.retailer,
                    SUM(sd.dollars_sold) AS revenue
-            FROM fct_scan_data sd
-            JOIN dim_stores s ON sd.store_id = s.store_id
+            FROM stg_scan_data sd
+            JOIN stg_stores s ON sd.store_id = s.store_id
             WHERE sd.week_ending >= %s
-            GROUP BY s.retailer_name
+            GROUP BY s.retailer
         ),
         channel_rates AS (
             SELECT
@@ -448,9 +448,9 @@ def export_fact_structural_trade(conn, oldest_week):
             FROM stg_sku_costs
         )
         SELECT
-            cr.retailer_name AS retailer_id,
+            cr.retailer AS retailer_id,
             cr.revenue,
-            CASE cr.retailer_name
+            CASE cr.retailer
                 WHEN 'Walmart'     THEN rates.rate_walmart
                 WHEN 'Costco'      THEN rates.rate_costco
                 WHEN 'Whole Foods' THEN rates.rate_whole_foods
@@ -458,7 +458,7 @@ def export_fact_structural_trade(conn, oldest_week):
                 WHEN 'DTC'         THEN rates.rate_dtc
                 ELSE rates.rate_regional
             END AS trade_rate,
-            cr.revenue * CASE cr.retailer_name
+            cr.revenue * CASE cr.retailer
                 WHEN 'Walmart'     THEN rates.rate_walmart
                 WHEN 'Costco'      THEN rates.rate_costco
                 WHEN 'Whole Foods' THEN rates.rate_whole_foods
@@ -483,21 +483,21 @@ def export_fact_scan_data(conn, oldest_week):
     import bisect
 
     all_weeks = [r[0] for r in conn.execute(
-        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending"
     ).fetchall()]
 
     promos = conn.execute("""
-        SELECT promo_id, sku, retailer_name, start_week, end_week, duration_weeks
-        FROM fct_promotions
+        SELECT promo_id, sku, retailer, start_week, end_week, duration_weeks
+        FROM stg_promotions
     """).fetchall()
 
     scan_rows = conn.execute("""
-        SELECT sd.sku, s.retailer_name, sd.store_id, sd.week_ending,
+        SELECT sd.sku, s.retailer, sd.store_id, sd.week_ending,
                sd.units_sold, sd.dollars_sold
-        FROM fct_scan_data sd
-        JOIN dim_stores s ON sd.store_id = s.store_id
+        FROM stg_scan_data sd
+        JOIN stg_stores s ON sd.store_id = s.store_id
         WHERE sd.week_ending >= %s
-        ORDER BY sd.sku, s.retailer_name, sd.week_ending
+        ORDER BY sd.sku, s.retailer, sd.week_ending
     """, (oldest_week,)).fetchall()
 
     promo_windows = {}
@@ -615,7 +615,7 @@ def validate(conn, oldest_week, max_scan, ded_count, dispute_count):
             failed += 1
 
     rev = conn.execute(
-        "SELECT SUM(dollars_sold) FROM fct_scan_data WHERE week_ending >= %s",
+        "SELECT SUM(dollars_sold) FROM stg_scan_data WHERE week_ending >= %s",
         (oldest_week,)
     ).fetchone()[0]
     _check("Revenue", rev, 25593052, 2000)

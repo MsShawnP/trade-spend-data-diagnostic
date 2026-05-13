@@ -153,7 +153,7 @@ def main():
     ws5 = wb["Deduction Ledger"]
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     max_scan = weeks[0][0]
     db_count = conn.execute("""

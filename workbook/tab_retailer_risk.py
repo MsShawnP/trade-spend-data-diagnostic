@@ -47,16 +47,16 @@ def _query_retailer_data(database_url: str) -> dict:
     conn = connect()
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
     max_scan = weeks[0][0]
 
     rev_rows = conn.execute("""
-        SELECT s.retailer_name, SUM(sd.dollars_sold)
-        FROM fct_scan_data sd JOIN dim_stores s ON sd.store_id = s.store_id
+        SELECT s.retailer, SUM(sd.dollars_sold)
+        FROM stg_scan_data sd JOIN stg_stores s ON sd.store_id = s.store_id
         WHERE sd.week_ending >= %s
-        GROUP BY s.retailer_name
+        GROUP BY s.retailer
     """, (oldest_week,)).fetchall()
     revenue_map = dict(rev_rows)
     total_revenue = sum(revenue_map.values())

@@ -87,7 +87,7 @@ def build_methodology(ws: Worksheet) -> None:
         "All data originates from the Cinderhaven Data Platform (Postgres), "
         "managed via dbt with staging, intermediate, and mart layers.")
     row += 1
-    row = _write_pair(ws, row, "fct_scan_data",
+    row = _write_pair(ws, row, "stg_scan_data",
         "Point-of-sale weekly volumes and dollar sales by SKU and store. "
         "104 weeks (2024-05-11 to 2026-05-02). Used for revenue calculations (trailing 52 weeks = "
         "52 most recent distinct week_ending values) and promotion lift analysis.")
@@ -98,7 +98,7 @@ def build_methodology(ws: Worksheet) -> None:
         "3,087 deduction records (2024-07-04 to 2026-05-02). Each record: retailer, type, amount, date, "
         "codes, flags (vague, post-audit, double-dip). Trailing-365 filter applied for operational waste "
         "calculations. Joined to stg_deduction_codes for translations and to stg_disputes for recovery data.")
-    row = _write_pair(ws, row, "fct_promotions",
+    row = _write_pair(ws, row, "stg_promotions",
         "188 promotion rows across 75 distinct events. Fields: SKU, retailer, date window, promo type, "
         "promo_cost, funding_mechanism. Coverage: not all promotions have matched POS data. "
         "Limitation: promo calendar may be incomplete — ghost promo analysis identifies deductions "
@@ -110,8 +110,8 @@ def build_methodology(ws: Worksheet) -> None:
     row = _write_pair(ws, row, "stg_disputes",
         "1,409 dispute records with outcome, recovered amount, filed/closed dates. "
         "Joined to stg_deductions on deduction_id. Recovery rate = total recovered / total disputed dollars.")
-    row = _write_pair(ws, row, "dim_stores",
-        "Store-to-retailer mapping. Used to aggregate fct_scan_data from store level to retailer/channel level.")
+    row = _write_pair(ws, row, "stg_stores",
+        "Store-to-retailer mapping. Used to aggregate stg_scan_data from store level to retailer/channel level.")
 
     # === ROI METHODOLOGY ===
     row += 1
@@ -128,7 +128,7 @@ def build_methodology(ws: Worksheet) -> None:
         "(During-period avg − Baseline avg) × promotion duration in weeks.")
     row = _write_pair(ws, row, "Step 4: Incremental revenue",
         "Incremental volume × average selling price (ASP) for that SKU at that retailer, "
-        "calculated from fct_scan_data as dollars_sold / units_sold.")
+        "calculated from stg_scan_data as dollars_sold / units_sold.")
     row = _write_pair(ws, row, "Step 5: ROI",
         "Incremental revenue ÷ promotion cost. Uses actual cost (matched promo_billback deduction) "
         "if available; otherwise uses planned cost from the promotions table and flags it.")
@@ -209,14 +209,14 @@ def build_methodology(ws: Worksheet) -> None:
 
     sql_blocks = [
         ("Revenue (trailing 52w)",
-         "SELECT SUM(dollars_sold) FROM fct_scan_data\n"
+         "SELECT SUM(dollars_sold) FROM stg_scan_data\n"
          "WHERE week_ending >= (SELECT DISTINCT week_ending\n"
-         "  FROM fct_scan_data ORDER BY week_ending DESC LIMIT 1 OFFSET 51)"),
+         "  FROM stg_scan_data ORDER BY week_ending DESC LIMIT 1 OFFSET 51)"),
         ("Structural trade",
-         "SELECT s.retailer_name, SUM(sd.dollars_sold) AS channel_rev\n"
-         "FROM fct_scan_data sd JOIN dim_stores s ON sd.store_id = s.store_id\n"
+         "SELECT s.retailer, SUM(sd.dollars_sold) AS channel_rev\n"
+         "FROM stg_scan_data sd JOIN stg_stores s ON sd.store_id = s.store_id\n"
          "WHERE sd.week_ending >= [trailing_52w_start]\n"
-         "GROUP BY s.retailer_name\n"
+         "GROUP BY s.retailer\n"
          "-- Then: channel_rev × AVG(trade_spend_pct_[channel]) from stg_sku_costs"),
         ("Operational waste",
          "SELECT SUM(amount) FROM stg_deductions\n"
