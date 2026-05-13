@@ -1,7 +1,6 @@
 """Tab 6: Deduction Code Crosswalk — reference mapping of retailer codes."""
 
-import sqlite3
-from pathlib import Path
+from workbook.db import connect
 
 from openpyxl.formatting.rule import CellIsRule
 from openpyxl.styles import Font, PatternFill
@@ -24,24 +23,24 @@ COLUMNS = [
 ]
 
 
-def _query_crosswalk(db_path: Path) -> list[tuple]:
-    conn = sqlite3.connect(db_path)
+def _query_crosswalk(database_url: str) -> list[tuple]:
+    conn = connect()
     rows = conn.execute("""
         SELECT
             retailer_id,
             code,
             name,
             deduction_type,
-            CASE WHEN is_published = 1 THEN 'Verified' ELSE 'Inferred' END
-        FROM deduction_codes
+            CASE WHEN is_published THEN 'Verified' ELSE 'Inferred' END
+        FROM stg_deduction_codes
         ORDER BY retailer_id, deduction_type, code
     """).fetchall()
     conn.close()
     return rows
 
 
-def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
-    rows = _query_crosswalk(db_path)
+def build_code_crosswalk(ws: Worksheet, database_url: str) -> None:
+    rows = _query_crosswalk(database_url)
 
     ws.sheet_view.showGridLines = False
 

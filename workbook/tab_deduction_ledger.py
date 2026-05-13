@@ -1,8 +1,8 @@
 """Tab 5: Deduction Ledger — full trailing-365 deduction log for investigation."""
 
-import sqlite3
 from datetime import date
-from pathlib import Path
+
+from workbook.db import connect
 
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
@@ -41,11 +41,11 @@ COLUMNS = [
 ]
 
 
-def _query_ledger(db_path: Path) -> tuple[list[tuple], str, str]:
-    conn = sqlite3.connect(db_path)
+def _query_ledger(database_url: str) -> tuple[list[tuple], str, str]:
+    conn = connect()
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
     max_scan = weeks[0][0]
@@ -69,19 +69,19 @@ def _query_ledger(db_path: Path) -> tuple[list[tuple], str, str]:
             dis.closed_date,
             CASE
                 WHEN dis.closed_date IS NOT NULL
-                THEN CAST(julianday(dis.closed_date) - julianday(d.deduction_date) AS INTEGER)
+                THEN (dis.closed_date - d.deduction_date)
                 WHEN dis.filed_date IS NOT NULL
-                THEN CAST(julianday(?) - julianday(d.deduction_date) AS INTEGER)
+                THEN (%s::date - d.deduction_date)
                 ELSE NULL
             END,
             d.dispute_deadline,
             d.is_vague,
             d.is_post_audit,
             d.is_double_dip
-        FROM deductions d
-        LEFT JOIN deduction_codes dc ON d.code_id = dc.code_id
-        LEFT JOIN disputes dis ON dis.deduction_id = d.deduction_id
-        WHERE d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?
+        FROM stg_deductions d
+        LEFT JOIN stg_deduction_codes dc ON d.code_id = dc.code_id
+        LEFT JOIN stg_disputes dis ON dis.deduction_id = d.deduction_id
+        WHERE d.deduction_date > (%s::date - interval '365 days')::date AND d.deduction_date <= %s
         ORDER BY d.deduction_date DESC, d.amount DESC
     """, (max_scan, max_scan, max_scan)).fetchall()
 
@@ -89,8 +89,8 @@ def _query_ledger(db_path: Path) -> tuple[list[tuple], str, str]:
     return rows, oldest_week, max_scan
 
 
-def build_deduction_ledger(ws: Worksheet, db_path: Path) -> None:
-    rows, oldest_week, max_scan = _query_ledger(db_path)
+def build_deduction_ledger(ws: Worksheet, database_url: str) -> None:
+    rows, oldest_week, max_scan = _query_ledger(database_url)
 
     ws.sheet_view.showGridLines = True
 
@@ -137,7 +137,7 @@ def build_deduction_ledger(ws: Worksheet, db_path: Path) -> None:
         # Boolean flags (cols 18-20): show Yes/blank
         for flag_col in (18, 19, 20):
             cell = ws.cell(row=rw, column=flag_col)
-            cell.value = "Yes" if cell.value == 1 else ""
+            cell.value = "Yes" if cell.value else ""
             cell.alignment = ALIGN_CENTER
 
     # --- Excel Table ---

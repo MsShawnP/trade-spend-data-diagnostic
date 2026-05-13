@@ -1,7 +1,6 @@
 """End-to-end validation of the trade spend diagnostic workbook."""
 
 import os
-import sqlite3
 import sys
 from pathlib import Path
 
@@ -10,8 +9,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 from openpyxl import load_workbook
 
+from workbook.db import connect
+
 OUTPUT = Path(__file__).resolve().parent / "output" / "trade_spend_diagnostic.xlsx"
-DB = Path(__file__).resolve().parent / "cinderhaven-data" / "data" / "cinderhaven_product_master.db"
 
 PASS = 0
 FAIL = 0
@@ -40,11 +40,10 @@ def main():
     global PASS, FAIL
 
     print(f"Validating: {OUTPUT}")
-    print(f"Database:   {DB}")
     print()
 
     wb = load_workbook(OUTPUT, data_only=False)
-    conn = sqlite3.connect(DB)
+    conn = connect()
 
     # === TAB STRUCTURE ===
     print("=== Tab Structure ===")
@@ -124,8 +123,8 @@ def main():
     # === RECOVERY CHECK ===
     print()
     print("=== Recovery Check ===")
-    disputes_total = conn.execute("SELECT COUNT(*) FROM disputes").fetchone()[0]
-    recovered = conn.execute("SELECT SUM(recovered_amount) FROM disputes").fetchone()[0]
+    disputes_total = conn.execute("SELECT COUNT(*) FROM stg_disputes").fetchone()[0]
+    recovered = conn.execute("SELECT SUM(recovered_amount) FROM stg_disputes").fetchone()[0]
     check("Disputes ~ 1,409", abs(disputes_total - 1409) <= 2, f"Got {disputes_total}")
     check("Recovered ≈ $98,216", approx(recovered, 98216),
           f"Got ${recovered:,.0f}")
@@ -154,12 +153,12 @@ def main():
     ws5 = wb["Deduction Ledger"]
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     max_scan = weeks[0][0]
     db_count = conn.execute("""
-        SELECT COUNT(*) FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+        SELECT COUNT(*) FROM stg_deductions
+        WHERE deduction_date > (%s::date - interval '365 days')::date AND deduction_date <= %s
     """, (max_scan, max_scan)).fetchone()[0]
 
     ledger_rows = 0

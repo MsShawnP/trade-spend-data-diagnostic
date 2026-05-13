@@ -1,8 +1,8 @@
 """Tab 4: Retailer Risk — net-net margin by retailer with what-if scenarios."""
 
-import sqlite3
 from datetime import date
-from pathlib import Path
+
+from workbook.db import connect
 
 from openpyxl.comments import Comment
 from openpyxl.formatting.rule import ColorScaleRule
@@ -43,40 +43,40 @@ TABLE_STYLE = TableStyleInfo(
 )
 
 
-def _query_retailer_data(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+def _query_retailer_data(database_url: str) -> dict:
+    conn = connect()
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM fct_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
     max_scan = weeks[0][0]
 
     rev_rows = conn.execute("""
-        SELECT s.retailer, SUM(sd.dollars_sold)
-        FROM scan_data sd JOIN stores s ON sd.store_id = s.store_id
-        WHERE sd.week_ending >= ?
-        GROUP BY s.retailer
+        SELECT s.retailer_name, SUM(sd.dollars_sold)
+        FROM fct_scan_data sd JOIN dim_stores s ON sd.store_id = s.store_id
+        WHERE sd.week_ending >= %s
+        GROUP BY s.retailer_name
     """, (oldest_week,)).fetchall()
     revenue_map = dict(rev_rows)
     total_revenue = sum(revenue_map.values())
 
     rates = {}
     for channel, col in CHANNEL_RATE_COLS.items():
-        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
+        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM stg_sku_costs").fetchone()[0]
+    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM stg_sku_costs").fetchone()[0]
 
     gm_map = {}
     for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
                           ("Whole Foods", "wholesale_whole_foods"), ("UNFI", "wholesale_unfi"),
                           ("DTC", "wholesale_dtc"), ("Regional", "wholesale_regional")]:
-        r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM sku_costs").fetchone()
+        r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM stg_sku_costs").fetchone()
         gm_map[channel] = (r[1] - r[0]) / r[1] if r[1] else 0
 
     op_ded_rows = conn.execute("""
         SELECT retailer_id, SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+        FROM stg_deductions
+        WHERE deduction_date > (%s::date - interval '365 days')::date AND deduction_date <= %s
           AND deduction_type != 'promo_billback'
         GROUP BY retailer_id
     """, (max_scan, max_scan)).fetchall()
@@ -84,8 +84,8 @@ def _query_retailer_data(db_path: Path) -> dict:
 
     pb_rows = conn.execute("""
         SELECT retailer_id, SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+        FROM stg_deductions
+        WHERE deduction_date > (%s::date - interval '365 days')::date AND deduction_date <= %s
           AND deduction_type = 'promo_billback'
         GROUP BY retailer_id
     """, (max_scan, max_scan)).fetchall()
@@ -160,8 +160,8 @@ def _query_retailer_data(db_path: Path) -> dict:
     }
 
 
-def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
-    data = _query_retailer_data(db_path)
+def build_retailer_risk(ws: Worksheet, database_url: str) -> None:
+    data = _query_retailer_data(database_url)
     retailers = data["retailers"]
 
     ws.sheet_view.showGridLines = False

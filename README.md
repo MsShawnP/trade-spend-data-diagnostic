@@ -21,28 +21,43 @@ walkthrough.md              Full methodology and findings narrative
 build_workbook.py           Generates the 7-tab diagnostic workbook
 validate_workbook.py        43-check acceptance test suite
 workbook/                   Workbook generation modules (one per tab)
+  db.py                     Database connection wrapper (Postgres)
 sql/                        25 standalone diagnostic queries
 powerbi/                    Dashboard design, data exports, DAX measures, build guide
-cinderhaven-data/           Simulated dataset (git submodule, 21 tables)
-scripts/                    Database build utilities
+scripts/                    Database connectivity utilities
 output/                     Generated workbook (.gitignored)
 requirements.txt            Python dependencies
 ```
 
-## Quick start
+## Data Source
+
+This project reads from the **Cinderhaven Data Platform** — a Postgres
+database with dbt-managed staging, intermediate, and mart tables,
+hosted on Fly.io with local Docker for development.
+
+To run locally, start the shared Docker Postgres from
+[refactor-older-cinderhaven-projects](https://github.com/MsShawnP/refactor-older-cinderhaven-projects):
 
 ```bash
-git clone --recurse-submodules <repo-url>
-cd trade-spend-data-diagnostic
-pip install -r requirements.txt
+# In the refactor-older-cinderhaven-projects repo:
+docker compose up
+
+# Then in this repo:
+cp .env.example .env
 python build_workbook.py
 ```
 
-The `--recurse-submodules` flag is required — the `cinderhaven-data`
-submodule contains the SQLite database. If you cloned without it:
+The original SQLite database and `cinderhaven-data` git submodule have
+been replaced. See git tag `v1.0-sqlite` for the pre-migration state.
+
+## Quick start
 
 ```bash
-git submodule update --init
+git clone <repo-url>
+cd trade-spend-data-diagnostic
+pip install -r requirements.txt
+cp .env.example .env   # edit DATABASE_URL if not using local Docker
+python build_workbook.py
 ```
 
 Output lands at `output/trade_spend_diagnostic.xlsx`.
@@ -66,7 +81,7 @@ auto-generated DAX measures. See
 
 ## Stack
 
-Python 3.10+, openpyxl, pandas, rapidfuzz, SQLite.
+Python 3.10+, openpyxl, psycopg2, Postgres (Cinderhaven Data Platform).
 
 ## License
 
