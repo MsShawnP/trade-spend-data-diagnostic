@@ -97,7 +97,7 @@ All deliverables are subject to review. Anything can be dropped, rewritten, or r
   └── output/                  # generated .xlsx (.gitignored)
   ```
 - **Dependencies:** `requirements.txt` pins openpyxl, pandas, rapidfuzz
-- **Workflow:** v2 phase-gated (this plan → reviews → remediation → audit → commit). v1 artifacts (`PLAN.md`, `HANDOFF.md`, `DECISIONS.md`, `FAILURES.md`) retained as historical record of the build phase.
+- **Workflow:** v1 and v2 run together. v1 handles session continuity — `/log` and `/wrap` against `PLAN.md`, `HANDOFF.md`, `DECISIONS.md`, `FAILURES.md`. v2 handles phase-gated review — this plan → code/data/prose review → remediation → audit → commit, with agents in `.claude/agents/` and artifacts at project root (`PROJECT_PLAN.md`, `REVIEW_*.md`, `REMEDIATION.md`, `AUDIT.md`). Both sets of files stay in place.
 
 ## Success Criteria
 
@@ -127,9 +127,7 @@ The project ships when a prospect CPG CEO and a public portfolio viewer can each
 
 5. **Audience tension.** Prospect CEO (warm, action-oriented) and public portfolio viewer (cold, analytical) want different framing. README leans portfolio; walkthrough leans prospect. Resolve into one voice, or accept the split?
 
-6. **v1 workflow artifacts.** `PLAN.md`, `HANDOFF.md`, `DECISIONS.md`, `FAILURES.md` carry the build history. Keep as historical record, archive into a `docs/` subdirectory, or delete now that v2 is the live workflow?
-
-7. **Workflow plumbing leftovers.** `CLAUDE.md` at project root is still a template (empty Project Overview and Conventions sections); `.claude-project-url` is a placeholder; `.claude/commands/log.md` may conflict with any user-level `/log` skill. These predate v2 — clean up as part of remediation?
+6. **Workflow plumbing leftovers.** `CLAUDE.md` at project root has empty Project Overview and Conventions sections; `.claude-project-url` is the placeholder `PASTE-YOUR-PROJECT-ID-HERE`. These are v1 scaffolding stubs that never got filled in. Fill in or leave?
 
 ## Risk Notes
 
