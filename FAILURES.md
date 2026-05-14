@@ -21,4 +21,6 @@ should handle partial builds gracefully.
 **Action items:**
 - Push the deduction pipeline scripts from the active cinderhaven-data
   repo to GitHub (separate task, not blocking workbook)
-- The `scripts/build_db.py` fallback (copy pre-built DB) works for now
+- The `scripts/build_db.py` fallback (copy pre-built DB) works for now.
+  Set the `CINDERHAVEN_DB` env var to point at a local pre-built database
+  when the submodule is incomplete.

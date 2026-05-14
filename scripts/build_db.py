@@ -4,6 +4,7 @@ Tries the submodule's build_db.py first. If the submodule is incomplete
 (missing deduction pipeline scripts), falls back to the pre-built database
 in the active cinderhaven-data repo.
 """
+import os
 import shutil
 import subprocess
 import sys
@@ -12,15 +13,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SUBMODULE = ROOT / "cinderhaven-data"
 SUBMODULE_DB = SUBMODULE / "data" / "cinderhaven_product_master.db"
-ACTIVE_DB = Path(r"C:\Users\mssha\projects\active\cinderhaven-data\data\cinderhaven_product_master.db")
+
+# Optional fallback when the submodule lacks the deduction pipeline scripts.
+# Set CINDERHAVEN_DB to point at a pre-built database on disk.
+_ACTIVE_DB_ENV = os.environ.get("CINDERHAVEN_DB")
+ACTIVE_DB = Path(_ACTIVE_DB_ENV) if _ACTIVE_DB_ENV else None
 
 
 def find_database() -> Path:
     if SUBMODULE_DB.exists():
         return SUBMODULE_DB
-    if ACTIVE_DB.exists():
+    if ACTIVE_DB and ACTIVE_DB.exists():
         return ACTIVE_DB
-    raise FileNotFoundError("No cinderhaven database found. Run the submodule build first.")
+    raise FileNotFoundError(
+        "No cinderhaven database found. Initialize the submodule, or set "
+        "CINDERHAVEN_DB to a pre-built .db file."
+    )
 
 
 def build(force: bool = False) -> Path:
@@ -43,8 +51,8 @@ def build(force: bool = False) -> Path:
             return SUBMODULE_DB
         print(f"Submodule build failed (exit {result.returncode}).")
 
-    if ACTIVE_DB.exists():
-        print(f"Using pre-built database from active repo...")
+    if ACTIVE_DB and ACTIVE_DB.exists():
+        print(f"Using pre-built database from CINDERHAVEN_DB...")
         SUBMODULE_DB.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ACTIVE_DB, SUBMODULE_DB)
         size_mb = SUBMODULE_DB.stat().st_size / (1024 * 1024)
@@ -52,7 +60,8 @@ def build(force: bool = False) -> Path:
         return SUBMODULE_DB
 
     raise FileNotFoundError(
-        "Cannot build database: submodule incomplete and no pre-built DB found."
+        "Cannot build database: submodule incomplete and no pre-built DB found. "
+        "Set CINDERHAVEN_DB to a pre-built .db file."
     )
 
 
