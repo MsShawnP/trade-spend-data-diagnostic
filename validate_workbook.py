@@ -103,6 +103,19 @@ def main():
     check("Operational waste rate = 4.0%", approx(waste_rate, 0.040, 0.015),
           f"Got {waste_rate*100:.1f}%")
 
+    # === BENCHMARK & TREND (Tab 1) ===
+    print()
+    print("=== Benchmark & Trend (Tab 1) ===")
+    benchmark_cell = ws1.cell(row=5, column=6).value
+    check("Benchmark range annotation present", benchmark_cell is not None and "19" in str(benchmark_cell),
+          f"F5 = {benchmark_cell}")
+    benchmark_label = ws1.cell(row=6, column=6).value
+    check("Benchmark label present", benchmark_label is not None and "Industry" in str(benchmark_label),
+          f"F6 = {benchmark_label}")
+    trend_cell = ws1.cell(row=16, column=6).value
+    check("Waste trend indicator present", trend_cell is not None and "trend" in str(trend_cell).lower(),
+          f"F16 = {trend_cell}")
+
     # === DOUBLE-DIP CHECK (Tab 2) ===
     print()
     print("=== Double-Dip Check (Tab 2) ===")
@@ -138,8 +151,8 @@ def main():
     retailer_rev_sum = 0
     retailer_struct_sum = 0
     for r in range(6, 17):
-        rev = ws4.cell(row=r, column=3).value or 0
-        struct = ws4.cell(row=r, column=5).value or 0
+        rev = ws4.cell(row=r, column=4).value or 0
+        struct = ws4.cell(row=r, column=6).value or 0
         retailer_rev_sum += rev
         retailer_struct_sum += struct
 

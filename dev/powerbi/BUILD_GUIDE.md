@@ -10,13 +10,13 @@ via pbi-tools). Section 4 covers manual visual assembly.
 
 ```bash
 # 1. Export data from SQLite to CSV
-python powerbi/export_data.py
+python dev/powerbi/export_data.py
 
 # 2. Generate the .pbip project (semantic model + report with visuals)
-python powerbi/generate_pbip.py
+python dev/powerbi/generate_pbip.py
 
 # 3. Open in Power BI Desktop
-#    Double-click powerbi/CinderhavenDashboard.pbip
+#    Double-click dev/powerbi/CinderhavenDashboard.pbip
 ```
 
 Both scripts are idempotent — re-run them in order after any changes.
@@ -59,8 +59,8 @@ of checkboxes. Configure as a slider:
   multiples waterfall)
 - **pbi-tools** — `winget install pbi-tools` or https://pbi.tools
 - **Python 3.10+** — for export and measure generation scripts
-- **Data files** — 7 CSVs in `powerbi/data/`, exported by
-  `python powerbi/export_data.py`
+- **Data files** — 7 CSVs in `dev/powerbi/data/`, exported by
+  `python dev/powerbi/export_data.py`
 - **Reference docs** — keep open while building:
   - `DESIGN.md` — page layouts, visual specs
   - `DAX_MEASURES.md` — full measure formulas and notes
@@ -146,9 +146,9 @@ dim_date[Date]               → fact_deductions[deduction_date]      1:many, si
 Save the .pbix, close Power BI Desktop, then run:
 
 ```
-pbi-tools extract powerbi/trade_spend_diagnostic.pbix
-python powerbi/generate_pbix_model.py powerbi/trade_spend_diagnostic
-pbi-tools compile powerbi/trade_spend_diagnostic.pbix
+pbi-tools extract dev/powerbi/trade_spend_diagnostic.pbix
+python dev/powerbi/generate_pbix_model.py dev/powerbi/trade_spend_diagnostic
+pbi-tools compile dev/powerbi/trade_spend_diagnostic.pbix
 ```
 
 This injects 49 measures and 4 calculated tables. See

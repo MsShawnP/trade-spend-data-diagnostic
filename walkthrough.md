@@ -1,18 +1,23 @@
 # Trade Spend Diagnostic — Walkthrough
 
-Cinderhaven Provisions, a specialty food company with $25.6 million
-in trailing-twelve-month wholesale revenue, budgets 17.3% of that
-revenue for trade spend — the rate-card allowances negotiated with
-retailers as a cost of shelf access. The actual all-in cost is 21.3%.
-The 4-point gap represents roughly $1 million in annual operational
-waste: deductions taken by retailers beyond the negotiated trade
-rate, flowing through in retailer-specific codes, weeks after the
-transactions they reference, and largely uncontested.
+Cinderhaven Provisions budgets 17% for trade spend. The actual cost
+is 21%. The gap is $1 million per year — and nobody in the building
+knew until the infrastructure to measure it was built.
+
+That is the Monday-morning finding. A mid-market specialty food
+company with $25.6M in wholesale revenue is losing 4 points of margin
+to operational waste: retailer deductions taken beyond the negotiated
+rate card, coded in retailer-specific formats, arriving weeks after
+the transactions they reference, and largely uncontested. The
+industry benchmark for all-in trade spend in natural/specialty CPG
+is 19-23%. Cinderhaven's 17.3% structural rate is competitive. The
+21.3% all-in rate is at the high end — not because the rate card is
+wrong, but because $1M in unplanned deductions is being absorbed.
 
 This walkthrough explains how the diagnostic was built, what it
-found, and what each deliverable does. It is written for someone
-evaluating whether this kind of analysis is worth commissioning for
-their own data.
+found, and what to do about it. It is written for someone evaluating
+whether this kind of analysis is worth commissioning for their own
+data.
 
 ---
 
@@ -102,7 +107,7 @@ single SQLite database:
   "Whole Foods," "short ship" versus "shipping shortage." The
   crosswalk achieves a ~68% clean match rate. 292 deductions remain
   unmapped: their retailer codes have no entry in the crosswalk
-  table (query: `crosswalk/deduction_codes.sql`).
+  table (query: `dev/sql/crosswalk/deduction_codes.sql`).
 
 ### Promotion measurement
 
@@ -132,7 +137,7 @@ representing 4.0% of revenue (see Tab 1: Executive Pulse).
 
 Eight deduction categories compose the operational waste, led by
 three that account for two-thirds of the total (query:
-`deductions/waste_by_category.sql`):
+`dev/sql/deductions/waste_by_category.sql`):
 
 | Category | Count | Amount | Share |
 |----------|------:|-------:|------:|
@@ -162,7 +167,7 @@ deduction. The dollar amount is small. The finding is significant
 because the matching infrastructure to detect double-dips — linking
 deductions back to specific promotions by retailer, date window,
 and amount — did not exist before this diagnostic was built (query:
-`deductions/double_dip_events.sql`).
+`dev/sql/deductions/double_dip_events.sql`).
 
 ### Ghost promotions
 
@@ -173,7 +178,7 @@ was never recorded in the calendar, or the retailer billed for
 promotional activity that did not take place. Both explanations
 indicate a process gap — either in promotion planning or in
 deduction validation (see Tab 3: Promo Efficacy; query:
-`promo_roi/ghost_promo_summary.sql`).
+`dev/sql/promo_roi/ghost_promo_summary.sql`).
 
 ### Promotion performance
 
@@ -189,7 +194,7 @@ ROI: the cost of the promotion exceeded the incremental revenue it
 produced. The distribution varies by promo type; TPRs (temporary
 price reductions, 71 promotions) and Features (68) dominate the
 calendar, while BOGOs (12) are the smallest category (see Tab 3:
-Promo Efficacy; query: `promo_roi/promo_performance.sql`).
+Promo Efficacy; query: `dev/sql/promo_roi/promo_performance.sql`).
 
 ### Retailer margin spread
 
@@ -200,7 +205,7 @@ benchmark, the range is 33.8% (Mountain Pantry Co) to 12.5%
 (Walmart). Walmart's position at the bottom reflects its 21.5%
 structural trade rate — the highest in the portfolio — combined with
 operational deductions that push the all-in rate further (see Tab 4:
-Retailer Risk; query: `retailer/net_net_margin.sql`).
+Retailer Risk; query: `dev/sql/retailer/net_net_margin.sql`).
 
 Five regional chains (Green Basket Market, Southside Grocers,
 Prairie Provisions, Mountain Pantry Co, Harbor Fresh) cluster between
@@ -220,7 +225,7 @@ represents either valid deductions that were correctly upheld,
 disputes where evidence was insufficient, or disputes that expired
 before resolution. An adjustable recovery model in the workbook
 shows the addressable improvement at higher target rates (query:
-`reconciliation/recovery_rate.sql`).
+`dev/sql/reconciliation/recovery_rate.sql`).
 
 ### Data quality
 
@@ -238,45 +243,44 @@ retailer-provided data (see Tab 6: Deduction Code Crosswalk).
 
 ## 4. The deliverables
 
-Three artifacts consume the same underlying database. Each is built
-for a different user and a different moment.
+Four artifacts ship. Each is built for a different reader and a
+different moment.
 
-**The Excel workbook** (7 tabs) is the static diagnostic. It opens
+**The Excel workbook** (7 tabs) is the primary diagnostic. It opens
 cold — no database connection, no setup. Tab 1 (Executive Pulse)
-leads with the two-bucket punchline: 17.3% structural, 4.0%
-operational, 21.3% all-in. Tabs 2 through 4 (Leak Diagnostic,
-Promo Efficacy, Retailer Risk) provide the supporting detail with
-adjustable inputs — a target recovery rate, a promo comparison
-window, and per-retailer what-if trade rates. Tab 5 (Deduction
-Ledger) is the full trailing-year data with auto-filters and freeze
-panes. Tab 6 maps retailer codes to plain English. Tab 7 documents
-every calculation. Color-coded: green for output tabs, blue for
-input data, gray for reference.
+leads with the punchline: 17.3% structural, 4.0% operational, 21.3%
+all-in, benchmarked against the 19-23% industry range. A 12-month
+waste trend chart shows whether the problem is stable or accelerating.
+Tabs 2 through 4 (Leak Diagnostic, Promo Efficacy, Retailer Risk)
+provide supporting detail with adjustable inputs — a target recovery
+rate, a promo comparison window, and per-retailer what-if trade
+rates. The Retailer Risk tab includes a channel rollup (Walmart,
+Costco, Whole Foods, UNFI, Regional, DTC, Distributor). Tab 5 is
+the full deduction ledger with taxonomy classification per row. Tab 6
+maps retailer codes to plain English. Tab 7 documents every
+calculation, including the benchmark source.
 
-**The SQL query library** (25 queries in 6 categories) is for the
-analyst who wants to run their own cuts. Each `.sql` file answers
-one diagnostic question — from "What is total revenue?" to "Which
-promo-billback deductions have no matching promotion?" A 10-step
-suggested execution order mirrors the diagnostic narrative, from
-revenue through waste, promotions, retailer risk, and recovery.
+**The executive memo** (`EXECUTIVE_MEMO.md`) is the one-page
+condensation — the finding, where the money goes, and three things
+to do Monday morning. This is the artifact that gets forwarded.
 
-**The Power BI dashboard** (4 pages) is the interactive companion.
-It adds six capabilities that are impossible or impractical in the
-static workbook: cross-filtering the margin erosion waterfall by
-retailer, time-series deduction trends with click-to-filter, a
-scatter plot of 188 promotions by cost versus incremental revenue,
-a what-if slider that instantly recalculates savings across all
-retailers, small-multiples waterfalls for side-by-side retailer
-comparison, and drill-through navigation from summary to detail.
-The dashboard is assembled manually in Power BI Desktop using
-exported CSVs and 49 pre-generated DAX measures.
+**The defensibility log** (`DEFENSIBILITY.md`) defines the
+classification rules for every deduction bucket and provides the
+rebuttal text — the answer to "your consultant doesn't understand
+our business." Every "waste" or "unknown" tag has a one-line defense.
 
-All three deliverables are built from the same SQLite database,
-maintained as a git submodule. When the underlying data is updated,
-the workbook is regenerated (`python build_workbook.py`), the CSVs
-are re-exported (`python powerbi/export_data.py`), and the dashboard
-refreshes in place. The numbers stay consistent because there is one
-source.
+**The walkthrough** (this document) is the full methodology and
+findings narrative for someone evaluating the analysis.
+
+Two additional reference artifacts live in `dev/`: a SQL query
+library (25 queries) for analysts who want to run their own cuts,
+and Power BI design documentation (dashboard wireframes, 49 DAX
+measures, pre-exported CSVs) for a future interactive implementation.
+
+All deliverables are built from the same SQLite database, maintained
+as a git submodule. When the underlying data is updated, the workbook
+is regenerated (`python build_workbook.py`) and the numbers stay
+consistent because there is one source.
 
 ---
 

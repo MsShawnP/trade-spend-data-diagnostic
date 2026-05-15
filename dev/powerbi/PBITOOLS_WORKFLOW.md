@@ -49,20 +49,20 @@ pbi-tools info
 If not already done:
 
 ```
-python powerbi/export_data.py
+python dev/powerbi/export_data.py
 ```
 
-Verify 7 CSVs in `powerbi/data/` and all validation checks pass.
+Verify 7 CSVs in `dev/powerbi/data/` and all validation checks pass.
 
 ### Step 2: Create the seed .pbix
 
 Open Power BI Desktop and build the data model manually:
 
 1. **Import CSVs**: Home → Get Data → Text/CSV for each file in
-   `powerbi/data/`. Set column types per `BUILD_GUIDE.md` § 2.
+   `dev/powerbi/data/`. Set column types per `BUILD_GUIDE.md` § 2.
 2. **Create relationships**: In Model view, create all 10
    relationships per `BUILD_GUIDE.md` § 3.
-3. **Save** as `powerbi/trade_spend_diagnostic.pbix`
+3. **Save** as `dev/powerbi/trade_spend_diagnostic.pbix`
 4. **Close** Power BI Desktop (pbi-tools requires exclusive access)
 
 Do NOT add measures or calculated tables — the script handles those.
@@ -70,13 +70,13 @@ Do NOT add measures or calculated tables — the script handles those.
 ### Step 3: Extract the .pbix
 
 ```
-pbi-tools extract powerbi/trade_spend_diagnostic.pbix
+pbi-tools extract dev/powerbi/trade_spend_diagnostic.pbix
 ```
 
 This creates a folder alongside the .pbix:
 
 ```
-powerbi/
+dev/powerbi/
   trade_spend_diagnostic.pbix
   trade_spend_diagnostic/
     .pbixproj.json
@@ -93,7 +93,7 @@ powerbi/
 ### Step 4: Generate measures
 
 ```
-python powerbi/generate_pbix_model.py powerbi/trade_spend_diagnostic
+python dev/powerbi/generate_pbix_model.py dev/powerbi/trade_spend_diagnostic
 ```
 
 Pass the extracted folder path as the argument. The script writes:
@@ -122,7 +122,7 @@ trade_spend_diagnostic/
 ### Step 5: Compile back to .pbix
 
 ```
-pbi-tools compile powerbi/trade_spend_diagnostic.pbix
+pbi-tools compile dev/powerbi/trade_spend_diagnostic.pbix
 ```
 
 This reads the folder and rewrites the .pbix with the injected
