@@ -1,5 +1,7 @@
 output/
 *.pyc
 __pycache__/
-*.db
 .venv/
+
+# Environment
+.env

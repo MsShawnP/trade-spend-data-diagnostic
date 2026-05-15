@@ -1,8 +1,8 @@
 """Tab 3: Promo Efficacy — which promotions created value vs. destroyed it."""
 
-import sqlite3
 from datetime import date
-from pathlib import Path
+
+from workbook.db import connect
 
 from openpyxl.comments import Comment
 from openpyxl.formatting.rule import CellIsRule
@@ -37,11 +37,11 @@ def _retailer_key(name: str) -> str:
     return name.lower().replace(" ", "_")
 
 
-def _query_promo_data(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+def _query_promo_data(database_url: str) -> dict:
+    conn = connect()
 
     all_weeks = [r[0] for r in conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending"
     ).fetchall()]
     week_idx = {w: i for i, w in enumerate(all_weeks)}
 
@@ -49,55 +49,55 @@ def _query_promo_data(db_path: Path) -> dict:
         SELECT promo_id, sku, retailer, start_week, end_week,
                duration_weeks, discount_depth_pct, promo_type,
                promo_cost, funding_mechanism
-        FROM promotions
+        FROM stg_promotions
         ORDER BY promo_id, retailer
     """).fetchall()
 
     asp_map = {}
     asp_rows = conn.execute("""
         SELECT sd.sku, s.retailer, AVG(sd.dollars_sold * 1.0 / sd.units_sold)
-        FROM scan_data sd
-        JOIN stores s ON sd.store_id = s.store_id
+        FROM stg_scan_data sd
+        JOIN stg_stores s ON sd.store_id = s.store_id
         WHERE sd.units_sold > 0
         GROUP BY sd.sku, s.retailer
     """).fetchall()
     for sku, retailer, asp in asp_rows:
-        asp_map[(sku, retailer)] = asp
+        asp_map[(sku, retailer)] = float(asp) if asp else None
 
     vol_rows = conn.execute("""
         SELECT sd.sku, s.retailer, sd.week_ending, SUM(sd.units_sold) as units
-        FROM scan_data sd
-        JOIN stores s ON sd.store_id = s.store_id
+        FROM stg_scan_data sd
+        JOIN stg_stores s ON sd.store_id = s.store_id
         GROUP BY sd.sku, s.retailer, sd.week_ending
         ORDER BY sd.sku, s.retailer, sd.week_ending
     """).fetchall()
 
     vol_map = {}
     for sku, retailer, week, units in vol_rows:
-        vol_map.setdefault((sku, retailer), {})[week] = units
+        vol_map.setdefault((sku, retailer), {})[week] = float(units) if units else 0
 
     matched_deductions = conn.execute("""
         SELECT p.promo_id, p.sku, p.retailer, SUM(d.amount) as actual_cost
-        FROM promotions p
-        JOIN deductions d ON LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
+        FROM stg_promotions p
+        JOIN stg_deductions d ON LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
             AND d.deduction_type = 'promo_billback'
-            AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
-                                     AND date(p.end_week, '+90 days')
+            AND d.deduction_date BETWEEN (p.start_week - interval '14 days')::date
+                                     AND (p.end_week + interval '90 days')::date
         GROUP BY p.promo_id, p.sku, p.retailer
     """).fetchall()
     actual_cost_map = {}
     for pid, sku, retailer, cost in matched_deductions:
-        actual_cost_map[(pid, sku, retailer)] = cost
+        actual_cost_map[(pid, sku, retailer)] = float(cost) if cost else None
 
     ghosts = conn.execute("""
         SELECT d.deduction_id, d.retailer_id, d.amount, d.deduction_date
-        FROM deductions d
+        FROM stg_deductions d
         WHERE d.deduction_type = 'promo_billback'
           AND NOT EXISTS (
-              SELECT 1 FROM promotions p
+              SELECT 1 FROM stg_promotions p
               WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
-                AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
-                                         AND date(p.end_week, '+90 days')
+                AND d.deduction_date BETWEEN (p.start_week - interval '14 days')::date
+                                         AND (p.end_week + interval '90 days')::date
           )
         ORDER BY d.amount DESC
         LIMIT 20
@@ -105,13 +105,13 @@ def _query_promo_data(db_path: Path) -> dict:
 
     ghost_summary = conn.execute("""
         SELECT COUNT(*), SUM(d.amount)
-        FROM deductions d
+        FROM stg_deductions d
         WHERE d.deduction_type = 'promo_billback'
           AND NOT EXISTS (
-              SELECT 1 FROM promotions p
+              SELECT 1 FROM stg_promotions p
               WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
-                AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
-                                         AND date(p.end_week, '+90 days')
+                AND d.deduction_date BETWEEN (p.start_week - interval '14 days')::date
+                                         AND (p.end_week + interval '90 days')::date
           )
     """).fetchone()
 
@@ -119,13 +119,13 @@ def _query_promo_data(db_path: Path) -> dict:
 
     import bisect
 
-    def _find_nearest_week_idx(target_date: str) -> int | None:
+    def _find_nearest_week_idx(target_date) -> int | None:
         idx = bisect.bisect_left(all_weeks, target_date)
         if idx >= len(all_weeks):
             return len(all_weeks) - 1 if all_weeks else None
         if idx == 0:
             return 0
-        if abs(ord(all_weeks[idx][8]) - ord(target_date[8])) <= abs(ord(all_weeks[idx-1][8]) - ord(target_date[8])):
+        if abs((all_weeks[idx] - target_date).days) <= abs((all_weeks[idx - 1] - target_date).days):
             return idx
         return idx - 1
 
@@ -143,7 +143,8 @@ def _query_promo_data(db_path: Path) -> dict:
             promo_results.append({
                 "promo_id": pid, "sku": sku, "retailer": retailer,
                 "promo_type": ptype, "start_week": start_wk, "end_week": end_wk,
-                "planned_cost": planned_cost, "funding": funding,
+                "planned_cost": float(planned_cost) if planned_cost else None,
+                "funding": funding,
                 "actual_cost": actual_cost_map.get((pid, sku, retailer)),
                 "asp": asp, "dur_wks": dur_wks,
                 "pre_volumes": [], "during_volumes": [], "post_volumes": [],
@@ -188,7 +189,8 @@ def _query_promo_data(db_path: Path) -> dict:
         promo_results.append({
             "promo_id": pid, "sku": sku, "retailer": retailer,
             "promo_type": ptype, "start_week": start_wk, "end_week": end_wk,
-            "planned_cost": planned_cost, "funding": funding,
+            "planned_cost": float(planned_cost) if planned_cost else None,
+            "funding": funding,
             "actual_cost": actual_cost_map.get((pid, sku, retailer)),
             "asp": asp, "dur_wks": dur_wks,
             "pre_volumes": pre_volumes, "during_volumes": during_volumes,
@@ -199,13 +201,13 @@ def _query_promo_data(db_path: Path) -> dict:
         "promos": promo_results,
         "ghosts": ghosts,
         "ghost_count": ghost_summary[0],
-        "ghost_total": ghost_summary[1],
+        "ghost_total": float(ghost_summary[1] or 0),
         "total_promos": len(promos),
     }
 
 
-def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
-    data = _query_promo_data(db_path)
+def build_promo_efficacy(ws: Worksheet, database_url: str) -> None:
+    data = _query_promo_data(database_url)
 
     ws.sheet_view.showGridLines = False
 

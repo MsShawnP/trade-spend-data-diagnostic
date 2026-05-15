@@ -14,6 +14,8 @@ from workbook.tab_promo_efficacy import build_promo_efficacy
 from workbook.tab_retailer_risk import build_retailer_risk
 
 
+
+
 TAB_SPEC = [
     ("Executive Pulse", "00B050"),
     ("Leak Diagnostic", "00B050"),
@@ -61,7 +63,7 @@ def _set_print_areas(wb: Workbook) -> None:
         ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
 
 
-def generate_workbook(db_path: Path, output_path: Path) -> Path:
+def generate_workbook(database_url: str, output_path: Path) -> Path:
     wb = Workbook()
     wb.remove(wb.active)
 
@@ -69,12 +71,12 @@ def generate_workbook(db_path: Path, output_path: Path) -> Path:
         ws = wb.create_sheet(title=name)
         ws.sheet_properties.tabColor = color
 
-    build_executive_pulse(wb["Executive Pulse"], db_path)
-    build_leak_diagnostic(wb["Leak Diagnostic"], db_path)
-    build_promo_efficacy(wb["Promo Efficacy"], db_path)
-    build_retailer_risk(wb["Retailer Risk"], db_path)
-    build_deduction_ledger(wb["Deduction Ledger"], db_path)
-    build_code_crosswalk(wb["Deduction Code Crosswalk"], db_path)
+    build_executive_pulse(wb["Executive Pulse"], database_url)
+    build_leak_diagnostic(wb["Leak Diagnostic"], database_url)
+    build_promo_efficacy(wb["Promo Efficacy"], database_url)
+    build_retailer_risk(wb["Retailer Risk"], database_url)
+    build_deduction_ledger(wb["Deduction Ledger"], database_url)
+    build_code_crosswalk(wb["Deduction Code Crosswalk"], database_url)
     build_methodology(wb["Methodology & Logic"])
 
     _add_named_ranges(wb)

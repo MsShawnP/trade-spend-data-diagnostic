@@ -1,16 +1,16 @@
 """Build the trade spend diagnostic workbook.
 
-Ensures the cinderhaven database is current, then generates the
-7-tab Excel workbook.
+Connects to the Cinderhaven Data Platform (Postgres) and generates
+the 7-tab Excel workbook.
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from scripts.build_db import build, find_database
 from workbook.generator import generate_workbook
 
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "output" / "trade_spend_diagnostic.xlsx"
@@ -26,12 +26,13 @@ def main():
     )
     args = parser.parse_args()
 
-    try:
-        db_path = build()
-    except FileNotFoundError:
-        db_path = find_database()
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        print("Error: DATABASE_URL environment variable not set.", file=sys.stderr)
+        print("See .env.example for connection string templates.", file=sys.stderr)
+        sys.exit(1)
 
-    output_path = generate_workbook(db_path, args.output)
+    output_path = generate_workbook(database_url, args.output)
     print(f"Workbook written: {output_path}")
 
 

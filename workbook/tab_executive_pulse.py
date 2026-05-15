@@ -1,8 +1,8 @@
 """Tab 1: Executive Pulse — the CEO punchline."""
 
-import sqlite3
 from datetime import date
-from pathlib import Path
+
+from workbook.db import connect
 
 from openpyxl.formatting.rule import DataBarRule
 from openpyxl.styles import Border, Font, Side
@@ -52,24 +52,24 @@ TABLE_STYLE = TableStyleInfo(
 )
 
 
-def _query_metrics(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+def _query_metrics(database_url: str) -> dict:
+    conn = connect()
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
 
     revenue = conn.execute(
-        "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
+        "SELECT SUM(dollars_sold) FROM stg_scan_data WHERE week_ending >= %s",
         (oldest_week,),
     ).fetchone()[0]
 
     channel_rev = conn.execute("""
         SELECT s.retailer, SUM(sd.dollars_sold)
-        FROM scan_data sd
-        JOIN stores s ON sd.store_id = s.store_id
-        WHERE sd.week_ending >= ?
+        FROM stg_scan_data sd
+        JOIN stg_stores s ON sd.store_id = s.store_id
+        WHERE sd.week_ending >= %s
         GROUP BY s.retailer
     """, (oldest_week,)).fetchall()
 
@@ -82,18 +82,18 @@ def _query_metrics(db_path: Path) -> dict:
     }
     rates = {}
     for channel, col in channel_rate_cols.items():
-        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
+        rates[channel] = float(conn.execute(f"SELECT AVG({col}) FROM stg_sku_costs").fetchone()[0] or 0)
+    regional_rate = float(conn.execute("SELECT AVG(trade_spend_pct_regional) FROM stg_sku_costs").fetchone()[0] or 0)
 
     channel_trade = 0.0
     for retailer, rev in channel_rev:
-        channel_trade += rev * rates.get(retailer, regional_rate)
+        channel_trade += float(rev) * rates.get(retailer, regional_rate)
 
     max_scan = weeks[0][0]
     deductions_by_type = conn.execute("""
         SELECT deduction_type, COUNT(*), SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+        FROM stg_deductions
+        WHERE deduction_date > (%s::date - interval '365 days')::date AND deduction_date <= %s
           AND deduction_type != 'promo_billback'
         GROUP BY deduction_type
         ORDER BY SUM(amount) DESC
@@ -103,25 +103,25 @@ def _query_metrics(db_path: Path) -> dict:
 
     dispute_stats = conn.execute("""
         SELECT COUNT(*), SUM(recovered_amount)
-        FROM disputes
+        FROM stg_disputes
     """).fetchone()
 
     conn.close()
 
     return {
-        "revenue": revenue,
+        "revenue": float(revenue or 0),
         "structural_trade": channel_trade,
-        "operational_waste": operational_waste,
-        "deductions_by_type": deductions_by_type,
+        "operational_waste": float(operational_waste or 0),
+        "deductions_by_type": [(t, c, float(a or 0)) for t, c, a in deductions_by_type],
         "dispute_count": dispute_stats[0],
-        "total_recovered": dispute_stats[1],
+        "total_recovered": float(dispute_stats[1] or 0),
         "oldest_week": oldest_week,
         "max_scan": max_scan,
     }
 
 
-def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
-    metrics = _query_metrics(db_path)
+def build_executive_pulse(ws: Worksheet, database_url: str) -> None:
+    metrics = _query_metrics(database_url)
 
     revenue = metrics["revenue"]
     structural = metrics["structural_trade"]

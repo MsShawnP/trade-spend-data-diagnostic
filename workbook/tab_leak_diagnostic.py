@@ -1,8 +1,8 @@
 """Tab 2: Leak Diagnostic — where the operational waste is and what's recoverable."""
 
-import sqlite3
 from datetime import date
-from pathlib import Path
+
+from workbook.db import connect
 
 from openpyxl.comments import Comment
 from openpyxl.formatting.rule import CellIsRule
@@ -41,11 +41,11 @@ TABLE_STYLE = TableStyleInfo(
 )
 
 
-def _query_data(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+def _query_data(database_url: str) -> dict:
+    conn = connect()
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
     max_scan = weeks[0][0]
@@ -57,12 +57,12 @@ def _query_data(db_path: Path) -> dict:
             SUM(d.amount) as total,
             AVG(
                 CASE WHEN dis.closed_date IS NOT NULL
-                     THEN julianday(dis.closed_date) - julianday(d.deduction_date)
+                     THEN (dis.closed_date - d.deduction_date)
                 END
             ) as avg_days
-        FROM deductions d
-        LEFT JOIN disputes dis ON dis.deduction_id = d.deduction_id
-        WHERE d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?
+        FROM stg_deductions d
+        LEFT JOIN stg_disputes dis ON dis.deduction_id = d.deduction_id
+        WHERE d.deduction_date > (%s::date - interval '365 days')::date AND d.deduction_date <= %s
           AND d.deduction_type != 'promo_billback'
         GROUP BY d.deduction_type
         ORDER BY SUM(d.amount) DESC
@@ -72,14 +72,14 @@ def _query_data(db_path: Path) -> dict:
 
     double_dips = conn.execute("""
         SELECT deduction_id, retailer_id, amount, deduction_date, deduction_type
-        FROM deductions
-        WHERE is_double_dip = 1
+        FROM stg_deductions
+        WHERE is_double_dip = true
         ORDER BY amount DESC
     """).fetchall()
 
     recovery = conn.execute("""
         SELECT COUNT(*), SUM(recovered_amount)
-        FROM disputes
+        FROM stg_disputes
     """).fetchone()
 
     conn.close()
@@ -95,8 +95,8 @@ def _query_data(db_path: Path) -> dict:
     }
 
 
-def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
-    data = _query_data(db_path)
+def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
+    data = _query_data(database_url)
 
     ws.sheet_view.showGridLines = False
 
