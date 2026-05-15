@@ -41,12 +41,9 @@ Each entry:
 - **Scope:** Excel workbook generation
 - **Do not:** Use xlsxwriter unless openpyxl hits a blocking limitation.
 
-### 2026-05-09 — Use SQLite as the project database, not PostgreSQL or DuckDB
-- **Why:** Brief specifies SQLite. The dataset is small (~thousands of
-  rows across all tables). SQLite is zero-config, ships with Python,
-  and the .db file can live in the repo. No need for a server.
-- **Scope:** Global
-- **Do not:** Over-engineer the schema for a dataset this size.
+### ~~2026-05-09 — Use SQLite as the project database, not PostgreSQL or DuckDB~~
+~~Brief specifies SQLite. The dataset is small (~thousands of rows across all tables). SQLite is zero-config, ships with Python, and the .db file can live in the repo. No need for a server.~~
+**Superseded 2026-05-15:** All data now comes from the Cinderhaven Postgres data platform on Fly.io. See entries below for search_path and Decimal→float decisions.
 
 ### 2026-05-10 — Validate deliverables with a separate verification script, not inline assertions
 - **Why:** `validate_workbook.py` reopens the generated .xlsx and checks it
@@ -59,11 +56,9 @@ Each entry:
 - **Do not:** Embed validation in the build script. Keep build and verify as
   separate steps.
 
-### 2026-05-10 — Use rapidfuzz, not fuzzywuzzy, for fuzzy matching
-- **Why:** Faster, MIT-licensed (fuzzywuzzy is GPL), drop-in compatible API.
-  No reason to use fuzzywuzzy unless rapidfuzz hits a blocking issue.
-- **Scope:** requirements.txt, any fuzzy matching code
-- **Do not:** Use fuzzywuzzy unless rapidfuzz has a specific incompatibility.
+### ~~2026-05-10 — Use rapidfuzz, not fuzzywuzzy, for fuzzy matching~~
+~~Faster, MIT-licensed (fuzzywuzzy is GPL), drop-in compatible API.~~
+**Superseded 2026-05-15:** rapidfuzz was never imported by any module. Removed from requirements.txt. The deduction code crosswalk uses exact table lookups, not fuzzy matching.
 
 ### 2026-05-09 — Consume cinderhaven-data via git submodule, do not duplicate data
 - **Why:** cinderhaven-data is the single source of truth (21 tables,
@@ -117,6 +112,25 @@ Each entry:
 - **Scope:** walkthrough.md, EXECUTIVE_MEMO.md, DEFENSIBILITY.md
 - **Do not:** Claim either party bears a legal burden without reviewing actual
   contract terms.
+
+### 2026-05-15 — Use search_path=public_staging,public on connect, not schema-qualified queries
+- **Why:** The Cinderhaven Postgres data platform uses `public_staging` for all
+  stg_ tables. Rather than schema-qualifying every query (`public_staging.stg_scan_data`),
+  we set `search_path` once in `db.py`'s connection options. Keeps all 6 tab modules
+  clean and unchanged. Tradeoff: if a table name collides across schemas, search_path
+  could resolve wrong — acceptable given staging tables have unique `stg_` prefix.
+- **Scope:** `workbook/db.py`, all tab modules
+- **Do not:** Add `public_staging.` prefixes to individual queries. If a new schema
+  is needed, add it to the search_path in db.py.
+
+### 2026-05-15 — Coerce Postgres NUMERIC→float at wire level via psycopg2 type adapter
+- **Why:** Postgres returns `Decimal` for NUMERIC columns, but all tab builders use
+  float arithmetic (`+=`, `*`, `/`). Registering a global `DEC2FLOAT` adapter in db.py
+  coerces at the cursor level so downstream code doesn't need casts. Tradeoff: loses
+  arbitrary-precision Decimal, but dollar amounts at $25M scale have more than enough
+  float64 precision (±$0.01).
+- **Scope:** `workbook/db.py` (global psycopg2 type registration)
+- **Do not:** Add per-query `float()` casts in tab modules. The adapter handles it.
 
 ### 2026-05-15 — Partial month exclusion: <20 active days for trend calculation
 - **Why:** May 2026 had only 2 days of deduction data ($5,068) but was included

@@ -23,6 +23,34 @@ should handle partial builds gracefully.
   repo to GitHub (separate task, not blocking workbook)
 - The `scripts/build_db.py` fallback (copy pre-built DB) works for now
 
+## [2026-05-15] Postgres NUMERIC columns return Decimal, not float
+**What happened:** After migrating all tab modules to Postgres, `build_workbook.py`
+crashed with `TypeError: unsupported operand type(s) for +=: 'float' and 'decimal.Decimal'`
+in `tab_executive_pulse.py` line 86. The SQLite driver returned plain floats;
+psycopg2 returns `decimal.Decimal` for NUMERIC/DECIMAL columns.
+**Why it failed:** psycopg2's default type mapping converts Postgres NUMERIC to
+Python Decimal for precision. All tab builders assumed float arithmetic.
+**What we did instead:** Registered a global `DEC2FLOAT` type adapter in `workbook/db.py`
+using `psycopg2.extensions.new_type()`. Coerces NUMERIC→float at the cursor level,
+so all downstream code works unchanged.
+**What we learned:** When migrating from SQLite to Postgres, numeric type coercion
+is a silent compatibility gap — SQLite returns Python-native floats, Postgres returns
+Decimal. Fix at the connection layer, not per-query.
+
+## [2026-05-15] Fly.io Postgres tables in public_staging schema, not public
+**What happened:** After connecting to the Fly.io Postgres instance, all queries
+failed with `psycopg2.errors.UndefinedTable: relation "stg_scan_data" does not exist`.
+The tables existed but in the `public_staging` schema, not the default `public` schema.
+**Why it failed:** The Cinderhaven data platform uses a multi-schema layout
+(raw, public_staging, public_intermediate, public_marts). Unqualified table names
+default to `public`, which was empty.
+**What we did instead:** Added `options="-c search_path=public_staging,public"` to
+the `psycopg2.connect()` call in `workbook/db.py`. All stg_ table names now resolve
+without schema qualification.
+**What we learned:** Always check the schema layout when connecting to a new Postgres
+instance. `information_schema.tables` with `table_schema` filter is the quickest way
+to discover where tables actually live.
+
 ## [2026-05-14] openpyxl LineChart does not render in Excel
 **What happened:** Step 6 of the v2 BUILD called for a sparkline trend
 on Executive Pulse. openpyxl has no sparkline support (`openpyxl.worksheet.sparkline`

@@ -9,6 +9,32 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## Session — 2026-05-15
+
+**Phase:** Post-arc simplification + production verification
+**Goal:** Complete simplification pass (Postgres migration, TABLE_STYLE centralization, dead code removal) and verify against production Fly.io Postgres.
+**Completed:**
+- Migrated tab_executive_pulse and tab_retailer_risk from sqlite3 to workbook.db.connect (Postgres)
+- Centralized TABLE_STYLE constant in styles.py, imported by all 6 tab modules
+- Removed dead code: BUCKET_DISPLAY_ORDER, ConnectionWrapper.connection, _retailer_key(), 6 KPI_ named ranges, inline bisect import
+- Dropped pandas and rapidfuzz from requirements.txt
+- Updated README, walkthrough, and methodology tab prose from SQLite/rapidfuzz to Postgres
+- Connected to Fly.io Postgres (cinderhaven-db), discovered tables in public_staging schema
+- Added search_path=public_staging,public to db.py connection
+- Registered psycopg2 DEC2FLOAT adapter to coerce NUMERIC→float
+- Built workbook and validated 57/57 checks against production Fly.io Postgres
+- Documented circular-calculation anti-pattern via ce-compound (docs/solutions/)
+**Tried, didn't work:**
+- Docker Desktop not running, localhost:5432 refused — used Fly.io proxy instead
+- Default password rejected by Fly.io Postgres — retrieved operator password via fly ssh
+- Tables in public_staging not public — UndefinedTable until search_path set
+- Postgres NUMERIC→Decimal type mismatch — TypeError until DEC2FLOAT adapter registered
+**State:** Master at 62c134c (2 commits ahead of origin). All code uses Postgres. 57/57 validation passes. Dead scripts/build_db.py still present but unused.
+**Next concrete action:** Push to GitHub, or delete dead scripts/build_db.py.
+**Blockers:** none
+
+---
+
 ## 2026-05-15 — v2 Review → Remediation → Audit complete, merged to master
 
 **Phase:** v2 Phase 7 (Audit) — COMPLETE
