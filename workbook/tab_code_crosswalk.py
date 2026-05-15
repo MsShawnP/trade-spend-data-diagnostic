@@ -8,6 +8,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.deduction_taxonomy import get_taxonomy
 from workbook.styles import (
     ALIGN_CENTER,
     FONT_HEADER,
@@ -19,6 +20,7 @@ COLUMNS = [
     ("Retailer Code", 13),
     ("Description", 36),
     ("Category", 16),
+    ("Taxonomy", 16),
     ("Status", 10),
 ]
 
@@ -45,11 +47,11 @@ def build_code_crosswalk(ws: Worksheet, database_url: str) -> None:
     ws.sheet_view.showGridLines = False
 
     # --- Header ---
-    ws.merge_cells("A1:E1")
+    ws.merge_cells("A1:F1")
     ws["A1"] = "Deduction Code Crosswalk"
     ws["A1"].font = FONT_HEADER
 
-    ws.merge_cells("A2:E2")
+    ws.merge_cells("A2:F2")
     ws["A2"] = (
         "Maps retailer-specific deduction codes to plain-English descriptions "
         "and standardized categories. Used by the Deduction Ledger tab for code translation."
@@ -78,7 +80,8 @@ def build_code_crosswalk(ws: Worksheet, database_url: str) -> None:
         c_code.alignment = ALIGN_CENTER
         ws.cell(row=rw, column=3, value=name)
         ws.cell(row=rw, column=4, value=category.replace("_", " ").title())
-        c_status = ws.cell(row=rw, column=5, value=status)
+        ws.cell(row=rw, column=5, value=get_taxonomy(category)["bucket"])
+        c_status = ws.cell(row=rw, column=6, value=status)
         c_status.alignment = ALIGN_CENTER
 
     table_end = header_row + len(rows)
@@ -96,7 +99,7 @@ def build_code_crosswalk(ws: Worksheet, database_url: str) -> None:
     ws.add_table(table)
 
     # Conditional formatting on status column
-    status_range = f"E{header_row + 1}:E{table_end}"
+    status_range = f"F{header_row + 1}:F{table_end}"
     ws.conditional_formatting.add(
         status_range,
         CellIsRule(operator="equal", formula=['"Verified"'],

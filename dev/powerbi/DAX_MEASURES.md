@@ -2,7 +2,7 @@
 
 Every measure the dashboard needs, organized by scope. Each measure
 traces to a specific visual in `DESIGN.md`. Table/column names match
-the exported CSVs in `powerbi/data/`.
+the exported CSVs in `dev/powerbi/data/`.
 
 ---
 

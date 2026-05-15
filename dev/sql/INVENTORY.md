@@ -68,7 +68,7 @@ They need new standalone queries to be useful in the SQL library:
 
 ### Suggested extraction plan (for task 2)
 
-**Category groupings for the `sql/` directory:**
+**Category groupings for the `dev/sql/` directory:**
 
 - `trade_rate/` — #1, #2, #3, #4 (unified), #5 + new structural trade query
 - `deductions/` — #6, #8, #9, #18, #19 + new all-in trade query

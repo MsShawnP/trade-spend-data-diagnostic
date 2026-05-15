@@ -9,33 +9,191 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
-## 2026-05-12 — Workbook bug fixes and validation enforcement
+## 2026-05-14 — v2 BUILD complete (9 steps), commit e4150e8
 
-**Started from:** Workbook formatting overhaul complete (charts stripped, Tables added, input cells enhanced). Four bugs identified during visual testing in Excel.
+**Started from:** Post-PLAN, pre-BUILD. PROJECT_PLAN.md locked with 9-step BUILD execution order. Working in worktree `fervent-perlman-fb77a8`.
 
 **Did:**
-- Fixed Tab 3 circular reference when pre/post window > 8 (`_MAX_WINDOW` 8→12, write `None` not empty string for No POS rows)
-- Fixed Tab 3 data validation accepting out-of-range values — added `errorStyle="stop"` and `showErrorMessage=True`
-- Applied same `showErrorMessage=True` fix to Tab 2 (recovery rate) and Tab 4 (what-if trade rates)
-- Fixed Tab 3 ROI conditional formatting — reordered rules (red < 1.0 first with `stopIfTrue=True`)
-- Fixed Tab 1 CEO takeaway text truncation — expanded merge range B7:D7 → B7:F7
-- All three input cells tested live: validation rejects out-of-range values with stop errors
+- Executed all 9 BUILD steps from PROJECT_PLAN.md sequentially
+- Step 1: Moved `sql/` → `dev/sql/`, `powerbi/` → `dev/powerbi/`, updated all path refs in 8 docs
+- Step 2: Created `workbook/channel_mapping.py` — single source of truth for retailer→channel mapping, refactored tab_retailer_risk.py and tab_executive_pulse.py
+- Step 3: Created `workbook/deduction_taxonomy.py` — 9 deduction types × 3 buckets (Probable Waste / Unknown / Contractual) with addressability flags and defense text. Added Taxonomy column to Deduction Ledger and Code Crosswalk
+- Step 4: Added Addressability column + Addressable $ column to Leak Diagnostic. Surfaced $933K addressable waste as 4th KPI on Executive Pulse
+- Step 5: Added Channel column + Channel Rollup table (`tbl_ChannelRollup`) on Retailer Risk. Added top-waste-channels callout to Executive Pulse CEO takeaway. Fixed validation script column refs (+1 shift)
+- Step 6: openpyxl LineChart does NOT render in Excel (3 attempts, see FAILURES.md). Replaced with text-based trend indicator: "12-month waste trend: rising at $77,881/mo avg. H2 up 20% vs H1."
+- Step 7: Added industry benchmark band (19–23%) at F5/F6 on Executive Pulse. Updated CEO takeaway to reference benchmark. Added §6 External Benchmark to Methodology & Logic tab
+- Step 8: Created DEFENSIBILITY.md (classification rules + VP-of-Sales rebuttals), EXECUTIVE_MEMO.md (one-page CEO condensation). Rewrote README.md punchline-first. Reframed walkthrough.md opening, updated all query paths, revised deliverables section
+- Step 9: Full build + validate (62/62), visual QA in Excel confirmed by operator
+- Committed as `e4150e8`
 
-**State:** Workbook generates clean via `python build_workbook.py`. 59/59 validation checks passing. All interactive inputs enforced. ROI < 1.0 shows red. No circular references. Ready to move to Power BI dashboard assembly.
+**Key files created:**
+- `workbook/channel_mapping.py` — RETAILER_TO_CHANNEL, CHANNEL_RATE_COLS, CHANNEL_DISPLAY_ORDER
+- `workbook/deduction_taxonomy.py` — DEDUCTION_TAXONOMY dict, get_taxonomy() function
+- `DEFENSIBILITY.md` — deduction classification rules and rebuttals
+- `EXECUTIVE_MEMO.md` — one-page CEO memo (finding → data → Monday actions)
 
-**Next:** Assemble Power BI dashboard in Power BI Desktop following `powerbi/BUILD_GUIDE.md`.
+**Key files modified:**
+- `workbook/tab_executive_pulse.py` — 4th KPI, benchmark, trend indicator, channel callout
+- `workbook/tab_retailer_risk.py` — Channel column, Channel Rollup section
+- `workbook/tab_leak_diagnostic.py` — Addressable/Addressable$ columns
+- `workbook/tab_deduction_ledger.py` — Taxonomy column
+- `workbook/tab_code_crosswalk.py` — Taxonomy column
+- `workbook/tab_methodology.py` — §6 External Benchmark, renumbered §7-§8
+- `workbook/generator.py` — AddressableWaste named range, updated print areas
+- `validate_workbook.py` — 3 new checks (benchmark, trend, column shifts), 62 total
+- `README.md` — punchline-first rewrite
+- `walkthrough.md` — reframed opening, updated paths, revised deliverables
+
+**State:**
+- v2 BUILD phase is **complete**. All 9 steps done.
+- 62/62 validation checks passing. Visual QA confirmed.
+- Commit `e4150e8` on branch `claude/fervent-perlman-fb77a8` (worktree)
+- Not pushed to remote yet
+- Working in worktree — changes need to be merged to main branch
+
+**Next:** Run the v2 review phase:
+1. Code review agent (`code-reviewer.md`)
+2. Data & analysis review agent (`data-science-reviewer.md`)
+3. Prose & narrative review agent (`prose-reviewer.md`)
+4. Consolidate findings into `REMEDIATION.md`
+5. Fix blocking items
+6. Final audit (`final-auditor.md`)
+
+**Open items:**
+- openpyxl chart rendering failure logged in FAILURES.md — text trend works, but a proper chart would be better (consider xlsxwriter for future projects)
+- Worktree branch not yet merged to main or pushed to remote
+- Temp files `output/trade_spend_diagnostic_v2.xlsx`, `_v3.xlsx`, `_v4.xlsx` in main repo (can delete)
 
 ---
 
-## 2026-05-11 22:30 — Workbook restructuring
+## 2026-05-14/15 — v2 workflow adopted, PROJECT_PLAN written, Gemini scope review folded in, build mapped (Claude Code on the web session)
 
-**Started from:** All five arcs complete. No active PLAN.md arc. Opened session to fix Excel workbook formatting and consistency.
+**Started from:** All five arcs complete per HANDOFF, but operator surfaced concern that the project is a toolset demo (Python + openpyxl + SQL + Power BI) rather than a substantive value deliverable. Opened a session to adopt the v2 phase-gated workflow from claude-solo-dev-workflow and run an independent review pass.
 
-**Did:** Stripped openpyxl charts from tabs 2–4, replaced Tab 1 chart with in-cell data bar waterfall, converted all data ranges to Excel Tables (ListObject), enhanced interactive input cells (yellow fill, data validation, cell comments, Protection(locked=False)), fixed tab colors (blue for tab 5, gray for tabs 6–7), suppressed gridlines on green/gray tabs, added 6 KPI named ranges, added what-if margin column on Tab 4, fixed CEO takeaway trailing "is", compacted layouts. 10 files modified, 59/59 validation checks passing.
+**Did:**
+- Installed v2 workflow files into `.claude/` — `.claude/CLAUDE.md` (workflow definition) and 6 review agents (project-planner, code-reviewer, data-science-reviewer, prose-reviewer, remediation-tracker, final-auditor). v1 commands (`/log`, `/wrap`) and v1 tracking files (PLAN/HANDOFF/DECISIONS/FAILURES) remain in place — v1 and v2 coexist.
+- Restored `/wrap` to user-level (`~/.claude/commands/wrap.md`) in this sandbox; on Windows Desktop it's already there.
+- Ran operator clarify interview. Crystallized value test: a CPG CEO must be able to (1) understand what's being spent, (2) decide whether to keep doing it, (3) plan to plug the leak.
+- Drafted `PROJECT_PLAN.md` reframing the project from "all arcs complete" to "built but unreviewed."
+- Sent PROJECT_PLAN.md through Gemini cross-model scope review. Verdict: **70% toolchain / 30% value.** Major findings: missing external benchmark, channel layer, addressability column, defensibility log, sparkline trend; "2-minute open the workbook" success criterion was unrealistic (CEOs don't open 7-tab workbooks); Power BI .pbix doesn't exist as a clickable thing; deduction taxonomy needed (292 unmapped codes is a technical failure).
+- Folded Gemini feedback into PROJECT_PLAN.md. Major shifts:
+  - **Deliverables narrowed:** Power BI and SQL library demoted from shipped deliverables to `/dev/` exploratory. New deliverables added: `DEFENSIBILITY.md`, `EXECUTIVE_MEMO.md`. 4 things ship: workbook, walkthrough, README, defensibility log.
+  - **6 analytical additions in scope:** channel rollup, addressability column, external benchmark, sparkline trend, deduction taxonomy, executive memo.
+  - **Success Criteria rewritten as 5 tests:** 10-second punchline, Monday morning, VP-of-Sales rebuttal, plug-the-leak, benchmark grounding.
+  - **Visual QA of workbook in Excel** is now a hard audit gate.
+- Mapped the existing codebase via Explore agent (see Build Notes below) to prepare for BUILD phase.
 
-**State:** Workbook generates clean. Not yet visually verified in Excel — data bars and table formatting need human eye pass. Interactive input cells not yet tested live.
+**State:**
+- v2 workflow installed and live alongside v1.
+- `PROJECT_PLAN.md` is the locked spec (commit `a58029f`).
+- Phase = post-PLAN, pre-BUILD. Operator chose "build the additions first" before code review.
+- Branch `claude/review-project-workflow-1WbVp` is pushed; all commits synced to GitHub.
+- Build NOT started — context is the explore findings only.
 
-**Next:** Open .xlsx in Excel, visually verify in-cell waterfall and table formatting, test all three interactive input cells (recovery rate, promo window, what-if trade rates). Then decide next move.
+**Next:** Operator is switching from Claude Code on the web to Claude Code Desktop. New-Claude should: (1) read PROJECT_PLAN.md to absorb the scope, (2) read the Build Notes section below for the codebase map, (3) execute the BUILD in the order below.
+
+### Build Notes — codebase map (from Explore agent, 2026-05-14)
+
+**Entry point:** `build_workbook.py` (40 lines). Calls `scripts/build_db.py` to acquire DB, then `workbook/generator.py:generate_workbook()`. Output: `output/trade_spend_diagnostic.xlsx`.
+
+**Workbook generator:** `workbook/generator.py` creates blank workbook, removes default sheet, creates 7 tabs in order, calls 7 builder functions, adds 14 named ranges, sets print areas. Pattern: each builder takes `(ws: Worksheet, db_path: Path)` and runs inline sqlite3 queries.
+
+**Tab modules:**
+- `tab_executive_pulse.py` (11.4KB) — KPI trio, waterfall (in-cell data-bar), addressable improvement, recovery rate. Contains `CATEGORY_TO_DEPT` mapping and inline rate-lookup logic.
+- `tab_leak_diagnostic.py` (9.9KB) — Category breakdown, recoverability mapping, double-dip detection, recovery-rate slider.
+- `tab_promo_efficacy.py` (17.9KB) — Promo list, ASP, ghost promos, ROI.
+- `tab_retailer_risk.py` (12.8KB) — Retailer P&L with `CHANNEL_RATE_COLS` dict (lines 27–38) and `REGIONAL_RETAILERS` list; KeHE distributor special-cased.
+- `tab_deduction_ledger.py` (4.8KB) — 20-col full ledger; codes resolved via `COALESCE(dc.name, 'Unmapped')` at line 59. The "292 unmapped codes" = retailer codes with no entry in `deduction_codes`.
+- `tab_code_crosswalk.py` (3.5KB) — 97 retailer codes (19 verified, 78 inferred).
+- `tab_methodology.py` (13.8KB) — Static documentation tab.
+
+**Styles:** `workbook/styles.py` — reusable fonts, fills, borders, number formats. New imports needed for sparklines: `from openpyxl.chart.sparkline import Sparkline, SparklineGroup`.
+
+**Validation:** `validate_workbook.py` (315 lines) — `check(name, condition, detail)` function counts PASS/FAIL. 59 checks across structure, locked numbers, double-dip, recovery, retailer totals, deduction count, crosswalk, cross-tab consistency, error scan, named ranges, Excel tables, data validation, conditional formatting. New checks needed for: channel column, addressability column, addressable-$ named range, sparkline data range, benchmark band cells, taxonomy bucket on Deduction Ledger.
+
+**Data layer (SQLite, 22 tables) — key facts for the build:**
+- **Channel column does NOT exist** in `retailers` table. Channel mapping is hardcoded in 2 places: `tab_retailer_risk.py` line 27 (`CHANNEL_RATE_COLS`) and `tab_executive_pulse.py` line 76 (rate-lookup logic). Fix: create `workbook/channel_mapping.py` with single dict `{retailer_name → channel}`, refactor both call sites to use it.
+- **No `addressability` column or table.** Need either DB schema add OR Python lookup dict. Recommend: `workbook/deduction_taxonomy.py` with `{deduction_type → {bucket: ..., addressable: bool, defense: str}}`.
+- **Locked numbers:** Revenue $25,593,052; structural $4,435,052 (17.3%); waste $1,010,940 (4.0%); all-in $5,445,992 (21.3%); double-dips 3 events $19,306; disputes 1,409 filed $98,216 recovered (14.3%).
+- **No external benchmark in codebase.** Sourcing is a research question, not a code question.
+
+**Visualization patterns:**
+- DataBarRule, ColorScaleRule, CellIsRule already used for conditional formatting.
+- Excel Tables used on every tab (named: tbl_WasteByCategory, tbl_DoubleDips, tbl_RetailerPnL, tbl_ConcentrationRisk, tbl_PromoEfficacy, tbl_DeductionLedger, tbl_CodeCrosswalk, tbl_AddressableImprovement, tbl_ResponsibilityMatrix).
+- DataValidation used on tab_leak_diagnostic (recovery slider) and tab_retailer_risk.
+- Sparklines NOT yet used.
+
+**SQL/ contents (6 categories, 25 files):** trade_rate (6), deductions (6), promo_roi (7), reconciliation (4), retailer (2), crosswalk (1). Per `sql/INVENTORY.md`. No Python imports use `"sql/"` paths — restructure (move to `dev/sql/`) is a pure file-system + docs operation.
+
+**Powerbi/ contents:** BUILD_GUIDE.md, DESIGN.md, DAX_MEASURES.md (49 measures), PBITOOLS_WORKFLOW.md, README.md, export_data.py, generate_pbip.py, generate_pbix_model.py, data/ (7 CSVs + DATA_DICTIONARY.md), CinderhavenDashboard.{Report,SemanticModel,pbip}, pbi-model/. Operator decision: no PBI competency to prove — demote whole tree to `dev/powerbi/` as reference.
+
+**Files mentioning `sql/` or `powerbi/` (need updates on restructure):**
+- `README.md` — lines 24–25, 65
+- `walkthrough.md` — refs to `python powerbi/export_data.py`
+- `HANDOFF.md` — refs to `powerbi/BUILD_GUIDE.md`
+- `sql/README.md`, `sql/INVENTORY.md` — internal refs
+- `powerbi/BUILD_GUIDE.md`, `powerbi/README.md` — internal refs
+- `PROJECT_PLAN.md` already uses `dev/sql/` and `dev/powerbi/`
+
+### BUILD execution order (recommended for new-Claude)
+
+1. **Structural moves (low-risk, no logic changes):**
+   - `mkdir -p dev && git mv sql dev/sql && git mv powerbi dev/powerbi`
+   - Update path references in README.md, walkthrough.md, HANDOFF.md, dev/sql/README.md, dev/sql/INVENTORY.md, dev/powerbi/BUILD_GUIDE.md, dev/powerbi/README.md
+   - Run `python build_workbook.py && python validate_workbook.py` — must still pass 59/59.
+
+2. **Channel mapping consolidation (refactor, no new analytics yet):**
+   - Create `workbook/channel_mapping.py` with `RETAILER_TO_CHANNEL: dict[str, str]` and `CHANNEL_DISPLAY_ORDER: list[str]`.
+   - Refactor `tab_retailer_risk.py` (line 27 area) and `tab_executive_pulse.py` (line 76 area) to import from it.
+   - Run validation. Still 59/59.
+
+3. **Deduction taxonomy:**
+   - Create `workbook/deduction_taxonomy.py` with `{deduction_type → {"bucket": "Probable Waste"|"Contractual"|"Unknown", "addressable": True|False, "defense": "one-line defense"}}`. Cover all 8 existing deduction_types and define the rule for the unmapped codes bucket.
+   - Apply to `tab_deduction_ledger.py` — add Taxonomy column.
+   - Apply to `tab_code_crosswalk.py` — show bucket per code.
+   - Add validation checks.
+
+4. **Addressability column on Leak Diagnostic:**
+   - Use taxonomy to compute addressable $ per row.
+   - Add Addressability column to leak diagnostic table.
+   - Surface "Total Addressable $" as a new KPI on Executive Pulse + new named range.
+   - Add validation checks.
+
+5. **Channel rollup on Retailer Risk + Executive Pulse:**
+   - On Retailer Risk: add Channel column to retailer P&L table; new section: "Channel Rollup" showing revenue, structural, waste, all-in rate by channel.
+   - On Executive Pulse: new section showing top 1–2 channels by waste.
+   - Add validation checks.
+
+6. **Sparkline trend within trailing-365:**
+   - Add SQL query for weekly waste run-rate by week_ending (last 52 weeks).
+   - Add sparkline to Executive Pulse (1 sparkline; possibly also per-channel on Retailer Risk).
+   - Imports: `from openpyxl.chart.sparkline import Sparkline, SparklineGroup`.
+   - Add validation checks.
+
+7. **External benchmark:**
+   - Research/select source (NielsenIQ, Cadent, Acosta, peer 10-K, or operator estimate with methodology note).
+   - Add benchmark band display to Executive Pulse (e.g., text annotation or cell band: "Industry: 19–23%").
+   - Document source/methodology in `tab_methodology.py`.
+   - Add validation check that band is present.
+
+8. **Writing artifacts:**
+   - `DEFENSIBILITY.md` — defense per deduction bucket (pull from taxonomy module).
+   - `EXECUTIVE_MEMO.md` — one-page condensation of `walkthrough.md`. Lead with controversial finding.
+   - `README.md` — rewrite first line as the punchline (e.g., "Cinderhaven Provisions is leaking $1.0M of margin to operational waste — here's where"). Move "how to run" to bottom.
+   - `walkthrough.md` — reframe opening around the Monday-morning finding the data review identifies; update path refs (`powerbi/` → `dev/powerbi/`); drop claims about clickable Power BI dashboard.
+
+9. **Final BUILD pass:**
+   - Run `python build_workbook.py && python validate_workbook.py` — expect more than 59 checks now passing.
+   - Operator opens `output/trade_spend_diagnostic.xlsx` in Excel, walks every tab, signs off on visual QA. This is a v2 audit-gate prereq.
+   - Commit + tag.
+
+After build is operator-confirmed complete: run `code-reviewer` agent → `data-science-reviewer` → `prose-reviewer` → consolidate in `REMEDIATION.md` → fix → `final-auditor`.
+
+### Open decisions still pending (from PROJECT_PLAN.md Open Questions)
+
+1. Defensibility log granularity (category-level vs line-item-level) — recommend category for v1.
+2. External benchmark source — operator must pick before step 7.
+3. Workflow plumbing stubs (CLAUDE.md empty sections, `.claude-project-url` placeholder) — fill in during remediation or leave.
 
 ---
 
@@ -48,6 +206,18 @@ For things that didn't work, see FAILURES.md.
 **State:** All arcs complete. Power BI data/measures match locked figures. Dashboard assembly in Power BI Desktop is the only remaining manual step.
 
 **Next:** Open Power BI Desktop, follow BUILD_GUIDE.md to rebuild the 4 pages as presentation layout.
+
+---
+
+## 2026-05-11 22:30 — Workbook restructuring
+
+**Started from:** All five arcs complete. No active PLAN.md arc. Opened session to fix Excel workbook formatting and consistency.
+
+**Did:** Stripped openpyxl charts from tabs 2–4, replaced Tab 1 chart with in-cell data bar waterfall, converted all data ranges to Excel Tables (ListObject), enhanced interactive input cells (yellow fill, data validation, cell comments, Protection(locked=False)), fixed tab colors (blue for tab 5, gray for tabs 6–7), suppressed gridlines on green/gray tabs, added 6 KPI named ranges, added what-if margin column on Tab 4, fixed CEO takeaway trailing "is", compacted layouts. 10 files modified, 59/59 validation checks passing.
+
+**State:** Workbook generates clean. Not yet visually verified in Excel — data bars and table formatting need human eye pass. Interactive input cells not yet tested live.
+
+**Next:** Open .xlsx in Excel, visually verify in-cell waterfall and table formatting, test all three interactive input cells (recovery rate, promo window, what-if trade rates). Then decide next move.
 
 ---
 

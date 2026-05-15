@@ -1,91 +1,92 @@
-# Trade Spend Data Diagnostic — Cinderhaven Provisions
+# Cinderhaven Provisions is leaking $1M of margin to operational waste
 
-A complete trade spend diagnostic for a mid-market CPG company,
-built from simulated data that mirrors the structure and messiness
-of real retailer deduction feeds.
+A trade spend diagnostic for a mid-market natural/specialty CPG
+company. Cinderhaven budgets 17% for trade — the negotiated rate-card
+cost of shelf access. The actual all-in cost is 21%. The 4-point gap
+is $1 million per year in deductions taken beyond the rate card:
+compliance fines, logistics chargebacks, spoilage claims, and
+charges with no clear basis. Industry range is 19-23%. The structural
+rate is fine. The operational waste is not.
 
-## The finding
+The diagnostic quantifies the gap, classifies every deduction into a
+defensible taxonomy, identifies $933K in addressable waste, and
+provides a retailer-by-retailer P&L showing where the margin erosion
+concentrates.
 
-Cinderhaven Provisions has $25.6M in trailing-twelve-month wholesale
-revenue. The company budgets 17.3% for structural trade spend — the
-negotiated rate-card cost of shelf access. The actual all-in cost is
-21.3%. The 4-point gap is $1 million in annual operational waste:
-deductions taken beyond the rate card, largely unclassified and
-uncontested. Full methodology and detailed findings in
-[`walkthrough.md`](walkthrough.md).
+## What ships
+
+**Excel workbook** — 7-tab diagnostic built from a trailing-365-day
+dataset. Tab 1 leads with the punchline and an industry benchmark.
+Tabs 2-4 break down waste by category, promo ROI, and retailer risk
+(with channel rollup). Tab 5 is the full deduction ledger. Tabs 6-7
+are reference. Interactive inputs: adjustable recovery rate, promo
+comparison window, per-retailer what-if trade rates.
+
+**Executive memo** ([`EXECUTIVE_MEMO.md`](EXECUTIVE_MEMO.md)) —
+one-page condensation: the finding, where the money goes, what to
+do Monday morning.
+
+**Defensibility log** ([`DEFENSIBILITY.md`](DEFENSIBILITY.md)) —
+classification rules and rebuttal text for every deduction bucket.
+Pre-empts the "your consultant doesn't understand our business"
+pushback.
+
+**Walkthrough** ([`walkthrough.md`](walkthrough.md)) — full
+methodology, findings, and deliverable orientation for someone
+evaluating whether this analysis is worth commissioning.
 
 ## What's in this repo
 
 ```
+EXECUTIVE_MEMO.md           One-page CEO summary
+DEFENSIBILITY.md            Deduction classification rules + rebuttals
 walkthrough.md              Full methodology and findings narrative
 build_workbook.py           Generates the 7-tab diagnostic workbook
-validate_workbook.py        43-check acceptance test suite
+validate_workbook.py        62-check acceptance test suite
 workbook/                   Workbook generation modules (one per tab)
-  db.py                     Database connection wrapper (Postgres)
-sql/                        25 standalone diagnostic queries
-powerbi/                    Dashboard design, data exports, DAX measures, build guide
-scripts/                    Database connectivity utilities
+dev/sql/                    25 standalone diagnostic queries (reference)
+dev/powerbi/                Dashboard design docs + DAX measures (reference)
+cinderhaven-data/           Simulated dataset (git submodule, 21 tables)
+scripts/                    Database build utilities
 output/                     Generated workbook (.gitignored)
-requirements.txt            Python dependencies
 ```
 
-## Data Source
+## Reference artifacts (in `dev/`)
 
-This project reads from the **Cinderhaven Data Platform** — a Postgres
-database with dbt-managed staging, intermediate, and mart tables,
-hosted on Fly.io with local Docker for development.
+**SQL query library** — 25 queries in 6 categories answering specific
+diagnostic questions, from total revenue to ghost promo detection.
+See [`dev/sql/README.md`](dev/sql/README.md).
 
-To run locally, start the shared Docker Postgres from
-[refactor-older-cinderhaven-projects](https://github.com/MsShawnP/refactor-older-cinderhaven-projects):
+**Power BI design** — dashboard design docs, pre-exported CSVs, and
+49 auto-generated DAX measures for a future interactive implementation.
+See [`dev/powerbi/README.md`](dev/powerbi/README.md).
 
-```bash
-# In the refactor-older-cinderhaven-projects repo:
-docker compose up
+## Stack
 
-# Then in this repo:
-cp .env.example .env
-python build_workbook.py
-```
-
-The original SQLite database and `cinderhaven-data` git submodule have
-been replaced. See git tag `v1.0-sqlite` for the pre-migration state.
+Python 3.10+, openpyxl, pandas, rapidfuzz, SQLite.
 
 ## Quick start
 
 ```bash
-git clone <repo-url>
+git clone --recurse-submodules <repo-url>
 cd trade-spend-data-diagnostic
 pip install -r requirements.txt
-cp .env.example .env   # edit DATABASE_URL if not using local Docker
 python build_workbook.py
 ```
 
-Output lands at `output/trade_spend_diagnostic.xlsx`.
+The `--recurse-submodules` flag is required — the `cinderhaven-data`
+submodule contains the SQLite database. If you cloned without it:
 
-## Deliverables
+```bash
+git submodule update --init
+```
 
-**Excel workbook** — 7-tab static diagnostic with the two-bucket
-punchline, waste breakdown, promo ROI calculator, retailer P&L,
-and full deduction ledger. Run `python build_workbook.py` to
-generate.
-
-**SQL query library** — 25 queries answering specific diagnostic
-questions, from total revenue to ghost promo identification.
-See [`sql/README.md`](sql/README.md).
-
-**Power BI dashboard** — 4-page interactive companion with
-cross-filtering, drill-through, and what-if parameters. Assembled
-manually in Power BI Desktop from pre-exported CSVs and 49
-auto-generated DAX measures. See
-[`powerbi/README.md`](powerbi/README.md).
-
-## Stack
-
-Python 3.10+, openpyxl, psycopg2, Postgres (Cinderhaven Data Platform).
+Output: `output/trade_spend_diagnostic.xlsx`. Validation:
+`python validate_workbook.py` (62 checks).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Not yet determined.
 
 ## Contact
 

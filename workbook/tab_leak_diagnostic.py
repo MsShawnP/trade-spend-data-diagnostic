@@ -12,6 +12,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.deduction_taxonomy import get_taxonomy
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_RIGHT,
@@ -100,7 +101,7 @@ def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
 
     ws.sheet_view.showGridLines = False
 
-    col_widths = [3, 22, 14, 16, 16, 20, 16]
+    col_widths = [3, 22, 14, 16, 16, 20, 16, 12, 16]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
@@ -118,7 +119,7 @@ def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
     ws.cell(row=row, column=2, value="Operational Waste by Category").font = FONT_SECTION
 
     row += 1
-    headers = ["Category", "Count", "Total Amount", "% of Waste", "Avg Days to Resolve", "Recoverability"]
+    headers = ["Category", "Count", "Total Amount", "% of Waste", "Avg Days to Resolve", "Recoverability", "Addressable", "Addressable $"]
     for c, h in enumerate(headers, 2):
         cell = ws.cell(row=row, column=c, value=h)
         cell.font = Font(name="Calibri", size=11, bold=True)
@@ -142,11 +143,17 @@ def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
         c_days = ws.cell(row=r, column=6, value=round(avg_days) if avg_days else None)
         c_days.alignment = ALIGN_CENTER
         ws.cell(row=r, column=7, value=recov).alignment = ALIGN_CENTER
+        tax = get_taxonomy(dtype)
+        ws.cell(row=r, column=8, value="Yes" if tax["addressable"] else "No").alignment = ALIGN_CENTER
+        addr_amt = total if tax["addressable"] else 0
+        c_addr = ws.cell(row=r, column=9, value=addr_amt)
+        c_addr.number_format = NUM_FMT_DOLLAR
+        c_addr.alignment = ALIGN_RIGHT
 
     table_end_row = table_start_row + len(data["categories"]) - 1
 
     # Excel Table for category breakdown
-    cat_table = Table(displayName="tbl_WasteByCategory", ref=f"B{row}:G{table_end_row}")
+    cat_table = Table(displayName="tbl_WasteByCategory", ref=f"B{row}:I{table_end_row}")
     cat_table.tableStyleInfo = TABLE_STYLE
     ws.add_table(cat_table)
 
@@ -169,6 +176,9 @@ def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
     )
 
     # Totals row (outside table)
+    addressable_total = sum(
+        r[2] for r in data["categories"] if get_taxonomy(r[0])["addressable"]
+    )
     totals_row = table_end_row + 1
     ws.cell(row=totals_row, column=2, value="Total").font = Font(name="Calibri", size=11, bold=True)
     c_tcnt = ws.cell(row=totals_row, column=3, value=sum(r[1] for r in data["categories"]))
@@ -178,6 +188,10 @@ def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
     c_tamt.number_format = NUM_FMT_DOLLAR
     c_tamt.alignment = ALIGN_RIGHT
     c_tamt.font = Font(name="Calibri", size=11, bold=True)
+    c_taddr = ws.cell(row=totals_row, column=9, value=addressable_total)
+    c_taddr.number_format = NUM_FMT_DOLLAR
+    c_taddr.alignment = ALIGN_RIGHT
+    c_taddr.font = Font(name="Calibri", size=11, bold=True)
 
     # --- Double-dip alert (compact — no chart gap) ---
     dd_row = totals_row + 2
