@@ -1,13 +1,13 @@
 """Tab 1: Executive Pulse — the CEO punchline."""
 
-import sqlite3
 from datetime import date
-from pathlib import Path
+
+from workbook.db import connect
 
 from openpyxl.formatting.rule import DataBarRule
 from openpyxl.styles import Alignment, Border, Font, Side
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.channel_mapping import CHANNEL_RATE_COLS, RETAILER_TO_CHANNEL
@@ -25,6 +25,7 @@ from workbook.styles import (
     FONT_SMALL,
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
+    TABLE_STYLE,
 )
 
 CATEGORY_TO_DEPT = {
@@ -54,36 +55,31 @@ NAV_TABS = [
     "Methodology & Logic",
 ]
 
-TABLE_STYLE = TableStyleInfo(
-    name="TableStyleMedium2", showFirstColumn=False,
-    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-)
 
-
-def _query_metrics(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+def _query_metrics(database_url: str) -> dict:
+    conn = connect()
 
     weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
+        "SELECT DISTINCT week_ending FROM stg_scan_data ORDER BY week_ending DESC LIMIT 52"
     ).fetchall()
     oldest_week = weeks[-1][0]
 
     revenue = conn.execute(
-        "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
+        "SELECT SUM(dollars_sold) FROM stg_scan_data WHERE week_ending >= %s",
         (oldest_week,),
     ).fetchone()[0]
 
     channel_rev = conn.execute("""
         SELECT s.retailer, SUM(sd.dollars_sold)
-        FROM scan_data sd
-        JOIN stores s ON sd.store_id = s.store_id
-        WHERE sd.week_ending >= ?
+        FROM stg_scan_data sd
+        JOIN stg_stores s ON sd.store_id = s.store_id
+        WHERE sd.week_ending >= %s
         GROUP BY s.retailer
     """, (oldest_week,)).fetchall()
 
     rates = {}
     for channel, col in CHANNEL_RATE_COLS.items():
-        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
+        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM stg_sku_costs").fetchone()[0]
 
     channel_trade = 0.0
     for retailer, rev in channel_rev:
@@ -92,8 +88,8 @@ def _query_metrics(db_path: Path) -> dict:
     max_scan = weeks[0][0]
     deductions_by_type = conn.execute("""
         SELECT deduction_type, COUNT(*), SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+        FROM stg_deductions
+        WHERE deduction_date > (%s::date - interval '365 days')::date AND deduction_date <= %s
           AND deduction_type != 'promo_billback'
         GROUP BY deduction_type
         ORDER BY SUM(amount) DESC
@@ -107,15 +103,15 @@ def _query_metrics(db_path: Path) -> dict:
     # Waste by retailer → aggregate to channel
     waste_by_retailer = conn.execute("""
         SELECT retailer_id, SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+        FROM stg_deductions
+        WHERE deduction_date > (%s::date - interval '365 days')::date AND deduction_date <= %s
           AND deduction_type != 'promo_billback'
         GROUP BY retailer_id
     """, (max_scan, max_scan)).fetchall()
 
     # Map retailer slugs to display names for channel lookup
     retailer_names = dict(conn.execute(
-        "SELECT LOWER(REPLACE(name, ' ', '_')), name FROM retailers"
+        "SELECT LOWER(REPLACE(name, ' ', '_')), name FROM stg_retailers"
     ).fetchall())
 
     waste_by_channel: dict[str, float] = {}
@@ -126,24 +122,24 @@ def _query_metrics(db_path: Path) -> dict:
 
     dispute_stats = conn.execute("""
         SELECT COUNT(*), SUM(recovered_amount)
-        FROM disputes
+        FROM stg_disputes
     """).fetchone()
 
     total_disputed = conn.execute("""
-        SELECT SUM(d.amount) FROM deductions d
-        JOIN disputes dis ON dis.deduction_id = d.deduction_id
+        SELECT SUM(d.amount) FROM stg_deductions d
+        JOIN stg_disputes dis ON dis.deduction_id = d.deduction_id
     """).fetchone()[0] or 0
 
     # Monthly waste — exclude partial months (<20 days of data) to avoid trend bias
     monthly_waste_raw = conn.execute("""
         SELECT
-            strftime('%Y-%m', deduction_date) as month,
+            to_char(deduction_date, 'YYYY-MM') as month,
             SUM(amount) as monthly_total,
             COUNT(DISTINCT deduction_date) as active_days
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+        FROM stg_deductions
+        WHERE deduction_date > (%s::date - interval '365 days')::date AND deduction_date <= %s
           AND deduction_type != 'promo_billback'
-        GROUP BY strftime('%Y-%m', deduction_date)
+        GROUP BY to_char(deduction_date, 'YYYY-MM')
         ORDER BY month
     """, (max_scan, max_scan)).fetchall()
     monthly_waste = [(m, t) for m, t, days in monthly_waste_raw if days >= 20]
@@ -166,8 +162,8 @@ def _query_metrics(db_path: Path) -> dict:
     }
 
 
-def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
-    metrics = _query_metrics(db_path)
+def build_executive_pulse(ws: Worksheet, database_url: str) -> None:
+    metrics = _query_metrics(database_url)
 
     revenue = metrics["revenue"]
     structural = metrics["structural_trade"]

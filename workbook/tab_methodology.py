@@ -84,8 +84,8 @@ def build_methodology(ws: Worksheet) -> None:
     row += 1
     row = _write_section(ws, row, "2. Data Lineage")
     row = _write_body(ws, row,
-        "All data originates from the cinderhaven-data SQLite database (cinderhaven_product_master.db), "
-        "built via the cinderhaven-data/build_db.py pipeline. 21 tables, 163.7 MB.")
+        "All data originates from the Cinderhaven Postgres data platform (staging tables prefixed stg_). "
+        "21 tables covering scan data, costs, deductions, promotions, stores, retailers, and disputes.")
     row += 1
     row = _write_pair(ws, row, "scan_data",
         "Point-of-sale weekly volumes and dollar sales by SKU and store. "

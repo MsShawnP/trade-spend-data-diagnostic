@@ -242,9 +242,7 @@ def main():
     expected_names = [
         "AllInTradeRate", "StructuralTradeRate", "OperationalWasteRate",
         "TotalRevenue", "StructuralTrade", "OperationalWaste",
-        "AllInTradeCost", "RecoveryRate",
-        "KPI_AllInTradeRate", "KPI_PlannedTradeRate", "KPI_OperationalWaste",
-        "KPI_Revenue", "KPI_StructuralTrade", "KPI_OpWasteAmount",
+        "AllInTradeCost", "RecoveryRate", "AddressableWaste",
     ]
     defined = [dn.name for dn in wb.defined_names.values()]
     for name in expected_names:

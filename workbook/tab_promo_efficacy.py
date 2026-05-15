@@ -9,7 +9,9 @@ from openpyxl.formatting.rule import CellIsRule
 from openpyxl.styles import Font, PatternFill, Protection
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.worksheet.table import Table, TableStyleInfo
+import bisect
+
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.styles import (
@@ -22,19 +24,11 @@ from workbook.styles import (
     FONT_SMALL,
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
+    TABLE_STYLE,
 )
 
 _HELPER_COL_START = 27
 _MAX_WINDOW = 12
-
-TABLE_STYLE = TableStyleInfo(
-    name="TableStyleMedium2", showFirstColumn=False,
-    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-)
-
-
-def _retailer_key(name: str) -> str:
-    return name.lower().replace(" ", "_")
 
 
 def _query_promo_data(database_url: str) -> dict:
@@ -116,8 +110,6 @@ def _query_promo_data(database_url: str) -> dict:
     """).fetchone()
 
     conn.close()
-
-    import bisect
 
     def _find_nearest_week_idx(target_date) -> int | None:
         idx = bisect.bisect_left(all_weeks, target_date)

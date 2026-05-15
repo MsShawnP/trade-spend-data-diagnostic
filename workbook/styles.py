@@ -1,6 +1,7 @@
 """Shared workbook styles used across tabs."""
 
 from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
+from openpyxl.worksheet.table import TableStyleInfo
 
 FONT_HEADER = Font(name="Calibri", size=14, bold=True)
 FONT_SECTION = Font(name="Calibri", size=12, bold=True)
@@ -25,3 +26,8 @@ BORDER_THIN = Border(
 
 NUM_FMT_DOLLAR = '#,##0'
 NUM_FMT_PCT = '0.0%'
+
+TABLE_STYLE = TableStyleInfo(
+    name="TableStyleMedium2", showFirstColumn=False,
+    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
+)

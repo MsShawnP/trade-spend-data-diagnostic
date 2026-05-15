@@ -6,7 +6,7 @@ from workbook.db import connect
 
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.deduction_taxonomy import get_taxonomy
@@ -16,6 +16,7 @@ from workbook.styles import (
     FONT_HEADER,
     FONT_SMALL,
     NUM_FMT_DOLLAR,
+    TABLE_STYLE,
 )
 
 COLUMNS = [
@@ -150,10 +151,6 @@ def build_deduction_ledger(ws: Worksheet, database_url: str) -> None:
     table_end = header_row + len(rows)
     table_ref = f"A{header_row}:{last_col}{table_end}"
 
-    style = TableStyleInfo(
-        name="TableStyleMedium2", showFirstColumn=False,
-        showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-    )
     table = Table(displayName="tbl_DeductionLedger", ref=table_ref)
-    table.tableStyleInfo = style
+    table.tableStyleInfo = TABLE_STYLE
     ws.add_table(table)

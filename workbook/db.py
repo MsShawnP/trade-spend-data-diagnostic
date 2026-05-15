@@ -19,7 +19,7 @@ def connect():
 
 
 class ConnectionWrapper:
-    """Wraps psycopg2 connection to provide SQLite-compatible execute()."""
+    """Wraps psycopg2 connection to provide conn.execute() interface."""
 
     def __init__(self, dsn):
         self._conn = psycopg2.connect(dsn)
@@ -31,7 +31,3 @@ class ConnectionWrapper:
 
     def close(self):
         self._conn.close()
-
-    @property
-    def connection(self):
-        return self._conn

@@ -48,8 +48,6 @@ DEDUCTION_TAXONOMY: dict[str, dict] = {
     },
 }
 
-BUCKET_DISPLAY_ORDER = ["Probable Waste", "Unknown", "Contractual"]
-
 
 def get_taxonomy(deduction_type: str) -> dict:
     return DEDUCTION_TAXONOMY.get(deduction_type, {
