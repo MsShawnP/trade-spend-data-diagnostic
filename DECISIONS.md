@@ -98,6 +98,37 @@ Each entry:
 - **Scope:** Excel workbook tab ordering, README tab, summary tab design
 - **Do not:** Bury the headline in tab 7. Lead with the answer.
 
+### 2026-05-15 — Recovery rate uses all-time scope, not trailing-365
+- **Why:** All-time scope gives 13.7% ($98,216 recovered / $716,082 disputed).
+  Trailing-365 gives 11.7%. All-time better reflects the full dispute track
+  record — trailing-365 would penalize recent disputes still in progress.
+  Methodology tab documents the scope choice explicitly.
+- **Scope:** Recovery rate calculation in `tab_executive_pulse.py`, methodology
+  tab, EXECUTIVE_MEMO.md, DEFENSIBILITY.md
+- **Do not:** Switch to trailing-365 without updating all four documents.
+
+### 2026-05-15 — Vague deduction framing: neutral, no burden-of-proof claim
+- **Why:** Three documents had three contradictory legal positions on who bears
+  the burden for vague deductions (walkthrough: manufacturer; defensibility:
+  retailer; memo: no contractual standing). All three were wrong — burden
+  depends on contract terms. Aligned to neutral framing: "Deductions without a
+  specific, documented basis are disputable — the absence of clear justification
+  is itself the dispute grounds." Accurate regardless of contract terms.
+- **Scope:** walkthrough.md, EXECUTIVE_MEMO.md, DEFENSIBILITY.md
+- **Do not:** Claim either party bears a legal burden without reviewing actual
+  contract terms.
+
+### 2026-05-15 — Partial month exclusion: <20 active days for trend calculation
+- **Why:** May 2026 had only 2 days of deduction data ($5,068) but was included
+  as a full month in the H2 average, halving the reported trend severity (+20%
+  instead of +38%). Threshold of 20 active days excludes stub months without
+  dropping months that happen to have lower deduction activity. Applied via
+  `COUNT(DISTINCT deduction_date)` filter in the monthly waste query.
+- **Scope:** `tab_executive_pulse.py` monthly waste query and H1/H2 trend
+  calculation
+- **Do not:** Use a calendar-day threshold (e.g., "month must be complete") —
+  deductions don't arrive every day even in full months.
+
 ---
 
 ## Data & Schema

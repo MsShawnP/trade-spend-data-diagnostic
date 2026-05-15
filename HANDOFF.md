@@ -9,6 +9,25 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-15 — v2 Review → Remediation → Audit complete, merged to master
+
+**Phase:** v2 Phase 7 (Audit) — COMPLETE
+**Goal:** Run the full v2 review/remediation/audit pipeline and merge to master.
+**Completed:**
+- Ran code review, data review, prose review agents → REVIEW_CODE.md, REVIEW_DATA.md, REVIEW_PROSE.md
+- Consolidated 22 findings into REMEDIATION.md (4 blocking, 18 advisory)
+- Fixed 4 blocking items: circular recovery rate (14.3% → 13.7%), hardcoded path (→ CINDERHAVEN_DB_PATH env var), partial month trend bias (+20% → +38%), contradictory vague-deduction framing (→ neutral)
+- Rebuilt workbook — 62/62 validation checks pass
+- Final audit passed — AUDIT.md verdict: PASS
+- Committed as e83fb56, merged to master as 18b46cb (resolved 6 conflicts from in-progress Postgres migration, took audited SQLite version)
+- Cleaned up worktree `fervent-perlman-fb77a8` and branch
+**Tried, didn't work:** Nothing — all fixes applied cleanly.
+**State:** v2 workflow complete end-to-end. Master at 18b46cb. 18 advisory items in REMEDIATION.md for future cleanup. Postgres migration on master (e22acfb) was overridden by merge — revisit if migrating.
+**Next concrete action:** Address advisory items from REMEDIATION.md (unused deps, unpinned openpyxl, stale methodology numbers, etc.) — or ship as-is.
+**Blockers:** None
+
+---
+
 ## 2026-05-14 — v2 BUILD complete (9 steps), commit e4150e8
 
 **Started from:** Post-PLAN, pre-BUILD. PROJECT_PLAN.md locked with 9-step BUILD execution order. Working in worktree `fervent-perlman-fb77a8`.
