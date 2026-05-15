@@ -9,6 +9,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.deduction_taxonomy import get_taxonomy
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_RIGHT,
@@ -38,6 +39,7 @@ COLUMNS = [
     ("Vague", 6),
     ("Post-Audit", 9),
     ("Double-Dip", 9),
+    ("Taxonomy", 16),
 ]
 
 
@@ -139,6 +141,9 @@ def build_deduction_ledger(ws: Worksheet, database_url: str) -> None:
             cell = ws.cell(row=rw, column=flag_col)
             cell.value = "Yes" if cell.value else ""
             cell.alignment = ALIGN_CENTER
+        # Taxonomy bucket (col 21) derived from deduction_type (col 6)
+        deduction_type = row_data[5]
+        ws.cell(row=rw, column=21, value=get_taxonomy(deduction_type)["bucket"])
 
     # --- Excel Table ---
     last_col = get_column_letter(len(COLUMNS))

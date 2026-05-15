@@ -20,7 +20,7 @@ cinderhaven-data/data/cinderhaven_product_master.db
 **sqlite3 CLI:**
 
 ```bash
-sqlite3 cinderhaven-data/data/cinderhaven_product_master.db < sql/trade_rate/total_revenue.sql
+sqlite3 cinderhaven-data/data/cinderhaven_product_master.db < dev/sql/trade_rate/total_revenue.sql
 ```
 
 For queries with parameters, open the file, replace the `:param_name`
@@ -36,7 +36,7 @@ db = Path("cinderhaven-data/data/cinderhaven_product_master.db")
 conn = sqlite3.connect(db)
 
 # Example: total revenue
-sql = Path("sql/trade_rate/total_revenue.sql").read_text()
+sql = Path("dev/sql/trade_rate/total_revenue.sql").read_text()
 # Replace parameter placeholder before executing
 sql = sql.replace(":oldest_week", "'2025-05-10'")
 for row in conn.execute(sql):
