@@ -9,6 +9,63 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-14 — v2 BUILD complete (9 steps), commit e4150e8
+
+**Started from:** Post-PLAN, pre-BUILD. PROJECT_PLAN.md locked with 9-step BUILD execution order. Working in worktree `fervent-perlman-fb77a8`.
+
+**Did:**
+- Executed all 9 BUILD steps from PROJECT_PLAN.md sequentially
+- Step 1: Moved `sql/` → `dev/sql/`, `powerbi/` → `dev/powerbi/`, updated all path refs in 8 docs
+- Step 2: Created `workbook/channel_mapping.py` — single source of truth for retailer→channel mapping, refactored tab_retailer_risk.py and tab_executive_pulse.py
+- Step 3: Created `workbook/deduction_taxonomy.py` — 9 deduction types × 3 buckets (Probable Waste / Unknown / Contractual) with addressability flags and defense text. Added Taxonomy column to Deduction Ledger and Code Crosswalk
+- Step 4: Added Addressability column + Addressable $ column to Leak Diagnostic. Surfaced $933K addressable waste as 4th KPI on Executive Pulse
+- Step 5: Added Channel column + Channel Rollup table (`tbl_ChannelRollup`) on Retailer Risk. Added top-waste-channels callout to Executive Pulse CEO takeaway. Fixed validation script column refs (+1 shift)
+- Step 6: openpyxl LineChart does NOT render in Excel (3 attempts, see FAILURES.md). Replaced with text-based trend indicator: "12-month waste trend: rising at $77,881/mo avg. H2 up 20% vs H1."
+- Step 7: Added industry benchmark band (19–23%) at F5/F6 on Executive Pulse. Updated CEO takeaway to reference benchmark. Added §6 External Benchmark to Methodology & Logic tab
+- Step 8: Created DEFENSIBILITY.md (classification rules + VP-of-Sales rebuttals), EXECUTIVE_MEMO.md (one-page CEO condensation). Rewrote README.md punchline-first. Reframed walkthrough.md opening, updated all query paths, revised deliverables section
+- Step 9: Full build + validate (62/62), visual QA in Excel confirmed by operator
+- Committed as `e4150e8`
+
+**Key files created:**
+- `workbook/channel_mapping.py` — RETAILER_TO_CHANNEL, CHANNEL_RATE_COLS, CHANNEL_DISPLAY_ORDER
+- `workbook/deduction_taxonomy.py` — DEDUCTION_TAXONOMY dict, get_taxonomy() function
+- `DEFENSIBILITY.md` — deduction classification rules and rebuttals
+- `EXECUTIVE_MEMO.md` — one-page CEO memo (finding → data → Monday actions)
+
+**Key files modified:**
+- `workbook/tab_executive_pulse.py` — 4th KPI, benchmark, trend indicator, channel callout
+- `workbook/tab_retailer_risk.py` — Channel column, Channel Rollup section
+- `workbook/tab_leak_diagnostic.py` — Addressable/Addressable$ columns
+- `workbook/tab_deduction_ledger.py` — Taxonomy column
+- `workbook/tab_code_crosswalk.py` — Taxonomy column
+- `workbook/tab_methodology.py` — §6 External Benchmark, renumbered §7-§8
+- `workbook/generator.py` — AddressableWaste named range, updated print areas
+- `validate_workbook.py` — 3 new checks (benchmark, trend, column shifts), 62 total
+- `README.md` — punchline-first rewrite
+- `walkthrough.md` — reframed opening, updated paths, revised deliverables
+
+**State:**
+- v2 BUILD phase is **complete**. All 9 steps done.
+- 62/62 validation checks passing. Visual QA confirmed.
+- Commit `e4150e8` on branch `claude/fervent-perlman-fb77a8` (worktree)
+- Not pushed to remote yet
+- Working in worktree — changes need to be merged to main branch
+
+**Next:** Run the v2 review phase:
+1. Code review agent (`code-reviewer.md`)
+2. Data & analysis review agent (`data-science-reviewer.md`)
+3. Prose & narrative review agent (`prose-reviewer.md`)
+4. Consolidate findings into `REMEDIATION.md`
+5. Fix blocking items
+6. Final audit (`final-auditor.md`)
+
+**Open items:**
+- openpyxl chart rendering failure logged in FAILURES.md — text trend works, but a proper chart would be better (consider xlsxwriter for future projects)
+- Worktree branch not yet merged to main or pushed to remote
+- Temp files `output/trade_spend_diagnostic_v2.xlsx`, `_v3.xlsx`, `_v4.xlsx` in main repo (can delete)
+
+---
+
 ## 2026-05-14/15 — v2 workflow adopted, PROJECT_PLAN written, Gemini scope review folded in, build mapped (Claude Code on the web session)
 
 **Started from:** All five arcs complete per HANDOFF, but operator surfaced concern that the project is a toolset demo (Python + openpyxl + SQL + Power BI) rather than a substantive value deliverable. Opened a session to adopt the v2 phase-gated workflow from claude-solo-dev-workflow and run an independent review pass.
