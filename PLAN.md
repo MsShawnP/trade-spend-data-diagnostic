@@ -15,6 +15,17 @@ arc history below and HANDOFF.md for session details.
 
 ## Arc history
 
+### Post-arc: v2 Review → Remediation → Audit (2026-05-15)
+- Ran full v2 review pipeline: code review, data review, prose review
+- Consolidated 22 findings (4 blocking, 18 advisory) into REMEDIATION.md
+- Fixed all 4 blocking items: circular recovery rate (14.3% → 13.7%),
+  hardcoded absolute path (→ env var), partial month trend bias (+20% →
+  +38%), contradictory vague-deduction framing (→ neutral language)
+- Rebuilt workbook, 62/62 validation checks passing
+- Final audit: PASS. AUDIT.md written.
+- Merged worktree branch to master (18b46cb), cleaned up worktree
+- 18 advisory items remain documented in REMEDIATION.md
+
 ### Post-arc: Power BI bug fixes and presentation redesign (2026-05-11)
 - Fixed 5 data bugs (AllInTradeCost double-count, waterfall sort,
   double-dip $0, ghost promo context, total row explosion)
