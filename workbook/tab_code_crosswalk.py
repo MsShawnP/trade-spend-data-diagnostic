@@ -5,7 +5,7 @@ from workbook.db import connect
 from openpyxl.formatting.rule import CellIsRule
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.deduction_taxonomy import get_taxonomy
@@ -13,6 +13,7 @@ from workbook.styles import (
     ALIGN_CENTER,
     FONT_HEADER,
     FONT_SMALL,
+    TABLE_STYLE,
 )
 
 COLUMNS = [
@@ -90,12 +91,8 @@ def build_code_crosswalk(ws: Worksheet, database_url: str) -> None:
     last_col = get_column_letter(len(COLUMNS))
     table_ref = f"A{header_row}:{last_col}{table_end}"
 
-    style = TableStyleInfo(
-        name="TableStyleMedium2", showFirstColumn=False,
-        showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-    )
     table = Table(displayName="tbl_CodeCrosswalk", ref=table_ref)
-    table.tableStyleInfo = style
+    table.tableStyleInfo = TABLE_STYLE
     ws.add_table(table)
 
     # Conditional formatting on status column

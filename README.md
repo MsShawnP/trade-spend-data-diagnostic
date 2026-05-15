@@ -63,7 +63,7 @@ See [`dev/powerbi/README.md`](dev/powerbi/README.md).
 
 ## Stack
 
-Python 3.10+, openpyxl, pandas, rapidfuzz, SQLite.
+Python 3.10+, openpyxl, psycopg2, PostgreSQL.
 
 ## Quick start
 
@@ -74,12 +74,9 @@ pip install -r requirements.txt
 python build_workbook.py
 ```
 
-The `--recurse-submodules` flag is required — the `cinderhaven-data`
-submodule contains the SQLite database. If you cloned without it:
-
-```bash
-git submodule update --init
-```
+The `--recurse-submodules` flag pulls the `cinderhaven-data`
+submodule (seed data). Set `DATABASE_URL` to point at your
+Cinderhaven Postgres instance before building.
 
 Output: `output/trade_spend_diagnostic.xlsx`. Validation:
 `python validate_workbook.py` (62 checks).

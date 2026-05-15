@@ -81,8 +81,8 @@ two buckets.
 
 ### Data sources
 
-Six source types feed the diagnostic, unified into 21 tables in a
-single SQLite database:
+Six source types feed the diagnostic, unified into 21 staging tables
+in the Cinderhaven Postgres data platform:
 
 - **SKU cost tables** — 90 products with COGS, wholesale prices by
   channel, and per-channel trade spend percentages. The structural
@@ -102,12 +102,12 @@ single SQLite database:
 - **Dispute records** — 1,410 filed disputes with outcomes and
   recovery amounts.
 - **Deduction code crosswalk** — 97 retailer-specific codes mapped
-  to a common 8-category taxonomy. Fuzzy matching (via rapidfuzz)
-  handles naming inconsistencies across retailers — "WFM" versus
-  "Whole Foods," "short ship" versus "shipping shortage." The
-  crosswalk achieves a ~68% clean match rate. 292 deductions remain
-  unmapped: their retailer codes have no entry in the crosswalk
-  table (query: `dev/sql/crosswalk/deduction_codes.sql`).
+  to a common 8-category taxonomy. The crosswalk handles naming
+  inconsistencies across retailers — "WFM" versus "Whole Foods,"
+  "short ship" versus "shipping shortage" — achieving a ~68% clean
+  match rate. 292 deductions remain unmapped: their retailer codes
+  have no entry in the crosswalk table
+  (query: `dev/sql/crosswalk/deduction_codes.sql`).
 
 ### Promotion measurement
 
@@ -280,10 +280,10 @@ library (25 queries) for analysts who want to run their own cuts,
 and Power BI design documentation (dashboard wireframes, 49 DAX
 measures, pre-exported CSVs) for a future interactive implementation.
 
-All deliverables are built from the same SQLite database, maintained
-as a git submodule. When the underlying data is updated, the workbook
-is regenerated (`python build_workbook.py`) and the numbers stay
-consistent because there is one source.
+All deliverables are built from the same Postgres data platform. When
+the underlying data is updated, the workbook is regenerated
+(`python build_workbook.py`) and the numbers stay consistent because
+there is one source.
 
 ---
 

@@ -9,7 +9,7 @@ from openpyxl.formatting.rule import CellIsRule
 from openpyxl.styles import Font, PatternFill, Protection
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.deduction_taxonomy import get_taxonomy
@@ -23,6 +23,7 @@ from workbook.styles import (
     FONT_SMALL,
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
+    TABLE_STYLE,
 )
 
 RECOVERABILITY = {
@@ -35,11 +36,6 @@ RECOVERABILITY = {
     "damaged": "Medium",
     "pallet_fine": "Low",
 }
-
-TABLE_STYLE = TableStyleInfo(
-    name="TableStyleMedium2", showFirstColumn=False,
-    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-)
 
 
 def _query_data(database_url: str) -> dict:

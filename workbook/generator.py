@@ -38,12 +38,6 @@ def _add_named_ranges(wb: Workbook) -> None:
         "OperationalWaste": "'Executive Pulse'!$D$13",
         "AllInTradeCost": "'Executive Pulse'!$D$12+'Executive Pulse'!$D$13",
         "RecoveryRate": "'Executive Pulse'!$C$25",
-        "KPI_AllInTradeRate": "'Executive Pulse'!$B$5",
-        "KPI_PlannedTradeRate": "'Executive Pulse'!$C$5",
-        "KPI_OperationalWaste": "'Executive Pulse'!$D$5",
-        "KPI_Revenue": "'Executive Pulse'!$D$11",
-        "KPI_StructuralTrade": "'Executive Pulse'!$D$12",
-        "KPI_OpWasteAmount": "'Executive Pulse'!$D$13",
         "AddressableWaste": "'Executive Pulse'!$E$5",
     }
     for name, ref in ranges.items():
