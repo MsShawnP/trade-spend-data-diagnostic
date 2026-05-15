@@ -15,6 +15,17 @@ arc history below and HANDOFF.md for session details.
 
 ## Arc history
 
+### Post-arc: Simplification pass + Postgres verification (2026-05-15)
+- Centralized TABLE_STYLE into styles.py (eliminated 6 duplicate definitions)
+- Completed Postgres migration for tab_executive_pulse and tab_retailer_risk
+  (sqlite3 → workbook.db.connect, `?` → `%s`, date() → interval, strftime → to_char)
+- Removed dead code: BUCKET_DISPLAY_ORDER, ConnectionWrapper.connection,
+  _retailer_key(), 6 duplicate KPI_ named ranges, inline bisect import
+- Dropped unused dependencies: pandas, rapidfuzz from requirements.txt
+- Updated all prose (README, walkthrough, methodology tab) from SQLite/rapidfuzz to Postgres
+- Connected to Fly.io Postgres, fixed schema search_path and Decimal→float coercion
+- Built workbook and validated 57/57 checks against production Fly.io Postgres
+
 ### Post-arc: v2 Review → Remediation → Audit (2026-05-15)
 - Ran full v2 review pipeline: code review, data review, prose review
 - Consolidated 22 findings (4 blocking, 18 advisory) into REMEDIATION.md
