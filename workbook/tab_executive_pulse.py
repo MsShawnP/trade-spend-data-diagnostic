@@ -129,16 +129,24 @@ def _query_metrics(db_path: Path) -> dict:
         FROM disputes
     """).fetchone()
 
-    monthly_waste = conn.execute("""
+    total_disputed = conn.execute("""
+        SELECT SUM(d.amount) FROM deductions d
+        JOIN disputes dis ON dis.deduction_id = d.deduction_id
+    """).fetchone()[0] or 0
+
+    # Monthly waste — exclude partial months (<20 days of data) to avoid trend bias
+    monthly_waste_raw = conn.execute("""
         SELECT
             strftime('%Y-%m', deduction_date) as month,
-            SUM(amount) as monthly_total
+            SUM(amount) as monthly_total,
+            COUNT(DISTINCT deduction_date) as active_days
         FROM deductions
         WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
           AND deduction_type != 'promo_billback'
         GROUP BY strftime('%Y-%m', deduction_date)
         ORDER BY month
     """, (max_scan, max_scan)).fetchall()
+    monthly_waste = [(m, t) for m, t, days in monthly_waste_raw if days >= 20]
 
     conn.close()
 
@@ -150,6 +158,7 @@ def _query_metrics(db_path: Path) -> dict:
         "deductions_by_type": deductions_by_type,
         "dispute_count": dispute_stats[0],
         "total_recovered": dispute_stats[1],
+        "total_disputed": total_disputed,
         "waste_by_channel": waste_by_channel,
         "oldest_week": oldest_week,
         "max_scan": max_scan,
@@ -170,7 +179,7 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
     waste_rate = waste / revenue
     all_in_rate = all_in / revenue
 
-    recovery_rate = metrics["total_recovered"] / (metrics["total_recovered"] / 0.143) if metrics["total_recovered"] else 0
+    recovery_rate = metrics["total_recovered"] / metrics["total_disputed"] if metrics["total_disputed"] else 0
     total_recovered = metrics["total_recovered"]
 
     ws.sheet_view.showGridLines = False
