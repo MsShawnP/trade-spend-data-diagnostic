@@ -38,7 +38,7 @@ charges your retailers cannot specifically justify.
 
 ## What you are recovering
 
-You filed 1,409 disputes. You recovered $98K — a 14.3% recovery
+You filed 1,410 disputes. You recovered $98K — a 13.7% recovery
 rate. Industry benchmarks for active dispute management are
 25-35%. At 30% recovery on the addressable waste, you would recover
 ~$280K — an incremental ~$182K per year over your current rate.
@@ -47,7 +47,8 @@ rate. Industry benchmarks for active dispute management are
 
 1. **Dispute the vague deductions.** $294K with no clear basis.
    Request supporting documentation from each retailer. Deductions
-   without specific justification have no contractual standing.
+   without a specific, documented basis are disputable — the absence
+   of clear justification is itself the dispute grounds.
 
 2. **Audit short-ship and late-delivery claims against shipping
    records.** $272K combined. Cross-reference against BOLs and

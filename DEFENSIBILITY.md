@@ -114,12 +114,13 @@ SOP issue. At ~$14K it is the smallest category, but the fix
 investigation and dispute.
 
 **Rebuttal to "those are just miscellaneous fees":** "Miscellaneous"
-is not a contractual term. If the retailer cannot provide a specific
-basis for the deduction — a referenced invoice, a specific compliance
-failure, a documented shortage — the deduction has no standing. This
-is the highest-priority category for dispute because the retailer
-bears the burden of justification. The ~$294K here represents the
-largest single category of operational waste.
+is not a contractual term. Request supporting documentation from the
+retailer — a referenced invoice, a specific compliance failure, a
+documented shortage. Deductions without a specific, documented basis
+are disputable: the absence of clear justification is itself the
+dispute grounds. This is the highest-priority category for
+investigation because the ~$294K represents the largest single
+category of operational waste and the least understood.
 
 ---
 
@@ -167,7 +168,7 @@ Of ~$1.01M in trailing-365 operational waste:
   operational failure.
 
 The $933K addressable figure is the number that matters for
-remediation planning. At Cinderhaven's current 14.3% recovery rate,
+remediation planning. At Cinderhaven's current 13.7% recovery rate,
 ~$98K is being recovered. At a 30% recovery rate (achievable with
 automated dispute workflows), that becomes ~$280K — an incremental
 ~$182K in annual recovery.

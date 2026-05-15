@@ -108,7 +108,7 @@ def build_methodology(ws: Worksheet) -> None:
         "and standardized categories. 19 verified from vendor guides, 78 inferred via pattern matching. "
         "292 deduction records in the trailing-365 window have no matching crosswalk entry.")
     row = _write_pair(ws, row, "disputes",
-        "1,409 dispute records with outcome, recovered amount, filed/closed dates. "
+        "~1,410 dispute records with outcome, recovered amount, filed/closed dates. "
         "Joined to deductions on deduction_id. Recovery rate = total recovered / total disputed dollars.")
     row = _write_pair(ws, row, "stores",
         "Store-to-retailer mapping. Used to aggregate scan_data from store level to retailer/channel level.")
@@ -167,7 +167,8 @@ def build_methodology(ws: Worksheet) -> None:
     row += 1
     row = _write_section(ws, row, "5. Recovery Rate & Addressable Improvement")
     row = _write_pair(ws, row, "Current recovery rate",
-        "Total recovered dollars ($98,216) ÷ total disputed dollars ($687,210) = 14.3%. "
+        "Total recovered dollars ($98,216) ÷ total disputed dollars ($716,082) = 13.7%. "
+        "Scope is all-time (not trailing-365) to reflect the full dispute track record. "
         "This counts won_full (100% recovery) and won_partial (~49% average recovery) outcomes.")
     row = _write_pair(ws, row, "Target recovery input",
         "Tab 2 cell C41 allows entering a target recovery rate (0–100%). "

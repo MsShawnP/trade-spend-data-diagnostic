@@ -151,12 +151,15 @@ three that account for two-thirds of the total (query:
 | Pallet fines | 80 | $13,833 | 1.4% |
 
 The largest single category — vague deductions with missing or
-ambiguous reason codes — is the least actionable. These are
-deductions where the retailer's remittance provides no clear basis
-for the charge. They are also the hardest to dispute: without a
-specific claim to contest, the burden of proof shifts entirely to
-the manufacturer. The prevalence of vague deductions is itself a
-diagnostic finding (see Tab 2: Leak Diagnostic).
+ambiguous reason codes — is the highest priority for investigation.
+These are deductions where the retailer's remittance provides no
+clear basis for the charge. The first step is requesting supporting
+documentation from each retailer: a referenced invoice, a specific
+compliance failure, a documented shortage. Deductions without a
+specific, documented basis are disputable — the absence of clear
+justification is itself the dispute grounds. The prevalence of vague
+deductions is itself a diagnostic finding (see Tab 2: Leak
+Diagnostic).
 
 ### Double-dip detection
 
