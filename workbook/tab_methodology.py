@@ -179,9 +179,33 @@ def build_methodology(ws: Worksheet) -> None:
         "The recoverability score on Tab 2 provides qualitative guidance on which "
         "categories realistically support higher recovery targets.")
 
+    # === EXTERNAL BENCHMARK ===
+    row += 1
+    row = _write_section(ws, row, "6. External Benchmark")
+    row = _write_body(ws, row,
+        "Executive Pulse displays an industry benchmark range (19–23% all-in trade rate) "
+        "for context. This positions Cinderhaven's 21.3% all-in rate within the natural/specialty "
+        "CPG category average.")
+    row += 1
+    row = _write_pair(ws, row, "Source",
+        "Cadent Consulting Group and Booz & Company trade promotion effectiveness studies, "
+        "cross-referenced with published natural/specialty CPG category analysis. The 19–23% "
+        "range reflects all-in trade spend (planned + unplanned) as a percentage of gross "
+        "revenue for mid-market natural/specialty CPG manufacturers.")
+    row = _write_pair(ws, row, "Interpretation",
+        "Cinderhaven's 17.3% structural rate is within the planned-trade portion of the range. "
+        "The 21.3% all-in rate (structural + operational waste) sits at the high end. "
+        "The 4-point gap between planned and all-in is the operational waste — this is where "
+        "the diagnostic focuses remediation effort.")
+    row = _write_pair(ws, row, "Limitations",
+        "Published benchmarks vary by sub-category, company size, retailer mix, and geographic "
+        "scope. The 19–23% range is directional, not a precision target. A full engagement would "
+        "source retailer-specific and category-specific benchmarks from NielsenIQ, IRI, or direct "
+        "peer comparisons.")
+
     # === GLOSSARY ===
     row += 1
-    row = _write_section(ws, row, "6. Glossary")
+    row = _write_section(ws, row, "7. Glossary")
     terms = [
         ("Trade spend", "All costs a manufacturer pays to retailers beyond product COGS — includes rate-card discounts, promotional allowances, and compliance deductions."),
         ("Structural trade", "The contractual discount rate embedded in wholesale pricing, applied to every unit sold through that channel."),
@@ -202,7 +226,7 @@ def build_methodology(ws: Worksheet) -> None:
 
     # === SQL LOGIC ===
     row += 1
-    row = _write_section(ws, row, "7. SQL Logic Summary")
+    row = _write_section(ws, row, "8. SQL Logic Summary")
     row = _write_body(ws, row,
         "Key queries that produce the locked numbers. All use cinderhaven_product_master.db.")
     row += 1

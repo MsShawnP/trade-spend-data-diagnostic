@@ -10,12 +10,12 @@ promo performance, and retailer comparison.
 
 ## Quick Start
 
-1. Export data: `python powerbi/export_data.py`
+1. Export data: `python dev/powerbi/export_data.py`
 2. Open Power BI Desktop → import CSVs → set up relationships
 3. Inject measures via pbi-tools:
    ```
    pbi-tools extract trade_spend_diagnostic.pbix
-   python powerbi/generate_pbix_model.py trade_spend_diagnostic
+   python dev/powerbi/generate_pbix_model.py trade_spend_diagnostic
    pbi-tools compile trade_spend_diagnostic.pbix
    ```
 4. Open the .pbix → build the visual layout
@@ -31,7 +31,7 @@ full assembly including visual layout.
 Star schema with 7 exported tables plus 4 calculated tables created
 in Power BI.
 
-### Exported Tables (from `powerbi/data/`)
+### Exported Tables (from `dev/powerbi/data/`)
 
 | Table | Rows | Purpose |
 |-------|------|---------|
@@ -98,7 +98,7 @@ impossible or impractical in the static workbook.
 When the underlying SQLite database is updated:
 
 ```
-python powerbi/export_data.py
+python dev/powerbi/export_data.py
 ```
 
 This re-exports all 7 CSVs from the current database state. Then
@@ -169,7 +169,7 @@ generated automatically by `generate_pbix_model.py`.
 ## File Inventory
 
 ```
-powerbi/
+dev/powerbi/
 ├── README.md                  ← This file
 ├── DESIGN.md                  ← Page layouts, visual specs, value-add rationale
 ├── DAX_MEASURES.md            ← All 49 measures with DAX formulas

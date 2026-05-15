@@ -5,11 +5,13 @@ from datetime import date
 from pathlib import Path
 
 from openpyxl.formatting.rule import DataBarRule
-from openpyxl.styles import Border, Font, Side
+from openpyxl.styles import Alignment, Border, Font, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.channel_mapping import CHANNEL_RATE_COLS, RETAILER_TO_CHANNEL
+from workbook.deduction_taxonomy import get_taxonomy
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_LEFT,
@@ -35,6 +37,12 @@ CATEGORY_TO_DEPT = {
     "spoilage": ("Operations", "Shelf-life/inventory management"),
     "vague": ("Finance", "Unclear codes — investigate"),
 }
+
+BENCHMARK_BAND = (0.19, 0.23)
+BENCHMARK_NOTE = (
+    "Natural/specialty CPG category average"
+    " (Cadent Consulting, Booz & Company trade promotion benchmarks)"
+)
 
 NAV_TABS = [
     "Executive Pulse",
@@ -73,21 +81,13 @@ def _query_metrics(db_path: Path) -> dict:
         GROUP BY s.retailer
     """, (oldest_week,)).fetchall()
 
-    channel_rate_cols = {
-        "Walmart": "trade_spend_pct_walmart",
-        "Costco": "trade_spend_pct_costco",
-        "Whole Foods": "trade_spend_pct_whole_foods",
-        "UNFI": "trade_spend_pct_unfi",
-        "DTC": "trade_spend_pct_dtc",
-    }
     rates = {}
-    for channel, col in channel_rate_cols.items():
+    for channel, col in CHANNEL_RATE_COLS.items():
         rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
 
     channel_trade = 0.0
     for retailer, rev in channel_rev:
-        channel_trade += rev * rates.get(retailer, regional_rate)
+        channel_trade += rev * rates.get(retailer, rates["Regional"])
 
     max_scan = weeks[0][0]
     deductions_by_type = conn.execute("""
@@ -100,11 +100,45 @@ def _query_metrics(db_path: Path) -> dict:
     """, (max_scan, max_scan)).fetchall()
 
     operational_waste = sum(r[2] for r in deductions_by_type)
+    addressable_waste = sum(
+        r[2] for r in deductions_by_type if get_taxonomy(r[0])["addressable"]
+    )
+
+    # Waste by retailer → aggregate to channel
+    waste_by_retailer = conn.execute("""
+        SELECT retailer_id, SUM(amount)
+        FROM deductions
+        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+          AND deduction_type != 'promo_billback'
+        GROUP BY retailer_id
+    """, (max_scan, max_scan)).fetchall()
+
+    # Map retailer slugs to display names for channel lookup
+    retailer_names = dict(conn.execute(
+        "SELECT LOWER(REPLACE(name, ' ', '_')), name FROM retailers"
+    ).fetchall())
+
+    waste_by_channel: dict[str, float] = {}
+    for slug, amount in waste_by_retailer:
+        display_name = retailer_names.get(slug, slug)
+        channel = RETAILER_TO_CHANNEL.get(display_name, "Other")
+        waste_by_channel[channel] = waste_by_channel.get(channel, 0) + amount
 
     dispute_stats = conn.execute("""
         SELECT COUNT(*), SUM(recovered_amount)
         FROM disputes
     """).fetchone()
+
+    monthly_waste = conn.execute("""
+        SELECT
+            strftime('%Y-%m', deduction_date) as month,
+            SUM(amount) as monthly_total
+        FROM deductions
+        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+          AND deduction_type != 'promo_billback'
+        GROUP BY strftime('%Y-%m', deduction_date)
+        ORDER BY month
+    """, (max_scan, max_scan)).fetchall()
 
     conn.close()
 
@@ -112,11 +146,14 @@ def _query_metrics(db_path: Path) -> dict:
         "revenue": revenue,
         "structural_trade": channel_trade,
         "operational_waste": operational_waste,
+        "addressable_waste": addressable_waste,
         "deductions_by_type": deductions_by_type,
         "dispute_count": dispute_stats[0],
         "total_recovered": dispute_stats[1],
+        "waste_by_channel": waste_by_channel,
         "oldest_week": oldest_week,
         "max_scan": max_scan,
+        "monthly_waste": monthly_waste,
     }
 
 
@@ -155,24 +192,48 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
     ws["B3"] = f"Trailing 52 weeks ({metrics['oldest_week']} to {metrics['max_scan']})  |  Built {date.today().isoformat()}"
     ws["B3"].font = FONT_SMALL
 
-    # --- KPI trio (rows 5-7) ---
+    addressable = metrics["addressable_waste"]
+
+    # --- KPI row (rows 5-7) ---
     kpis = [
-        ("All-In Trade Rate", all_in_rate),
-        ("Planned Trade Rate", structural_rate),
-        ("Operational Waste", waste_rate),
+        ("All-In Trade Rate", all_in_rate, NUM_FMT_PCT),
+        ("Planned Trade Rate", structural_rate, NUM_FMT_PCT),
+        ("Operational Waste", waste_rate, NUM_FMT_PCT),
+        ("Addressable Waste", addressable, NUM_FMT_DOLLAR),
     ]
-    for col_idx, (label, value) in enumerate(kpis, 2):
+    for col_idx, (label, value, fmt) in enumerate(kpis, 2):
         cell_val = ws.cell(row=5, column=col_idx, value=value)
         cell_val.font = FONT_KPI_VALUE
-        cell_val.number_format = NUM_FMT_PCT
+        cell_val.number_format = fmt
         cell_val.alignment = ALIGN_CENTER
 
         cell_lbl = ws.cell(row=6, column=col_idx, value=label)
         cell_lbl.font = FONT_KPI_LABEL
         cell_lbl.alignment = ALIGN_CENTER
 
+    # --- Benchmark annotation (column F, next to KPIs) ---
+    bench_val = ws.cell(
+        row=5, column=6,
+        value=f"{BENCHMARK_BAND[0]*100:.0f}–{BENCHMARK_BAND[1]*100:.0f}%",
+    )
+    bench_val.font = Font(name="Calibri", size=12, bold=True, color="808080")
+    bench_val.alignment = ALIGN_CENTER
+    bench_lbl = ws.cell(row=6, column=6, value="Industry Range")
+    bench_lbl.font = Font(name="Calibri", size=9, color="808080")
+    bench_lbl.alignment = ALIGN_CENTER
+
+    top_channels = sorted(metrics["waste_by_channel"].items(), key=lambda x: x[1], reverse=True)[:2]
+    ch_note = ""
+    if top_channels:
+        parts = [f"{ch} (${amt:,.0f})" for ch, amt in top_channels]
+        ch_note = f" Top waste channels: {', '.join(parts)}."
+
     ws.merge_cells("B7:F7")
-    ws["B7"] = "You budgeted 17%. You're spending 21%. The extra 4 points is operational waste."
+    ws["B7"] = (
+        f"You budgeted 17%. You're at {all_in_rate*100:.0f}%"
+        f" (industry: {BENCHMARK_BAND[0]*100:.0f}–{BENCHMARK_BAND[1]*100:.0f}%)."
+        f" The gap is {waste_rate*100:.0f} points of operational waste.{ch_note}"
+    )
     ws["B7"].font = Font(name="Calibri", size=11, italic=True)
     ws["B7"].alignment = ALIGN_LEFT
 
@@ -315,3 +376,33 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
     )
     callout.font = FONT_SMALL
     callout.alignment = ALIGN_LEFT
+
+    # --- Waste trend analysis (text-based — openpyxl charts don't render) ---
+    monthly = metrics["monthly_waste"]
+    if len(monthly) >= 6:
+        mid = len(monthly) // 2
+        h1_avg = sum(t for _, t in monthly[:mid]) / mid
+        h2_avg = sum(t for _, t in monthly[mid:]) / (len(monthly) - mid)
+        mo_avg = sum(t for _, t in monthly) / len(monthly)
+        pct_change = (h2_avg - h1_avg) / h1_avg * 100
+
+        if abs(pct_change) < 5:
+            direction = "stable"
+        elif pct_change > 0:
+            direction = "rising"
+        else:
+            direction = "declining"
+
+        trend_text = (
+            f"12-month waste trend: {direction} at ${mo_avg:,.0f}/mo avg."
+            f" H2 {'up' if pct_change > 0 else 'down'}"
+            f" {abs(pct_change):.0f}% vs H1."
+        )
+    else:
+        mo_avg = sum(t for _, t in monthly) / len(monthly) if monthly else 0
+        trend_text = f"Waste run-rate: ${mo_avg:,.0f}/mo avg."
+
+    ws.merge_cells("F16:G19")
+    trend_cell = ws.cell(row=16, column=6, value=trend_text)
+    trend_cell.font = Font(name="Calibri", size=10, italic=True, color="C00000")
+    trend_cell.alignment = Alignment(vertical="top", wrap_text=True)

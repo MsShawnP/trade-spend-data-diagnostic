@@ -1,9 +1,9 @@
 # Power BI Data Dictionary
 
-Data files exported by `powerbi/export_data.py` from the
+Data files exported by `dev/powerbi/export_data.py` from the
 Cinderhaven SQLite database. All files are UTF-8 CSV with headers.
 
-Re-export: `python powerbi/export_data.py`
+Re-export: `python dev/powerbi/export_data.py`
 
 ---
 

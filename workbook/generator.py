@@ -42,6 +42,7 @@ def _add_named_ranges(wb: Workbook) -> None:
         "KPI_Revenue": "'Executive Pulse'!$D$11",
         "KPI_StructuralTrade": "'Executive Pulse'!$D$12",
         "KPI_OpWasteAmount": "'Executive Pulse'!$D$13",
+        "AddressableWaste": "'Executive Pulse'!$E$5",
     }
     for name, ref in ranges.items():
         dn = DefinedName(name, attr_text=ref)
@@ -51,9 +52,9 @@ def _add_named_ranges(wb: Workbook) -> None:
 def _set_print_areas(wb: Workbook) -> None:
     """Set print areas for analysis tabs (landscape letter)."""
     wb["Executive Pulse"].print_area = "A1:F58"
-    wb["Leak Diagnostic"].print_area = "A1:G55"
+    wb["Leak Diagnostic"].print_area = "A1:I55"
     wb["Promo Efficacy"].print_area = "A1:Q9"
-    wb["Retailer Risk"].print_area = "A1:M17"
+    wb["Retailer Risk"].print_area = "A1:N17"
 
     for tab_name in ["Executive Pulse", "Leak Diagnostic", "Promo Efficacy", "Retailer Risk"]:
         ws = wb[tab_name]

@@ -12,6 +12,12 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.channel_mapping import (
+    CHANNEL_RATE_COLS,
+    CHANNEL_DISPLAY_ORDER,
+    REGIONAL_RETAILERS,
+    RETAILER_TO_CHANNEL,
+)
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_RIGHT,
@@ -23,19 +29,6 @@ from workbook.styles import (
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
 )
-
-CHANNEL_RATE_COLS = {
-    "Walmart": "trade_spend_pct_walmart",
-    "Costco": "trade_spend_pct_costco",
-    "Whole Foods": "trade_spend_pct_whole_foods",
-    "UNFI": "trade_spend_pct_unfi",
-    "DTC": "trade_spend_pct_dtc",
-}
-
-REGIONAL_RETAILERS = [
-    "Green Basket Market", "Southside Grocers",
-    "Prairie Provisions", "Mountain Pantry Co", "Harbor Fresh",
-]
 
 TABLE_STYLE = TableStyleInfo(
     name="TableStyleMedium2", showFirstColumn=False,
@@ -64,7 +57,6 @@ def _query_retailer_data(db_path: Path) -> dict:
     rates = {}
     for channel, col in CHANNEL_RATE_COLS.items():
         rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
 
     gm_map = {}
     for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
@@ -98,7 +90,7 @@ def _query_retailer_data(db_path: Path) -> dict:
     retailers = []
     for retailer in channel_order:
         rev = revenue_map.get(retailer, 0)
-        rate = rates.get(retailer, regional_rate)
+        rate = rates.get(retailer, rates["Regional"])
         structural = rev * rate
 
         retailer_key = retailer.lower().replace(" ", "_")
@@ -115,6 +107,7 @@ def _query_retailer_data(db_path: Path) -> dict:
 
         retailers.append({
             "name": retailer,
+            "channel": RETAILER_TO_CHANNEL.get(retailer, "Other"),
             "revenue": rev,
             "rev_share": rev / total_revenue if total_revenue else 0,
             "structural": structural,
@@ -134,6 +127,7 @@ def _query_retailer_data(db_path: Path) -> dict:
     if kehe_op > 0 or kehe_pb > 0:
         retailers.append({
             "name": "KeHE (distributor)",
+            "channel": "Distributor",
             "revenue": 0,
             "rev_share": 0,
             "structural": 0,
@@ -166,16 +160,16 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
 
     ws.sheet_view.showGridLines = False
 
-    col_widths = [3, 20, 14, 10, 14, 10, 14, 10, 13, 14, 10, 10, 10]
+    col_widths = [3, 20, 12, 14, 10, 14, 10, 14, 10, 13, 14, 10, 10, 10]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
     # --- Header ---
-    ws.merge_cells("B1:L1")
+    ws.merge_cells("B1:N1")
     ws["B1"] = "Retailer Risk"
     ws["B1"].font = FONT_HEADER
 
-    ws.merge_cells("B2:L2")
+    ws.merge_cells("B2:N2")
     ws["B2"] = f"Trailing 52 weeks ({data['oldest_week']} to {data['max_scan']})  |  Built {date.today().isoformat()}"
     ws["B2"].font = FONT_SMALL
 
@@ -185,7 +179,7 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
 
     row += 1
     headers = [
-        "Retailer", "Revenue", "Rev %", "Structural $",
+        "Retailer", "Channel", "Revenue", "Rev %", "Structural $",
         "Struct %", "Op Deductions", "Op Ded %", "Promo BB",
         "All-In Trade", "All-In %", "Gross Margin", "Net-Net Margin",
     ]
@@ -199,60 +193,61 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         rw = table_start + i
 
         ws.cell(row=rw, column=2, value=r["name"])
+        ws.cell(row=rw, column=3, value=r["channel"])
 
-        c = ws.cell(row=rw, column=3, value=r["revenue"])
+        c = ws.cell(row=rw, column=4, value=r["revenue"])
         c.number_format = NUM_FMT_DOLLAR
         c.alignment = ALIGN_RIGHT
 
-        c = ws.cell(row=rw, column=4, value=r["rev_share"])
+        c = ws.cell(row=rw, column=5, value=r["rev_share"])
         c.number_format = NUM_FMT_PCT
         c.alignment = ALIGN_CENTER
 
-        c = ws.cell(row=rw, column=5, value=r["structural"])
+        c = ws.cell(row=rw, column=6, value=r["structural"])
         c.number_format = NUM_FMT_DOLLAR
         c.alignment = ALIGN_RIGHT
 
-        c = ws.cell(row=rw, column=6, value=r["structural_rate"])
+        c = ws.cell(row=rw, column=7, value=r["structural_rate"])
         c.number_format = NUM_FMT_PCT
         c.alignment = ALIGN_CENTER
 
-        c = ws.cell(row=rw, column=7, value=r["op_deductions"])
+        c = ws.cell(row=rw, column=8, value=r["op_deductions"])
         c.number_format = NUM_FMT_DOLLAR
         c.alignment = ALIGN_RIGHT
 
-        c = ws.cell(row=rw, column=8, value=r["op_ded_rate"])
+        c = ws.cell(row=rw, column=9, value=r["op_ded_rate"])
         c.number_format = NUM_FMT_PCT
         c.alignment = ALIGN_CENTER
 
-        c = ws.cell(row=rw, column=9, value=r["pb_deductions"])
+        c = ws.cell(row=rw, column=10, value=r["pb_deductions"])
         c.number_format = NUM_FMT_DOLLAR
         c.alignment = ALIGN_RIGHT
 
-        c = ws.cell(row=rw, column=10, value=r["all_in"])
+        c = ws.cell(row=rw, column=11, value=r["all_in"])
         c.number_format = NUM_FMT_DOLLAR
         c.alignment = ALIGN_RIGHT
 
-        c = ws.cell(row=rw, column=11, value=r["all_in_rate"])
+        c = ws.cell(row=rw, column=12, value=r["all_in_rate"])
         c.number_format = NUM_FMT_PCT
         c.alignment = ALIGN_CENTER
 
-        c = ws.cell(row=rw, column=12, value=r["gross_margin"])
+        c = ws.cell(row=rw, column=13, value=r["gross_margin"])
         c.number_format = NUM_FMT_PCT
         c.alignment = ALIGN_CENTER
 
-        c = ws.cell(row=rw, column=13, value=r["net_net_margin"])
+        c = ws.cell(row=rw, column=14, value=r["net_net_margin"])
         c.number_format = NUM_FMT_PCT
         c.alignment = ALIGN_CENTER
 
     table_end = table_start + len(retailers) - 1
 
     # Excel Table for P&L
-    pnl_table = Table(displayName="tbl_RetailerPnL", ref=f"B{row}:M{table_end}")
+    pnl_table = Table(displayName="tbl_RetailerPnL", ref=f"B{row}:N{table_end}")
     pnl_table.tableStyleInfo = TABLE_STYLE
     ws.add_table(pnl_table)
 
     # Conditional formatting on net-net margin
-    margin_range = f"M{table_start}:M{table_end}"
+    margin_range = f"N{table_start}:N{table_end}"
     ws.conditional_formatting.add(
         margin_range,
         ColorScaleRule(
@@ -350,3 +345,58 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         gm_literal = f"{r['gross_margin']:.6f}"
         ws.cell(row=rw, column=9, value=f"={gm_literal}-E{rw}").number_format = NUM_FMT_PCT
         ws.cell(row=rw, column=9).alignment = ALIGN_CENTER
+
+    whatif_end_row = whatif_row + len(chart_retailers)
+
+    # --- Channel Rollup ---
+    ch_section_row = whatif_end_row + 2
+    ws.cell(row=ch_section_row, column=2, value="Channel Rollup").font = FONT_SECTION
+
+    ch_header_row = ch_section_row + 1
+    ch_headers = ["Channel", "Revenue", "Structural $", "Op Waste $", "All-In Rate", "Avg Net-Net Margin"]
+    for c, h in enumerate(ch_headers, 2):
+        cell = ws.cell(row=ch_header_row, column=c, value=h)
+        cell.font = Font(name="Calibri", size=10, bold=True)
+        cell.alignment = ALIGN_CENTER
+
+    # Aggregate by channel
+    channel_agg: dict[str, dict] = {}
+    for r in retailers:
+        ch = r["channel"]
+        if ch not in channel_agg:
+            channel_agg[ch] = {"revenue": 0, "structural": 0, "op_deductions": 0,
+                               "all_in": 0, "margins": [], "count": 0}
+        agg = channel_agg[ch]
+        agg["revenue"] += r["revenue"]
+        agg["structural"] += r["structural"]
+        agg["op_deductions"] += r["op_deductions"]
+        agg["all_in"] += r["all_in"]
+        if r["revenue"] > 0:
+            agg["margins"].append(r["net_net_margin"])
+            agg["count"] += 1
+
+    ch_row_idx = 0
+    for ch in CHANNEL_DISPLAY_ORDER:
+        if ch not in channel_agg:
+            continue
+        agg = channel_agg[ch]
+        rw = ch_header_row + 1 + ch_row_idx
+        ws.cell(row=rw, column=2, value=ch)
+        ws.cell(row=rw, column=3, value=agg["revenue"]).number_format = NUM_FMT_DOLLAR
+        ws.cell(row=rw, column=3).alignment = ALIGN_RIGHT
+        ws.cell(row=rw, column=4, value=agg["structural"]).number_format = NUM_FMT_DOLLAR
+        ws.cell(row=rw, column=4).alignment = ALIGN_RIGHT
+        ws.cell(row=rw, column=5, value=agg["op_deductions"]).number_format = NUM_FMT_DOLLAR
+        ws.cell(row=rw, column=5).alignment = ALIGN_RIGHT
+        ai_rate = agg["all_in"] / agg["revenue"] if agg["revenue"] else 0
+        ws.cell(row=rw, column=6, value=ai_rate).number_format = NUM_FMT_PCT
+        ws.cell(row=rw, column=6).alignment = ALIGN_CENTER
+        avg_margin = sum(agg["margins"]) / len(agg["margins"]) if agg["margins"] else 0
+        ws.cell(row=rw, column=7, value=avg_margin).number_format = NUM_FMT_PCT
+        ws.cell(row=rw, column=7).alignment = ALIGN_CENTER
+        ch_row_idx += 1
+
+    ch_end_row = ch_header_row + ch_row_idx
+    ch_table = Table(displayName="tbl_ChannelRollup", ref=f"B{ch_header_row}:G{ch_end_row}")
+    ch_table.tableStyleInfo = TABLE_STYLE
+    ws.add_table(ch_table)
