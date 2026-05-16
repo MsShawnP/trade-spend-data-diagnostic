@@ -26,13 +26,12 @@ def main():
     )
     args = parser.parse_args()
 
-    database_url = os.environ.get("DATABASE_URL")
-    if not database_url:
+    if not os.environ.get("DATABASE_URL"):
         print("Error: DATABASE_URL environment variable not set.", file=sys.stderr)
         print("See .env.example for connection string templates.", file=sys.stderr)
         sys.exit(1)
 
-    output_path = generate_workbook(database_url, args.output)
+    output_path = generate_workbook(args.output)
     print(f"Workbook written: {output_path}")
 
 

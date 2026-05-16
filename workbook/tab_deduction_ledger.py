@@ -45,7 +45,7 @@ COLUMNS = [
 ]
 
 
-def _query_ledger(database_url: str) -> tuple[list[tuple], str, str]:
+def _query_ledger() -> tuple[list[tuple], str, str]:
     conn = connect()
 
     weeks = conn.execute(
@@ -93,8 +93,8 @@ def _query_ledger(database_url: str) -> tuple[list[tuple], str, str]:
     return rows, oldest_week, max_scan
 
 
-def build_deduction_ledger(ws: Worksheet, database_url: str) -> None:
-    rows, oldest_week, max_scan = _query_ledger(database_url)
+def build_deduction_ledger(ws: Worksheet) -> None:
+    rows, oldest_week, max_scan = _query_ledger()
 
     ws.sheet_view.showGridLines = True
 

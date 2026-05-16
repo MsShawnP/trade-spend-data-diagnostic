@@ -1,2 +1,2 @@
-openpyxl
-psycopg2-binary
+openpyxl>=3.1.5
+psycopg2-binary>=2.9.12

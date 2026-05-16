@@ -58,7 +58,7 @@ def _set_print_areas(wb: Workbook) -> None:
         ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
 
 
-def generate_workbook(database_url: str, output_path: Path) -> Path:
+def generate_workbook(output_path: Path) -> Path:
     wb = Workbook()
     wb.remove(wb.active)
 
@@ -66,12 +66,12 @@ def generate_workbook(database_url: str, output_path: Path) -> Path:
         ws = wb.create_sheet(title=name)
         ws.sheet_properties.tabColor = color
 
-    build_executive_pulse(wb["Executive Pulse"], database_url)
-    build_leak_diagnostic(wb["Leak Diagnostic"], database_url)
-    build_promo_efficacy(wb["Promo Efficacy"], database_url)
-    build_retailer_risk(wb["Retailer Risk"], database_url)
-    build_deduction_ledger(wb["Deduction Ledger"], database_url)
-    build_code_crosswalk(wb["Deduction Code Crosswalk"], database_url)
+    build_executive_pulse(wb["Executive Pulse"])
+    build_leak_diagnostic(wb["Leak Diagnostic"])
+    build_promo_efficacy(wb["Promo Efficacy"])
+    build_retailer_risk(wb["Retailer Risk"])
+    build_deduction_ledger(wb["Deduction Ledger"])
+    build_code_crosswalk(wb["Deduction Code Crosswalk"])
     build_methodology(wb["Methodology & Logic"])
 
     _add_named_ranges(wb)

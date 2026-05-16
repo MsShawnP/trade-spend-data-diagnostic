@@ -32,7 +32,7 @@ _HELPER_COL_START = 27
 _MAX_WINDOW = 12
 
 
-def _query_promo_data(database_url: str) -> dict:
+def _query_promo_data() -> dict:
     conn = connect()
 
     all_weeks = [r[0] for r in conn.execute(
@@ -199,8 +199,8 @@ def _query_promo_data(database_url: str) -> dict:
     }
 
 
-def build_promo_efficacy(ws: Worksheet, database_url: str) -> None:
-    data = _query_promo_data(database_url)
+def build_promo_efficacy(ws: Worksheet) -> None:
+    data = _query_promo_data()
 
     ws.sheet_view.showGridLines = False
 

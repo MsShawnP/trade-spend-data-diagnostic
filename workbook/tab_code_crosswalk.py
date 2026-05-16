@@ -27,7 +27,7 @@ COLUMNS = [
 ]
 
 
-def _query_crosswalk(database_url: str) -> list[tuple]:
+def _query_crosswalk() -> list[tuple]:
     conn = connect()
     rows = conn.execute("""
         SELECT
@@ -43,8 +43,8 @@ def _query_crosswalk(database_url: str) -> list[tuple]:
     return rows
 
 
-def build_code_crosswalk(ws: Worksheet, database_url: str) -> None:
-    rows = _query_crosswalk(database_url)
+def build_code_crosswalk(ws: Worksheet) -> None:
+    rows = _query_crosswalk()
 
     ws.sheet_view.showGridLines = False
 
