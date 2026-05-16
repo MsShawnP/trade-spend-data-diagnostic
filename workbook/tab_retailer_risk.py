@@ -156,7 +156,7 @@ def build_retailer_risk(ws: Worksheet, database_url: str) -> None:
 
     ws.sheet_view.showGridLines = False
 
-    col_widths = [3, 20, 12, 14, 10, 14, 10, 14, 10, 13, 14, 10, 10, 10]
+    col_widths = [3, 22, 12, 14, 8, 14, 8, 15, 8, 12, 14, 8, 14, 15]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
@@ -176,8 +176,8 @@ def build_retailer_risk(ws: Worksheet, database_url: str) -> None:
     row += 1
     headers = [
         "Retailer", "Channel", "Revenue", "Rev %", "Structural $",
-        "Struct %", "Op Deductions", "Op Ded %", "Promo BB",
-        "All-In Trade", "All-In %", "Gross Margin", "Net-Net Margin",
+        "Struct %", "Op Ded $", "Op Ded %", "Promo BB",
+        "All-In $", "All-In %", "Gross Mrg", "Net-Net Mrg",
     ]
     for c, h in enumerate(headers, 2):
         cell = ws.cell(row=row, column=c, value=h)
@@ -288,8 +288,8 @@ def build_retailer_risk(ws: Worksheet, database_url: str) -> None:
             ).font = FONT_SMALL
 
     whatif_row += 1
-    whatif_headers = ["Retailer", "Revenue", "Current Rate", "Target Rate",
-                      "Trade at Target", "Current Trade", "Annual Savings", "What-If Margin"]
+    whatif_headers = ["Retailer", "Revenue", "Current", "Target",
+                      "At Target", "Current $", "Savings", "What-If Mrg"]
     for c, h in enumerate(whatif_headers, 2):
         cell = ws.cell(row=whatif_row, column=c, value=h)
         cell.font = Font(name="Calibri", size=10, bold=True)
