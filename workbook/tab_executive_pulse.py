@@ -56,7 +56,7 @@ NAV_TABS = [
 ]
 
 
-def _query_metrics(database_url: str) -> dict:
+def _query_metrics() -> dict:
     conn = connect()
 
     weeks = conn.execute(
@@ -162,8 +162,8 @@ def _query_metrics(database_url: str) -> dict:
     }
 
 
-def build_executive_pulse(ws: Worksheet, database_url: str) -> None:
-    metrics = _query_metrics(database_url)
+def build_executive_pulse(ws: Worksheet) -> None:
+    metrics = _query_metrics()
 
     revenue = metrics["revenue"]
     structural = metrics["structural_trade"]

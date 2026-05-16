@@ -33,7 +33,7 @@ from workbook.styles import (
 )
 
 
-def _query_retailer_data(database_url: str) -> dict:
+def _query_retailer_data() -> dict:
     conn = connect()
 
     weeks = conn.execute(
@@ -151,8 +151,8 @@ def _query_retailer_data(database_url: str) -> dict:
     }
 
 
-def build_retailer_risk(ws: Worksheet, database_url: str) -> None:
-    data = _query_retailer_data(database_url)
+def build_retailer_risk(ws: Worksheet) -> None:
+    data = _query_retailer_data()
     retailers = data["retailers"]
 
     ws.sheet_view.showGridLines = False

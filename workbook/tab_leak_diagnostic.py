@@ -39,7 +39,7 @@ RECOVERABILITY = {
 }
 
 
-def _query_data(database_url: str) -> dict:
+def _query_data() -> dict:
     conn = connect()
 
     weeks = conn.execute(
@@ -93,8 +93,8 @@ def _query_data(database_url: str) -> dict:
     }
 
 
-def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
-    data = _query_data(database_url)
+def build_leak_diagnostic(ws: Worksheet) -> None:
+    data = _query_data()
 
     ws.sheet_view.showGridLines = False
 
