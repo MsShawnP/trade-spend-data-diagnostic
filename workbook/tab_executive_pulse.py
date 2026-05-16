@@ -180,7 +180,7 @@ def build_executive_pulse(ws: Worksheet, database_url: str) -> None:
 
     ws.sheet_view.showGridLines = False
 
-    col_widths = [3, 32, 18, 18, 18, 18, 14]
+    col_widths = [3, 32, 16, 14, 32, 18, 14]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
