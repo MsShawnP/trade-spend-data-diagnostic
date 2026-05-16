@@ -20,6 +20,7 @@ from workbook.channel_mapping import (
 )
 from workbook.styles import (
     ALIGN_CENTER,
+    ALIGN_LEFT,
     ALIGN_RIGHT,
     FILL_INPUT,
     FONT_BODY,
@@ -168,6 +169,7 @@ def build_retailer_risk(ws: Worksheet, database_url: str) -> None:
     ws.merge_cells("B2:N2")
     ws["B2"] = f"Trailing 52 weeks ({data['oldest_week']} to {data['max_scan']})  |  Built {date.today().isoformat()}"
     ws["B2"].font = FONT_SMALL
+    ws["B2"].alignment = ALIGN_LEFT
 
     # --- P&L summary table ---
     row = 4
@@ -283,9 +285,11 @@ def build_retailer_risk(ws: Worksheet, database_url: str) -> None:
 
     whatif_row += 1
     ws.merge_cells(f"B{whatif_row}:I{whatif_row}")
-    ws.cell(row=whatif_row, column=2,
+    whatif_cell = ws.cell(row=whatif_row, column=2,
             value="Enter target all-in trade rates below. Savings show annual impact of achieving target."
-            ).font = FONT_SMALL
+            )
+    whatif_cell.font = FONT_SMALL
+    whatif_cell.alignment = ALIGN_LEFT
 
     whatif_row += 1
     whatif_headers = ["Retailer", "Revenue", "Current", "Target",

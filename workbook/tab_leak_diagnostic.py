@@ -15,6 +15,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from workbook.deduction_taxonomy import get_taxonomy
 from workbook.styles import (
     ALIGN_CENTER,
+    ALIGN_LEFT,
     ALIGN_RIGHT,
     FILL_INPUT,
     FONT_BODY,
@@ -109,6 +110,7 @@ def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
     ws.merge_cells("B2:F2")
     ws["B2"] = f"Trailing 365 days ({data['oldest_week']} to {data['max_scan']})  |  Built {date.today().isoformat()}"
     ws["B2"].font = FONT_SMALL
+    ws["B2"].alignment = ALIGN_LEFT
 
     # --- Category breakdown table (row 4+) ---
     row = 4
@@ -195,9 +197,11 @@ def build_leak_diagnostic(ws: Worksheet, database_url: str) -> None:
 
     dd_row += 1
     ws.merge_cells(f"B{dd_row}:F{dd_row}")
-    ws.cell(row=dd_row, column=2,
+    dd_cell = ws.cell(row=dd_row, column=2,
             value=f"{len(data['double_dips'])} events detected — ${sum(d[2] for d in data['double_dips']):,.0f} total double-payment"
-            ).font = FONT_BODY
+            )
+    dd_cell.font = FONT_BODY
+    dd_cell.alignment = ALIGN_LEFT
 
     dd_row += 1
     dd_header_row = dd_row
