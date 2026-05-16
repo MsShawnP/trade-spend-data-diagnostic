@@ -11,6 +11,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from workbook.deduction_taxonomy import get_taxonomy
 from workbook.styles import (
     ALIGN_CENTER,
+    ALIGN_LEFT,
     FONT_HEADER,
     FONT_SMALL,
     TABLE_STYLE,
@@ -58,6 +59,7 @@ def build_code_crosswalk(ws: Worksheet, database_url: str) -> None:
         "and standardized categories. Used by the Deduction Ledger tab for code translation."
     )
     ws["A2"].font = FONT_SMALL
+    ws["A2"].alignment = ALIGN_LEFT
 
     # --- Column headers (row 4) ---
     header_row = 4

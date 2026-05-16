@@ -16,6 +16,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.styles import (
     ALIGN_CENTER,
+    ALIGN_LEFT,
     ALIGN_RIGHT,
     FILL_INPUT,
     FONT_BODY,
@@ -221,10 +222,12 @@ def build_promo_efficacy(ws: Worksheet, database_url: str) -> None:
         "This is not a causal model — see Methodology tab for assumptions and limitations."
     )
     ws["B2"].font = FONT_SMALL
+    ws["B2"].alignment = ALIGN_LEFT
 
     ws.merge_cells("B3:N3")
     ws["B3"] = f"Built {date.today().isoformat()}"
     ws["B3"].font = FONT_SMALL
+    ws["B3"].alignment = ALIGN_LEFT
 
     # --- Adjustable window input (row 5) ---
     ws.cell(row=5, column=2, value="Pre/post comparison window (weeks):").font = FONT_BODY
@@ -256,11 +259,13 @@ def build_promo_efficacy(ws: Worksheet, database_url: str) -> None:
 
     ws.cell(row=7, column=2, value="Coverage Summary").font = FONT_SECTION
     ws.merge_cells("B8:N8")
-    ws.cell(row=8, column=2, value=(
+    coverage_cell = ws.cell(row=8, column=2, value=(
         f"Full POS data: {full_ct}/{data['total_promos']} promo-rows "
         f"({covered_cost/total_cost*100:.0f}% of planned spend covered)  |  "
         f"Partial: {partial_ct}  |  No POS: {no_pos_ct}"
-    )).font = FONT_BODY
+    ))
+    coverage_cell.font = FONT_BODY
+    coverage_cell.alignment = ALIGN_LEFT
 
     # --- Performance table ---
     table_header_row = 10
@@ -426,10 +431,12 @@ def build_promo_efficacy(ws: Worksheet, database_url: str) -> None:
 
     ghost_row += 1
     ws.merge_cells(f"B{ghost_row}:G{ghost_row}")
-    ws.cell(row=ghost_row, column=2, value=(
+    ghost_cell = ws.cell(row=ghost_row, column=2, value=(
         f"{data['ghost_count']} promo_billback deductions (${data['ghost_total']:,.0f}) "
         f"have no matching promotion in the calendar. Top 20 shown below."
-    )).font = FONT_BODY
+    ))
+    ghost_cell.font = FONT_BODY
+    ghost_cell.alignment = ALIGN_LEFT
 
     ghost_row += 1
     ghost_headers = ["Deduction ID", "Retailer", "Amount", "Date"]

@@ -12,6 +12,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from workbook.deduction_taxonomy import get_taxonomy
 from workbook.styles import (
     ALIGN_CENTER,
+    ALIGN_LEFT,
     ALIGN_RIGHT,
     FONT_HEADER,
     FONT_SMALL,
@@ -109,6 +110,7 @@ def build_deduction_ledger(ws: Worksheet, database_url: str) -> None:
         f"Built {date.today().isoformat()}"
     )
     ws["A2"].font = FONT_SMALL
+    ws["A2"].alignment = ALIGN_LEFT
 
     # --- Column headers (row 4) ---
     header_row = 4

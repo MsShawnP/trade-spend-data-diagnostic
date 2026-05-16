@@ -196,6 +196,7 @@ def build_executive_pulse(ws: Worksheet, database_url: str) -> None:
     ws.merge_cells("B3:F3")
     ws["B3"] = f"Trailing 52 weeks ({metrics['oldest_week']} to {metrics['max_scan']})  |  Built {date.today().isoformat()}"
     ws["B3"].font = FONT_SMALL
+    ws["B3"].alignment = ALIGN_LEFT
 
     addressable = metrics["addressable_waste"]
 
@@ -241,6 +242,7 @@ def build_executive_pulse(ws: Worksheet, database_url: str) -> None:
     )
     ws["B7"].font = Font(name="Calibri", size=11, italic=True)
     ws["B7"].alignment = ALIGN_LEFT
+    ws.row_dimensions[7].height = 42
 
     section_sep = Border(bottom=Side(style="thin", color="CCCCCC"))
     for col in range(2, 7):
@@ -381,6 +383,7 @@ def build_executive_pulse(ws: Worksheet, database_url: str) -> None:
     )
     callout.font = FONT_SMALL
     callout.alignment = ALIGN_LEFT
+    ws.row_dimensions[callout_row].height = 42
 
     # --- Waste trend analysis (text-based — openpyxl charts don't render) ---
     monthly = metrics["monthly_waste"]
