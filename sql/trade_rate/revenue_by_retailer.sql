@@ -9,7 +9,7 @@
 --           week_ending from trailing_52_weeks.sql
 -- Notes:    Feeds Tab 1 (Executive Pulse) and Tab 4 (Retailer
 --           Risk). Retailers map to channels via stores table.
---           Revenue should sum to $25,593,052 (within tolerance).
+--           Revenue should sum to $25,597,699 (within tolerance).
 -- ============================================
 
 SELECT s.retailer,

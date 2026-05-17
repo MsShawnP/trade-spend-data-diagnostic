@@ -112,13 +112,13 @@ off-invoice, $4.5M total trade, 42/38/20 category split.~~
   original brief's numbers were internally inconsistent. The cinderhaven-data
   repo now produces all trade spend and deduction data via a unified build
   pipeline (21 tables). Verified numbers from TRADE_SPEND_VERIFICATION.md:
-  - Revenue: $25,593,052
-  - Structural trade (sku_costs rate-card): $4,435,052 (17.3%)
-  - Operational/compliance deductions (trailing-365, excl promo_billback): $1,010,940 (4.0%)
-  - Promo_billback deductions (trailing-365): $211,513
-  - All-in trade cost: $5,445,992 (21.3%)
+  - Revenue: $25,597,699
+  - Structural trade (sku_costs rate-card): $4,435,513 (17.3%)
+  - Operational/compliance deductions (trailing-365, excl promo_billback): $1,012,455 (4.0%)
+  - Promo_billback deductions (trailing-365): $213,017
+  - All-in trade cost: $5,447,968 (21.3%)
   - Double-dips: 3 events, $19,306
-  - Disputes: 1,409 filed, $98,216 recovered, 14.3% recovery rate
+  - Disputes: 1,410 filed, $98,216 recovered, 13.7% recovery rate
   The three-way split (contractual/promotional/operational) from the brief
   was not derivable and had a double-counting error ("off-invoice" is a
   funding mechanism, not a category). Replaced with a two-bucket executive

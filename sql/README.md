@@ -156,12 +156,12 @@ nondeterminism.
 
 | Metric | Locked value | Query to check |
 |--------|-------------|----------------|
-| Annual wholesale revenue | $25,593,052 | total_revenue.sql |
-| Structural trade | $4,435,052 (17.3%) | structural_trade_amount.sql |
-| Operational waste | $1,010,940 (4.0%) | waste_by_category.sql |
-| All-in trade cost | $5,445,992 (21.3%) | all_in_trade_rate.sql |
+| Annual wholesale revenue | $25,597,699 | total_revenue.sql |
+| Structural trade | $4,435,513 (17.3%) | structural_trade_amount.sql |
+| Operational waste | $1,012,455 (4.0%) | waste_by_category.sql |
+| All-in trade cost | $5,447,968 (21.3%) | all_in_trade_rate.sql |
 | Double-dip events | 3 / $19,306 | double_dip_events.sql |
-| Disputes filed | ~1,409 | dispute_summary.sql |
+| Disputes filed | ~1,410 | dispute_summary.sql |
 | Total recovered | $98,216 | dispute_summary.sql |
 | Ghost promos | 137 / $95,826 | ghost_promo_summary.sql |
 | Deduction codes | 97 | deduction_codes.sql |

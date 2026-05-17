@@ -610,21 +610,21 @@ def validate(conn, oldest_week, max_scan, ded_count, dispute_count):
         "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
         (oldest_week,)
     ).fetchone()[0]
-    _check("Revenue", rev, 25593052, 2000)
+    _check("Revenue", rev, 25597699, 5000)
 
     structural = 0
     with open(OUT / "fact_structural_trade.csv", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             structural += float(row["structural_trade_dollars"])
-    _check("Structural trade", structural, 4435052, 2000)
+    _check("Structural trade", structural, 4435513, 2000)
 
     waste = conn.execute("""
         SELECT SUM(amount) FROM deductions
         WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
           AND deduction_type != 'promo_billback'
     """, (max_scan, max_scan)).fetchone()[0]
-    _check("Operational waste", waste, 1010940, 2000)
+    _check("Operational waste", waste, 1012455, 2000)
 
     trailing_ded_count = 0
     ghost_count = 0

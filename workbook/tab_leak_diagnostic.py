@@ -249,7 +249,7 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     ws.cell(row=recov_row, column=3, value=data["operational_waste"]).number_format = NUM_FMT_DOLLAR
 
     recov_row += 1
-    ws.cell(row=recov_row, column=2, value="Current recovery (14.3%):").font = FONT_BODY
+    ws.cell(row=recov_row, column=2, value="Current recovery (13.7%):").font = FONT_BODY
     ws.cell(row=recov_row, column=3, value=data["total_recovered"]).number_format = NUM_FMT_DOLLAR
 
     recov_row += 1

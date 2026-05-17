@@ -80,15 +80,15 @@ def main():
     ws1 = wb["Executive Pulse"]
 
     revenue = ws1["D11"].value
-    check("Revenue = $25,593,052", approx(revenue, 25593052),
+    check("Revenue ≈ $25,597,699", approx(revenue, 25597699),
           f"Got ${revenue:,.0f}")
 
     structural = ws1["D12"].value
-    check("Structural trade = $4,435,052", approx(structural, 4435052),
+    check("Structural trade ≈ $4,435,513", approx(structural, 4435513),
           f"Got ${structural:,.0f}")
 
     waste = ws1["D13"].value
-    check("Operational waste ≈ $1,010,940", approx(waste, 1010940, 0.002),
+    check("Operational waste ≈ $1,012,455", approx(waste, 1012455, 0.002),
           f"Got ${waste:,.0f} (minor DB rebuild variance accepted)")
 
     all_in_rate = ws1["B5"].value
@@ -126,7 +126,7 @@ def main():
     print("=== Recovery Check ===")
     disputes_total = conn.execute("SELECT COUNT(*) FROM disputes").fetchone()[0]
     recovered = conn.execute("SELECT SUM(recovered_amount) FROM disputes").fetchone()[0]
-    check("Disputes ~ 1,409", abs(disputes_total - 1409) <= 2, f"Got {disputes_total}")
+    check("Disputes ~ 1,410", abs(disputes_total - 1410) <= 2, f"Got {disputes_total}")
     check("Recovered ≈ $98,216", approx(recovered, 98216),
           f"Got ${recovered:,.0f}")
 

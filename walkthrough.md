@@ -122,10 +122,10 @@ diagnostic-level engagement.
 
 ### The headline
 
-Cinderhaven's structural trade rate is 17.3% of revenue — $4,435,052
-on $25,593,052 in trailing-twelve-month wholesale sales. The all-in
+Cinderhaven's structural trade rate is 17.3% of revenue — $4,435,513
+on $25,597,699 in trailing-twelve-month wholesale sales. The all-in
 trade cost, including operational deductions, is 21.3% —
-$5,446,000. The difference is $1,012,455 in operational waste,
+$5,447,968. The difference is $1,012,455 in operational waste,
 representing 4.0% of revenue (see Tab 1: Executive Pulse).
 
 ### Where the waste comes from

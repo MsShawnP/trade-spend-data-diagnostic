@@ -139,7 +139,7 @@ dim_date[Date]               → fact_deductions[deduction_date]      1:many, si
 
 **Quick verification:** Create a temp table with
 `dim_retailer[retailer_name]` and `SUM(fact_scan_data[dollars_sold])`
-— total should be $25,593,052. Delete after checking.
+— total should be $25,597,699. Delete after checking.
 
 ### 2.3 Measures via pbi-tools
 

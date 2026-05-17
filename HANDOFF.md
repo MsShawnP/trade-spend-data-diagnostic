@@ -9,6 +9,33 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-17 — Data source audit and number re-lock
+
+**Started from:** cinderhaven-data upstream had substantial changes (random seed refactoring across 18 scripts: `random.seed()` → `random.Random(SEED)`). Needed to verify all math and analysis still holds.
+
+**Did:**
+- Updated cinderhaven-data submodule pointer (4f1ae91 → 8496d86)
+- Rebuilt database and verified: scan_data/sku_costs outputs identical (seed refactor preserved call sequences). Only trailing-365 deduction amounts shifted slightly (+$1,515 op waste, +1 dispute).
+- Re-locked all numbers across ~50 hardcoded references in 20+ files:
+  - Revenue: $25,593,052 → $25,597,699
+  - Structural trade: $4,435,052 → $4,435,513
+  - Operational waste: $1,010,940 → $1,012,455
+  - Promo billback: $211,513 → $213,017
+  - All-in trade: $5,445,992 → $5,447,968
+  - Disputes: 1,409 → 1,410
+  - Recovery rate: 14.3% → 13.7% (denominator method change: now uses total disputed dollars $716,083, not just resolved)
+- All rates unchanged: 17.3% structural, 4.0% waste, 21.3% all-in
+- Updated: validate_workbook.py, powerbi/export_data.py, workbook/tab_methodology.py, workbook/tab_leak_diagnostic.py, walkthrough.md, all powerbi docs, sql/README.md, SQL file comments, DECISIONS.md, TRADE_SPEND_VERIFICATION.md
+- Confirmed schema changes (deductions.sku removed, disputes.disputed_amount removed) don't affect project code — never referenced directly
+- Deleted temp verification scripts (verify_new_data.py, verify_correct_window.py, ghost_check.py, explore_db.py)
+- Final validation: 59/59 checks passing
+
+**State:** All deliverables verified against updated data source. Workbook generates clean. No narrative changes needed beyond exact dollar figures — the story (17.3% planned, 4pp gap = operational waste) is intact.
+
+**Next:** Commit this work, merge to main branch, then proceed with any remaining project goals (Power BI assembly in Desktop, GitHub push).
+
+---
+
 ## 2026-05-11 — Power BI bug fixes and presentation redesign
 
 **Started from:** All five arcs complete. Dashboard had data bugs and needed visual polish.

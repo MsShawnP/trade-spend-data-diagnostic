@@ -148,7 +148,7 @@ SUM(fact_scan_data[dollars_sold])
 ```
 
 - **Notes:** Responds to retailer slicer and date slicer via
-  relationships. Locked value: $25,593,052 when unfiltered.
+  relationships. Locked value: $25,597,699 when unfiltered.
 
 ---
 
@@ -163,7 +163,7 @@ StructuralTradeAmount =
 SUM(fact_structural_trade[structural_trade_dollars])
 ```
 
-- **Notes:** Locked value: $4,435,052. Channel-average methodology —
+- **Notes:** Locked value: $4,435,513. Channel-average methodology —
   one rate per retailer applied to total channel revenue. Responds to
   retailer filter via fact_structural_trade[retailer_id] relationship.
 
@@ -202,7 +202,7 @@ CALCULATE(
 - **Notes:** Excludes promo_billback to match the "operational waste"
   definition (two-bucket framing). Filtered to `in_trailing_window = 1`
   so out-of-window risk flag rows (double-dip, ghost) don't inflate the
-  total. Locked value: ~$1,010,940.
+  total. Locked value: ~$1,012,455.
 
 ---
 
@@ -257,7 +257,7 @@ AllInTradeCost =
 - **Notes:** Two-bucket model matching the workbook: structural trade +
   operational waste. Promo billback is tracked separately (not included
   here) because the workbook excludes it from All-In. Locked value:
-  ~$5,447,507 ($4,435,052 + ~$1,012,455). Locked rate: ~21.3%.
+  ~$5,447,968 ($4,435,513 + ~$1,012,455). Locked rate: ~21.3%.
 
 ---
 

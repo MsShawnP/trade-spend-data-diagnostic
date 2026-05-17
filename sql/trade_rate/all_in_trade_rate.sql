@@ -11,8 +11,8 @@
 --           trailing-365 window)
 -- Notes:    Gap query — was Python arithmetic combining three
 --           separate query results. Locked numbers: revenue
---           $25,593,052, structural $4,435,052 (17.3%), waste
---           $1,010,940 (4.0%), all-in 21.3%.
+--           $25,597,699, structural $4,435,513 (17.3%), waste
+--           $1,012,455 (4.0%), all-in 21.3%.
 -- ============================================
 
 WITH revenue AS (

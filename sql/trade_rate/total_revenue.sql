@@ -7,7 +7,7 @@
 -- Output:   total_revenue (dollars)
 -- Params:   :oldest_week — the 52nd-most-recent distinct
 --           week_ending from trailing_52_weeks.sql
--- Notes:    Locked number: $25,593,052. Use the oldest week_ending
+-- Notes:    Locked number: $25,597,699. Use the oldest week_ending
 --           from trailing_52_weeks.sql as the parameter.
 -- ============================================
 

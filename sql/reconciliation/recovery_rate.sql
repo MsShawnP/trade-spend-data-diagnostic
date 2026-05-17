@@ -8,13 +8,9 @@
 --           recovery_rate_pct, won_full_count, won_partial_count,
 --           lost_count, pending_count
 -- Params:   None
--- Notes:    Gap query — the workbook hardcodes 14.3% from the
---           verification doc rather than computing from data.
---           This query computes it honestly: recovered / disputed
---           dollars. Current DB yields ~13.7% due to DB rebuild
---           variance (1,410 disputes vs locked 1,409; slightly
---           different deduction amounts in the denominator).
---           Both are correct for their respective DB snapshots.
+-- Notes:    Computes recovery rate from data: recovered / disputed
+--           dollars. Current DB yields 13.7% (1,410 disputes,
+--           $98,216 recovered from $716,083 disputed).
 -- ============================================
 
 SELECT

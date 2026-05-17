@@ -10,7 +10,7 @@
 -- Notes:    Gap query — this calculation was done in Python by
 --           pairing revenue_by_retailer results with channel
 --           trade rates. This query does it in pure SQL.
---           Locked number: total structural trade = $4,435,052.
+--           Locked number: total structural trade = $4,435,513.
 --           Channel mapping: Walmart, Costco, Whole Foods, UNFI,
 --           DTC each have their own rate column; all other
 --           retailers use trade_spend_pct_regional.

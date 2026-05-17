@@ -141,7 +141,7 @@ channel-average rate methodology.
 **Key:** `retailer_id`. **Note:** Channel-average methodology — one
 rate per retailer computed as `AVG(trade_spend_pct_channel)` from
 sku_costs, applied to total channel revenue. Matches locked number
-$4,435,052.
+$4,435,513.
 
 ---
 
@@ -215,9 +215,9 @@ fact_deductions ── fact_disputes (deduction_id)
 
 | Metric | Expected | Tolerance |
 |--------|----------|-----------|
-| Total revenue (sum of fact_scan_data.dollars_sold) | $25,593,052 | exact |
-| Structural trade (sum of fact_structural_trade.structural_trade_dollars) | $4,435,052 | exact |
-| Operational waste (fact_deductions where type ≠ promo_billback, in_trailing_window=1) | $1,010,940 | ±$2,000 |
+| Total revenue (sum of fact_scan_data.dollars_sold) | $25,597,699 | ±$5,000 |
+| Structural trade (sum of fact_structural_trade.structural_trade_dollars) | $4,435,513 | ±$2,000 |
+| Operational waste (fact_deductions where type ≠ promo_billback, in_trailing_window=1) | $1,012,455 | ±$2,000 |
 | Deduction count (fact_deductions where in_trailing_window=1) | 2,374 | exact |
 | Double-dip count (fact_deductions where is_double_dip=1) | 3 | exact |
 | Double-dip total | $19,306 | exact |

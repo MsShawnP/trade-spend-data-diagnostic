@@ -138,7 +138,7 @@ Verify:
 - Calculated tables exist: dim_date, WaterfallSteps, WindowWeeks,
   TargetAllInRate
 - Create a test card visual with `TotalRevenue` — should show
-  $25,593,052
+  $25,597,699
 
 ### Step 7: Build the visual layout
 

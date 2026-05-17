@@ -61,12 +61,12 @@ def build_methodology(ws: Worksheet) -> None:
         "The negotiated rate-card discount embedded in wholesale pricing by channel. "
         "Derived from sku_costs.trade_spend_pct columns multiplied by channel revenue. "
         "This is the planned cost of doing business with each retailer — it exists "
-        "whether or not a single deduction is ever taken. $4,435,052 (17.3% of revenue).")
+        "whether or not a single deduction is ever taken. $4,435,513 (17.3% of revenue).")
     row = _write_pair(ws, row, "Bucket 2: Operational Waste",
         "Trailing-365-day deductions excluding promo_billback. These are unplanned cash "
         "outflows from compliance failures (label fines, pallet fines), logistics issues "
         "(short ships, late deliveries, damages), spoilage, and vague/unclassified codes. "
-        "$1,010,940 (4.0% of revenue).")
+        "$1,012,455 (3.9% of revenue).")
     row += 1
     row = _write_pair(ws, row, "Why not three buckets?",
         "The original brief proposed a third \"promotional\" bucket using off-invoice discounts. "
@@ -74,9 +74,9 @@ def build_methodology(ws: Worksheet) -> None:
         "including it as a separate bucket double-counts costs already captured in the structural "
         "trade rate. The promotions table's promo_cost sum ($20.5K) is too small to constitute "
         "a meaningful standalone bucket. Two buckets tell a cleaner story: you budgeted 17%, "
-        "you're spending 21%, the extra 4 points is operational waste.")
+        "you're spending 21%, the gap is operational waste.")
     row = _write_pair(ws, row, "Promo billback exclusion",
-        "Promo_billback deductions ($211,513 trailing-365) are excluded from the operational "
+        "Promo_billback deductions ($213,017 trailing-365) are excluded from the operational "
         "waste bucket because they represent planned promotional activity, not operational failures. "
         "They appear on the Deduction Ledger tab but do not inflate the waste figure.")
 
@@ -167,7 +167,7 @@ def build_methodology(ws: Worksheet) -> None:
     row += 1
     row = _write_section(ws, row, "5. Recovery Rate & Addressable Improvement")
     row = _write_pair(ws, row, "Current recovery rate",
-        "Total recovered dollars ($98,216) ÷ total disputed dollars ($687,210) = 14.3%. "
+        "Total recovered dollars ($98,216) ÷ total disputed dollars ($716,083) = 13.7%. "
         "This counts won_full (100% recovery) and won_partial (~49% average recovery) outcomes.")
     row = _write_pair(ws, row, "Target recovery input",
         "Tab 2 cell C41 allows entering a target recovery rate (0–100%). "
