@@ -1,6 +1,0 @@
-{
-  "name": "OperationalWasteAmount",
-  "expression": "CALCULATE(\n    SUM(fact_deductions[amount]),\n    fact_deductions[deduction_type] <> \"promo_billback\"\n)",
-  "formatString": "$#,##0",
-  "displayFolder": "Global"
-}

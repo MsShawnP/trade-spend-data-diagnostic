@@ -80,27 +80,27 @@ def main():
     ws1 = wb["Executive Pulse"]
 
     revenue = ws1["D11"].value
-    check("Revenue ≈ $25,597,699", approx(revenue, 25597699),
+    check("Revenue ≈ $27,483,467", approx(revenue, 27483467),
           f"Got ${revenue:,.0f}")
 
     structural = ws1["D12"].value
-    check("Structural trade ≈ $4,435,513", approx(structural, 4435513),
+    check("Structural trade ≈ $5,207,524", approx(structural, 5207524),
           f"Got ${structural:,.0f}")
 
     waste = ws1["D13"].value
-    check("Operational waste ≈ $1,012,455", approx(waste, 1012455, 0.002),
-          f"Got ${waste:,.0f} (minor DB rebuild variance accepted)")
+    check("Operational waste ≈ $1,967,416", approx(waste, 1967416, 0.015),
+          f"Got ${waste:,.0f}")
 
     all_in_rate = ws1["B5"].value
-    check("All-in trade rate = 21.3%", approx(all_in_rate, 0.213, 0.005),
+    check("All-in trade rate = 26.1%", approx(all_in_rate, 0.261, 0.005),
           f"Got {all_in_rate*100:.1f}%")
 
     structural_rate = ws1["C5"].value
-    check("Structural trade rate = 17.3%", approx(structural_rate, 0.173, 0.005),
+    check("Structural trade rate = 18.9%", approx(structural_rate, 0.189, 0.005),
           f"Got {structural_rate*100:.1f}%")
 
     waste_rate = ws1["D5"].value
-    check("Operational waste rate = 4.0%", approx(waste_rate, 0.040, 0.015),
+    check("Operational waste rate = 7.2%", approx(waste_rate, 0.072, 0.015),
           f"Got {waste_rate*100:.1f}%")
 
     # === DOUBLE-DIP CHECK (Tab 2) ===
@@ -118,7 +118,7 @@ def main():
                 dd_total += ws2.cell(row=r, column=4).value or 0
 
     check("3 double-dip events", dd_count == 3, f"Got {dd_count}")
-    check("Double-dip total ≈ $19,306", approx(dd_total, 19306),
+    check("Double-dip total ≈ $19,524", approx(dd_total, 19524),
           f"Got ${dd_total:,.0f}")
 
     # === RECOVERY CHECK ===
@@ -126,8 +126,8 @@ def main():
     print("=== Recovery Check ===")
     disputes_total = conn.execute("SELECT COUNT(*) FROM disputes").fetchone()[0]
     recovered = conn.execute("SELECT SUM(recovered_amount) FROM disputes").fetchone()[0]
-    check("Disputes ~ 1,410", abs(disputes_total - 1410) <= 2, f"Got {disputes_total}")
-    check("Recovered ≈ $98,216", approx(recovered, 98216),
+    check("Disputes ~ 6,105", abs(disputes_total - 6105) <= 5, f"Got {disputes_total}")
+    check("Recovered ≈ $987,798", approx(recovered, 987798),
           f"Got ${recovered:,.0f}")
 
     # === RETAILER TOTALS (Tab 4) ===

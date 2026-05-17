@@ -1,6 +1,0 @@
-{
-  "name": "IncrementalRevenueDynamic",
-  "expression": "VAR Baseline = [BaselineVolumeDynamic]\nVAR DuringAvg = AVERAGE(dim_promo[during_avg_volume])\nVAR Duration = SELECTEDVALUE(dim_promo[duration_weeks], 1)\nVAR ASP = SELECTEDVALUE(dim_promo[asp])\nRETURN\nIF(\n    NOT(ISBLANK(Baseline)) && NOT(ISBLANK(DuringAvg)) && NOT(ISBLANK(ASP)),\n    (DuringAvg - Baseline) * Duration * ASP,\n    BLANK()\n)",
-  "formatString": "$#,##0",
-  "displayFolder": "Promo Performance"
-}

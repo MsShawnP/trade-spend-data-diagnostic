@@ -1,6 +1,0 @@
-{
-  "name": "DeductionCount",
-  "expression": "COUNTROWS(fact_deductions)",
-  "formatString": "#,##0",
-  "displayFolder": "Global"
-}

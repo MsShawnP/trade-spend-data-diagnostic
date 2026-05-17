@@ -1,6 +1,0 @@
-{
-  "name": "DoubleDipTotal",
-  "expression": "CALCULATE(\n    SUM(fact_deductions[amount]),\n    fact_deductions[is_double_dip] = 1\n)",
-  "formatString": "$#,##0",
-  "displayFolder": "Deduction Deep-Dive"
-}

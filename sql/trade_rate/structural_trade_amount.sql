@@ -10,9 +10,9 @@
 -- Notes:    Gap query — this calculation was done in Python by
 --           pairing revenue_by_retailer results with channel
 --           trade rates. This query does it in pure SQL.
---           Locked number: total structural trade = $4,435,513.
+--           Locked number: total structural trade = $5,207,524.
 --           Channel mapping: Walmart, Costco, Whole Foods, UNFI,
---           DTC each have their own rate column; all other
+--           DTC, KeHE each have their own rate column; all other
 --           retailers use trade_spend_pct_regional.
 -- ============================================
 
@@ -31,6 +31,7 @@ channel_rates AS (
         AVG(trade_spend_pct_whole_foods) AS rate_whole_foods,
         AVG(trade_spend_pct_unfi)        AS rate_unfi,
         AVG(trade_spend_pct_dtc)         AS rate_dtc,
+        AVG(trade_spend_pct_kehe)        AS rate_kehe,
         AVG(trade_spend_pct_regional)    AS rate_regional
     FROM sku_costs
 )
@@ -43,6 +44,7 @@ SELECT
         WHEN 'Whole Foods' THEN rates.rate_whole_foods
         WHEN 'UNFI'        THEN rates.rate_unfi
         WHEN 'DTC'         THEN rates.rate_dtc
+        WHEN 'KeHE'        THEN rates.rate_kehe
         ELSE rates.rate_regional
     END AS trade_rate,
     cr.revenue * CASE cr.retailer
@@ -51,6 +53,7 @@ SELECT
         WHEN 'Whole Foods' THEN rates.rate_whole_foods
         WHEN 'UNFI'        THEN rates.rate_unfi
         WHEN 'DTC'         THEN rates.rate_dtc
+        WHEN 'KeHE'        THEN rates.rate_kehe
         ELSE rates.rate_regional
     END AS structural_trade_dollars
 FROM channel_revenue cr

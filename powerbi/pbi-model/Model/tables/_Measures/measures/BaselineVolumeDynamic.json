@@ -1,6 +1,0 @@
-{
-  "name": "BaselineVolumeDynamic",
-  "expression": "VAR SelectedWindow = [WindowWeeks Value]\nVAR CurrentPromoStart = SELECTEDVALUE(dim_promo[start_week])\nVAR CurrentSKU = SELECTEDVALUE(dim_promo[sku])\nVAR CurrentRetailer = SELECTEDVALUE(dim_promo[retailer])\nRETURN\nAVERAGEX(\n    FILTER(\n        fact_scan_data,\n        fact_scan_data[sku] = CurrentSKU\n            && fact_scan_data[retailer] = CurrentRetailer\n            && fact_scan_data[promo_period] = \"pre\"\n            && fact_scan_data[week_ending] >= DATE(\n                YEAR(DATEVALUE(CurrentPromoStart)),\n                MONTH(DATEVALUE(CurrentPromoStart)),\n                DAY(DATEVALUE(CurrentPromoStart))\n            ) - (SelectedWindow * 7)\n            && fact_scan_data[week_ending] < DATEVALUE(CurrentPromoStart)\n    ),\n    fact_scan_data[units_sold]\n)",
-  "formatString": "0.00",
-  "displayFolder": "Promo Performance"
-}

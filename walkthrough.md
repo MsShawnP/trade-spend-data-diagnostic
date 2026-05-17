@@ -1,10 +1,10 @@
 # Trade Spend Diagnostic — Walkthrough
 
-Cinderhaven Provisions, a specialty food company with $25.6 million
-in trailing-twelve-month wholesale revenue, budgets 17.3% of that
+Cinderhaven Provisions, a specialty food company with $27.5 million
+in trailing-twelve-month wholesale revenue, budgets 18.9% of that
 revenue for trade spend — the rate-card allowances negotiated with
-retailers as a cost of shelf access. The actual all-in cost is 21.3%.
-The 4-point gap represents roughly $1 million in annual operational
+retailers as a cost of shelf access. The actual all-in cost is 26.1%.
+The 7.2-point gap represents roughly $2 million in annual operational
 waste: deductions taken by retailers beyond the negotiated trade
 rate, flowing through in retailer-specific codes, weeks after the
 transactions they reference, and largely uncontested.
@@ -43,8 +43,8 @@ closes.
 
 The gap between planned and actual is not hypothetical. It is
 measurable, and the measurement is the point of this diagnostic.
-Cinderhaven's numbers are representative of the pattern: a 17.3%
-planned trade rate, a 21.3% actual all-in rate, and $1 million in
+Cinderhaven's numbers are representative of the pattern: an 18.9%
+planned trade rate, a 26.1% actual all-in rate, and $2 million in
 the space between them that did not appear in any report until the
 infrastructure to calculate it was built.
 
@@ -79,7 +79,7 @@ two buckets.
 Six source types feed the diagnostic, unified into 21 tables in a
 single SQLite database:
 
-- **SKU cost tables** — 90 products with COGS, wholesale prices by
+- **SKU cost tables** — 50 products with COGS, wholesale prices by
   channel, and per-channel trade spend percentages. The structural
   trade calculation uses the channel-average rate (mean across all
   SKUs per channel), not per-SKU rates. The rate card is negotiated
@@ -94,7 +94,7 @@ single SQLite database:
   mechanisms.
 - **POS scan data** — 601,341 weekly point-of-sale records from 11
   retailers, used to measure promotional lift.
-- **Dispute records** — 1,410 filed disputes with outcomes and
+- **Dispute records** — 6,105 filed disputes with outcomes and
   recovery amounts.
 - **Deduction code crosswalk** — 97 retailer-specific codes mapped
   to a common 8-category taxonomy. Fuzzy matching (via rapidfuzz)
@@ -122,11 +122,11 @@ diagnostic-level engagement.
 
 ### The headline
 
-Cinderhaven's structural trade rate is 17.3% of revenue — $4,435,513
-on $25,597,699 in trailing-twelve-month wholesale sales. The all-in
-trade cost, including operational deductions, is 21.3% —
-$5,447,968. The difference is $1,012,455 in operational waste,
-representing 4.0% of revenue (see Tab 1: Executive Pulse).
+Cinderhaven's structural trade rate is 18.9% of revenue — $5,207,524
+on $27,483,467 in trailing-twelve-month wholesale sales. The all-in
+trade cost, including operational deductions, is 26.1% —
+$7,174,939. The difference is $1,967,416 in operational waste,
+representing 7.2% of revenue (see Tab 1: Executive Pulse).
 
 ### Where the waste comes from
 
@@ -155,7 +155,7 @@ diagnostic finding (see Tab 2: Leak Diagnostic).
 
 ### Double-dip detection
 
-Three deduction events totaling $19,306 were identified as
+Three deduction events totaling $19,524 were identified as
 double-payments: the same promotion received both an off-invoice
 discount on the original invoice and a subsequent promo-billback
 deduction. The dollar amount is small. The finding is significant
@@ -213,9 +213,9 @@ share of deductions.
 
 ### Dispute recovery
 
-Cinderhaven filed 1,410 disputes against retailer deductions,
-recovering $98,216 — a 13.7% recovery rate by dollar value. The gap
-between the amount disputed ($716,082) and the amount recovered
+Cinderhaven filed 6,105 disputes against retailer deductions,
+recovering $987,798 — a 19.8% recovery rate by dollar value. The gap
+between the amount disputed ($4,989,889) and the amount recovered
 represents either valid deductions that were correctly upheld,
 disputes where evidence was insufficient, or disputes that expired
 before resolution. An adjustable recovery model in the workbook
@@ -243,8 +243,8 @@ for a different user and a different moment.
 
 **The Excel workbook** (7 tabs) is the static diagnostic. It opens
 cold — no database connection, no setup. Tab 1 (Executive Pulse)
-leads with the two-bucket punchline: 17.3% structural, 4.0%
-operational, 21.3% all-in. Tabs 2 through 4 (Leak Diagnostic,
+leads with the two-bucket punchline: 18.9% structural, 7.2%
+operational, 26.1% all-in. Tabs 2 through 4 (Leak Diagnostic,
 Promo Efficacy, Retailer Risk) provide the supporting detail with
 adjustable inputs — a target recovery rate, a promo comparison
 window, and per-retailer what-if trade rates. Tab 5 (Deduction
@@ -310,13 +310,13 @@ and retailer portals (deduction feeds, POS data, compliance
 reports). Integration surfaces double-dips and ghost promos in near
 real-time, not after a year of accumulation.
 
-**Dispute workflow automation.** The current 13.7% recovery rate
+**Dispute workflow automation.** The current 19.8% recovery rate
 reflects manual, reactive dispute filing. Automated workflows —
 deadline tracking, evidence assembly, escalation rules,
 auto-filing for categories with high win rates — typically push
-recovery into the 25–35% range. On Cinderhaven's $716,082 in
-disputed deductions, the difference between 13.7% and 30% recovery
-is roughly $117,000 in additional annual recovery.
+recovery into the 25–35% range. On Cinderhaven's $4,989,889 in
+disputed deductions, the difference between 19.8% and 30% recovery
+is roughly $508,000 in additional annual recovery.
 
 **Ongoing monitoring.** The diagnostic answers "where is the money
 going?" once. The engagement answers it every month, with trend

@@ -48,6 +48,25 @@ Each entry:
 - **Scope:** Global
 - **Do not:** Over-engineer the schema for a dataset this size.
 
+### 2026-05-17 — Sync cinderhaven-data from cinderhaven-data-platform Postgres, not generate in place
+- **Why:** The platform (Fly.io Postgres, dbt pipeline) is the authoritative
+  data source. It grew to 50 SKUs (from 90), 13.5K deductions (from 3K),
+  6K disputes, Shopify DTC data, KeHE as a full retail channel, and an
+  extended scan window through 2027-01-02. Rather than rewriting 18
+  generation scripts, we exported the platform's raw tables directly to
+  SQLite. The generation scripts in cinderhaven-data are now stale — the
+  exported .db is the source of truth until scripts are updated.
+- **Scope:** cinderhaven-data submodule, data pipeline
+- **Do not:** Switch the diagnostic project itself to Postgres. SQLite
+  stays — it's portable, free, and works offline. The platform is the
+  upstream; SQLite is the local format.
+
+### 2026-05-17 — Remove Power BI from all projects
+- **Why:** User decision. Power BI deliverables dropped across all
+  Lailara projects. The powerbi/ directory and all references removed.
+- **Scope:** Global — this project and all Lailara projects
+- **Do not:** Reference Power BI work as a deliverable or next step.
+
 ### 2026-05-10 — Validate deliverables with a separate verification script, not inline assertions
 - **Why:** `validate_workbook.py` reopens the generated .xlsx and checks it
   as a reader would — locked numbers, cross-tab consistency, tab structure,
@@ -81,10 +100,10 @@ Each entry:
   own bucket double-counts. The promotions table's promo_cost sum
   ($20K) is too small to be a meaningful standalone bucket. The data
   supports two clean buckets:
-  - Structural/planned trade: $4.4M (17.3%) — the negotiated rate-card
-  - Operational/compliance: $1.0M (4.0%) — deductions beyond planned trade
-  All-in: $5.4M (21.3%). CEO takeaway: "You budgeted 17%. You're
-  spending 21%. The extra 4 points is operational waste."
+  - Structural/planned trade: $5.2M (18.9%) — the negotiated rate-card
+  - Operational/compliance: $2.0M (7.2%) — deductions beyond planned trade
+  All-in: $7.2M (26.1%). CEO takeaway: "You budgeted 19%. You're
+  spending 26%. The extra 7 points is operational waste."
 - **Scope:** Executive summary tab, dashboard, walkthrough
 - **Do not:** Use a three-bucket model unless the data is extended to
   support it. The detail tabs can break out deduction types and
@@ -112,17 +131,20 @@ off-invoice, $4.5M total trade, 42/38/20 category split.~~
   original brief's numbers were internally inconsistent. The cinderhaven-data
   repo now produces all trade spend and deduction data via a unified build
   pipeline (21 tables). Verified numbers from TRADE_SPEND_VERIFICATION.md:
-  - Revenue: $25,597,699
-  - Structural trade (sku_costs rate-card): $4,435,513 (17.3%)
-  - Operational/compliance deductions (trailing-365, excl promo_billback): $1,012,455 (4.0%)
-  - Promo_billback deductions (trailing-365): $213,017
-  - All-in trade cost: $5,447,968 (21.3%)
-  - Double-dips: 3 events, $19,306
-  - Disputes: 1,410 filed, $98,216 recovered, 13.7% recovery rate
+  - Revenue: $27,483,467
+  - Structural trade (sku_costs rate-card): $5,207,524 (18.9%)
+  - Operational/compliance deductions (trailing-365, excl promo_billback): $1,967,416 (7.2%)
+  - Promo_billback deductions (trailing-365): $1,776,218
+  - All-in trade cost: $7,174,939 (26.1%)
+  - Double-dips: 3 events, $19,524
+  - Disputes: 6,105 filed, $987,798 recovered, 19.8% recovery rate
+  - SKUs: 50 (was 90)
+  - Scan window: 2026-01-10 to 2027-01-02
+  - KeHE now has its own trade_spend_pct_kehe column and scan revenue (~$2.6M)
   The three-way split (contractual/promotional/operational) from the brief
   was not derivable and had a double-counting error ("off-invoice" is a
   funding mechanism, not a category). Replaced with a two-bucket executive
-  framing: structural/planned trade (17.3%) + operational waste (4.0%).
+  framing: structural/planned trade (18.9%) + operational waste (7.2%).
 - **Scope:** All deliverables — workbook, dashboard, walkthrough, SQL queries
 - **Do not:** Reference the original brief's 19.2%, 16.8%, $340K, $4.5M,
   or 42/38/20 numbers. Use verified actuals only.

@@ -1,6 +1,0 @@
-{
-  "name": "NetNetMarginPct",
-  "expression": "[NetNetMargin]",
-  "formatString": "0.0%",
-  "displayFolder": "Retailer Comparison"
-}

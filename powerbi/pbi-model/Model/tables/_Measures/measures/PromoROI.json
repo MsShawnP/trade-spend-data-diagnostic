@@ -1,6 +1,0 @@
-{
-  "name": "PromoROI",
-  "expression": "AVERAGE(dim_promo[roi])",
-  "formatString": "0.00",
-  "displayFolder": "Promo Performance"
-}

@@ -30,6 +30,7 @@ CHANNEL_RATE_COLS = {
     "Whole Foods": "trade_spend_pct_whole_foods",
     "UNFI": "trade_spend_pct_unfi",
     "DTC": "trade_spend_pct_dtc",
+    "KeHE": "trade_spend_pct_kehe",
 }
 
 REGIONAL_RETAILERS = [
@@ -69,7 +70,8 @@ def _query_retailer_data(db_path: Path) -> dict:
     gm_map = {}
     for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
                           ("Whole Foods", "wholesale_whole_foods"), ("UNFI", "wholesale_unfi"),
-                          ("DTC", "wholesale_dtc"), ("Regional", "wholesale_regional")]:
+                          ("DTC", "wholesale_dtc"), ("KeHE", "wholesale_kehe"),
+                          ("Regional", "wholesale_regional")]:
         r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM sku_costs").fetchone()
         gm_map[channel] = (r[1] - r[0]) / r[1] if r[1] else 0
 
@@ -93,7 +95,7 @@ def _query_retailer_data(db_path: Path) -> dict:
 
     conn.close()
 
-    channel_order = ["Walmart", "UNFI", "Whole Foods", "Costco", "DTC"] + REGIONAL_RETAILERS
+    channel_order = ["Walmart", "UNFI", "KeHE", "Whole Foods", "Costco", "DTC"] + REGIONAL_RETAILERS
 
     retailers = []
     for retailer in channel_order:
@@ -127,25 +129,6 @@ def _query_retailer_data(db_path: Path) -> dict:
             "gross_margin": gross_margin,
             "net_net_margin": gross_margin - (all_in / rev if rev else 0),
             "total_deductions": total_ded,
-        })
-
-    kehe_op = op_ded_map.get("kehe", 0)
-    kehe_pb = pb_map.get("kehe", 0)
-    if kehe_op > 0 or kehe_pb > 0:
-        retailers.append({
-            "name": "KeHE (distributor)",
-            "revenue": 0,
-            "rev_share": 0,
-            "structural": 0,
-            "structural_rate": 0,
-            "op_deductions": kehe_op,
-            "op_ded_rate": 0,
-            "pb_deductions": kehe_pb,
-            "all_in": kehe_op + kehe_pb,
-            "all_in_rate": 0,
-            "gross_margin": 0,
-            "net_net_margin": 0,
-            "total_deductions": kehe_op + kehe_pb,
         })
 
     total_deductions = sum(r["total_deductions"] for r in retailers)

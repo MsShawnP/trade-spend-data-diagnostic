@@ -1,6 +1,0 @@
-{
-  "name": "GhostPromoTotal",
-  "expression": "VAR TotalPromoBBAmount =\n    CALCULATE(\n        SUM(fact_deductions[amount]),\n        fact_deductions[deduction_type] = \"promo_billback\"\n    )\nVAR MatchedAmount =\n    SUMX(\n        FILTER(dim_promo, NOT(ISBLANK(dim_promo[actual_cost]))),\n        dim_promo[actual_cost]\n    )\nRETURN\nTotalPromoBBAmount - MatchedAmount",
-  "formatString": "$#,##0",
-  "displayFolder": "Promo Performance"
-}

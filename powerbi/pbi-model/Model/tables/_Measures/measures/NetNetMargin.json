@@ -1,6 +1,0 @@
-{
-  "name": "NetNetMargin",
-  "expression": "[GrossMarginPct] - [StructuralRate] - [OpDedRate] - [PromoBBRate]",
-  "formatString": "0.0%",
-  "displayFolder": "Retailer Comparison"
-}

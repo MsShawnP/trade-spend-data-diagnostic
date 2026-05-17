@@ -11,8 +11,8 @@
 --           trailing-365 window)
 -- Notes:    Gap query — was Python arithmetic combining three
 --           separate query results. Locked numbers: revenue
---           $25,597,699, structural $4,435,513 (17.3%), waste
---           $1,012,455 (4.0%), all-in 21.3%.
+--           $27,483,467, structural $5,207,524 (18.9%), waste
+--           $1,967,416 (7.2%), all-in 26.1%.
 -- ============================================
 
 WITH revenue AS (
@@ -35,6 +35,7 @@ channel_rates AS (
         AVG(trade_spend_pct_whole_foods) AS rate_whole_foods,
         AVG(trade_spend_pct_unfi)        AS rate_unfi,
         AVG(trade_spend_pct_dtc)         AS rate_dtc,
+        AVG(trade_spend_pct_kehe)        AS rate_kehe,
         AVG(trade_spend_pct_regional)    AS rate_regional
     FROM sku_costs
 ),
@@ -46,6 +47,7 @@ structural AS (
             WHEN 'Whole Foods' THEN rates.rate_whole_foods
             WHEN 'UNFI'        THEN rates.rate_unfi
             WHEN 'DTC'         THEN rates.rate_dtc
+            WHEN 'KeHE'        THEN rates.rate_kehe
             ELSE rates.rate_regional
         END
     ) AS total

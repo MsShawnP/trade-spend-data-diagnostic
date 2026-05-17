@@ -1,5 +1,0 @@
-{
-  "name": "HighestRiskRetailer",
-  "expression": "VAR MinMargin =\n    MINX(\n        FILTER(dim_retailer, dim_retailer[revenue] > 0),\n        dim_retailer[net_net_margin]\n    )\nRETURN\nCALCULATE(\n    SELECTEDVALUE(dim_retailer[retailer_name]),\n    FILTER(dim_retailer, dim_retailer[net_net_margin] = MinMargin)\n)",
-  "displayFolder": "Retailer Comparison"
-}

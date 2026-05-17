@@ -1,6 +1,0 @@
-{
-  "name": "RevenueShare",
-  "expression": "DIVIDE(\n    SUM(fact_scan_data[dollars_sold]),\n    CALCULATE(SUM(fact_scan_data[dollars_sold]), ALL(dim_retailer)),\n    0\n)",
-  "formatString": "0.0%",
-  "displayFolder": "Retailer Comparison"
-}

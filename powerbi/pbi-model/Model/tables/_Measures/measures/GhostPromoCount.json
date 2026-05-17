@@ -1,6 +1,0 @@
-{
-  "name": "GhostPromoCount",
-  "expression": "VAR TotalPromoBB =\n    CALCULATE(\n        COUNTROWS(fact_deductions),\n        fact_deductions[deduction_type] = \"promo_billback\"\n    )\nVAR MatchedCount =\n    COUNTROWS(FILTER(dim_promo, NOT(ISBLANK(dim_promo[actual_cost]))))\nRETURN\nTotalPromoBB - MatchedCount",
-  "formatString": "#,##0",
-  "displayFolder": "Promo Performance"
-}

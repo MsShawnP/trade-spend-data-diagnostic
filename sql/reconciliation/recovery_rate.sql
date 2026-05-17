@@ -9,8 +9,8 @@
 --           lost_count, pending_count
 -- Params:   None
 -- Notes:    Computes recovery rate from data: recovered / disputed
---           dollars. Current DB yields 13.7% (1,410 disputes,
---           $98,216 recovered from $716,083 disputed).
+--           dollars. Current DB yields 19.8% (6,105 disputes,
+--           $987,798 recovered from $4,989,889 disputed).
 -- ============================================
 
 SELECT

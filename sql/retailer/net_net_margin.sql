@@ -13,8 +13,9 @@
 --           combining 4 separate queries. Margin waterfall:
 --           gross margin -> minus structural trade rate -> minus
 --           (op deductions + promo billback) / revenue = net-net.
---           Excludes KeHE (no revenue). Excludes freight,
---           warehousing, and non-trade SG&A.
+--           KeHE now has scan revenue (~$2.6M) and its own trade
+--           rate column. Excludes freight, warehousing, and
+--           non-trade SG&A.
 -- ============================================
 
 WITH channel_revenue AS (
@@ -32,6 +33,7 @@ channel_rates AS (
         AVG(trade_spend_pct_whole_foods) AS rate_whole_foods,
         AVG(trade_spend_pct_unfi)        AS rate_unfi,
         AVG(trade_spend_pct_dtc)         AS rate_dtc,
+        AVG(trade_spend_pct_kehe)        AS rate_kehe,
         AVG(trade_spend_pct_regional)    AS rate_regional
     FROM sku_costs
 ),
@@ -47,6 +49,8 @@ gross_margins AS (
         (AVG(wholesale_unfi) - AVG(cogs_per_unit)) / AVG(wholesale_unfi) FROM sku_costs
     UNION ALL SELECT 'DTC',
         (AVG(wholesale_dtc) - AVG(cogs_per_unit)) / AVG(wholesale_dtc) FROM sku_costs
+    UNION ALL SELECT 'KeHE',
+        (AVG(wholesale_unfi) - AVG(cogs_per_unit)) / AVG(wholesale_unfi) FROM sku_costs
     UNION ALL SELECT 'Regional',
         (AVG(wholesale_regional) - AVG(cogs_per_unit)) / AVG(wholesale_regional) FROM sku_costs
 ),
@@ -76,6 +80,7 @@ SELECT
         WHEN 'Whole Foods' THEN rates.rate_whole_foods
         WHEN 'UNFI'        THEN rates.rate_unfi
         WHEN 'DTC'         THEN rates.rate_dtc
+        WHEN 'KeHE'        THEN rates.rate_kehe
         ELSE rates.rate_regional
     END * 100, 1) AS structural_rate_pct,
     ROUND((gm.gm - CASE cr.retailer
@@ -84,6 +89,7 @@ SELECT
         WHEN 'Whole Foods' THEN rates.rate_whole_foods
         WHEN 'UNFI'        THEN rates.rate_unfi
         WHEN 'DTC'         THEN rates.rate_dtc
+        WHEN 'KeHE'        THEN rates.rate_kehe
         ELSE rates.rate_regional
     END) * 100, 1) AS after_structural_pct,
     ROUND(COALESCE(od.total, 0) * 100.0 / cr.revenue, 1) AS op_ded_rate_pct,
@@ -95,6 +101,7 @@ SELECT
             WHEN 'Whole Foods' THEN rates.rate_whole_foods
             WHEN 'UNFI'        THEN rates.rate_unfi
             WHEN 'DTC'         THEN rates.rate_dtc
+            WHEN 'KeHE'        THEN rates.rate_kehe
             ELSE rates.rate_regional
           END
         - COALESCE(od.total, 0) / cr.revenue
@@ -104,7 +111,7 @@ FROM channel_revenue cr
 CROSS JOIN channel_rates rates
 LEFT JOIN gross_margins gm
     ON gm.channel = CASE
-        WHEN cr.retailer IN ('Walmart','Costco','Whole Foods','UNFI','DTC')
+        WHEN cr.retailer IN ('Walmart','Costco','Whole Foods','UNFI','DTC','KeHE')
         THEN cr.retailer ELSE 'Regional' END
 LEFT JOIN op_deductions od
     ON od.retailer_id = LOWER(REPLACE(cr.retailer, ' ', '_'))

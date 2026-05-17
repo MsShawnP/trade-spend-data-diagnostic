@@ -1,6 +1,0 @@
-{
-  "name": "AllInTradeCost",
-  "expression": "[StructuralTradeAmount] + [OperationalWasteAmount] + [PromoBillbackAmount]",
-  "formatString": "$#,##0",
-  "displayFolder": "Global"
-}

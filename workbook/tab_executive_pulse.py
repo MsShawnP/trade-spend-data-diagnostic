@@ -79,6 +79,7 @@ def _query_metrics(db_path: Path) -> dict:
         "Whole Foods": "trade_spend_pct_whole_foods",
         "UNFI": "trade_spend_pct_unfi",
         "DTC": "trade_spend_pct_dtc",
+        "KeHE": "trade_spend_pct_kehe",
     }
     rates = {}
     for channel, col in channel_rate_cols.items():

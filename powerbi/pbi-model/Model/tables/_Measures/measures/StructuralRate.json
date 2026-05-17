@@ -1,6 +1,0 @@
-{
-  "name": "StructuralRate",
-  "expression": "SELECTEDVALUE(dim_retailer[trade_rate], 0)",
-  "formatString": "0.0%",
-  "displayFolder": "Retailer Comparison"
-}

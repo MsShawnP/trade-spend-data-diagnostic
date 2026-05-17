@@ -6,10 +6,10 @@ of real retailer deduction feeds.
 
 ## The finding
 
-Cinderhaven Provisions has $25.6M in trailing-twelve-month wholesale
-revenue. The company budgets 17.3% for structural trade spend — the
+Cinderhaven Provisions has $27.5M in trailing-twelve-month wholesale
+revenue. The company budgets 18.9% for structural trade spend — the
 negotiated rate-card cost of shelf access. The actual all-in cost is
-21.3%. The 4-point gap is $1 million in annual operational waste:
+26.1%. The 7.2-point gap is $2 million in annual operational waste:
 deductions taken beyond the rate card, largely unclassified and
 uncontested. Full methodology and detailed findings in
 [`walkthrough.md`](walkthrough.md).
@@ -19,11 +19,10 @@ uncontested. Full methodology and detailed findings in
 ```
 walkthrough.md              Full methodology and findings narrative
 build_workbook.py           Generates the 7-tab diagnostic workbook
-validate_workbook.py        43-check acceptance test suite
+validate_workbook.py        59-check acceptance test suite
 workbook/                   Workbook generation modules (one per tab)
 sql/                        25 standalone diagnostic queries
-powerbi/                    Dashboard design, data exports, DAX measures, build guide
-cinderhaven-data/           Simulated dataset (git submodule, 21 tables)
+cinderhaven-data/           Simulated dataset (git submodule, 30 tables)
 scripts/                    Database build utilities
 output/                     Generated workbook (.gitignored)
 requirements.txt            Python dependencies
@@ -57,12 +56,6 @@ generate.
 **SQL query library** — 25 queries answering specific diagnostic
 questions, from total revenue to ghost promo identification.
 See [`sql/README.md`](sql/README.md).
-
-**Power BI dashboard** — 4-page interactive companion with
-cross-filtering, drill-through, and what-if parameters. Assembled
-manually in Power BI Desktop from pre-exported CSVs and 49
-auto-generated DAX measures. See
-[`powerbi/README.md`](powerbi/README.md).
 
 ## Stack
 

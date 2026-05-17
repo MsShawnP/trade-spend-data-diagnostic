@@ -38,7 +38,7 @@ conn = sqlite3.connect(db)
 # Example: total revenue
 sql = Path("sql/trade_rate/total_revenue.sql").read_text()
 # Replace parameter placeholder before executing
-sql = sql.replace(":oldest_week", "'2025-05-10'")
+sql = sql.replace(":oldest_week", "'2026-01-10'")
 for row in conn.execute(sql):
     print(row)
 ```
@@ -110,12 +110,12 @@ For a new analyst walking through the diagnostic narrative:
 
 1. **trailing_52_weeks.sql** — establish the analysis window; note
    the oldest and newest dates for use as parameters in later queries
-2. **total_revenue.sql** — the revenue headline ($25.6M)
-3. **all_in_trade_rate.sql** — the punchline: 17.3% structural +
-   4.0% waste = 21.3% all-in
-4. **waste_by_category.sql** — where the 4.0% comes from (8 deduction
+2. **total_revenue.sql** — the revenue headline ($27.5M)
+3. **all_in_trade_rate.sql** — the punchline: 18.9% structural +
+   7.2% waste = 26.1% all-in
+4. **waste_by_category.sql** — where the 7.2% comes from (8 deduction
    types, resolution timelines)
-5. **double_dip_events.sql** — the 3 double-payment events ($19K)
+5. **double_dip_events.sql** — the 3 double-payment events ($19.5K)
 6. **promo_performance.sql** — which promotions created value vs.
    destroyed it
 7. **ghost_promo_summary.sql** — $96K in deductions referencing
@@ -156,13 +156,13 @@ nondeterminism.
 
 | Metric | Locked value | Query to check |
 |--------|-------------|----------------|
-| Annual wholesale revenue | $25,597,699 | total_revenue.sql |
-| Structural trade | $4,435,513 (17.3%) | structural_trade_amount.sql |
-| Operational waste | $1,012,455 (4.0%) | waste_by_category.sql |
-| All-in trade cost | $5,447,968 (21.3%) | all_in_trade_rate.sql |
-| Double-dip events | 3 / $19,306 | double_dip_events.sql |
-| Disputes filed | ~1,410 | dispute_summary.sql |
-| Total recovered | $98,216 | dispute_summary.sql |
+| Annual wholesale revenue | $27,483,467 | total_revenue.sql |
+| Structural trade | $5,207,524 (18.9%) | structural_trade_amount.sql |
+| Operational waste | $1,967,416 (7.2%) | waste_by_category.sql |
+| All-in trade cost | $7,174,939 (26.1%) | all_in_trade_rate.sql |
+| Double-dip events | 3 / $19,524 | double_dip_events.sql |
+| Disputes filed | ~6,105 | dispute_summary.sql |
+| Total recovered | $987,798 | dispute_summary.sql |
 | Ghost promos | 137 / $95,826 | ghost_promo_summary.sql |
 | Deduction codes | 97 | deduction_codes.sql |
 | Trailing-365 deductions | ~2,374 | full_deduction_ledger.sql |

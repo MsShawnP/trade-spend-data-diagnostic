@@ -61,22 +61,22 @@ def build_methodology(ws: Worksheet) -> None:
         "The negotiated rate-card discount embedded in wholesale pricing by channel. "
         "Derived from sku_costs.trade_spend_pct columns multiplied by channel revenue. "
         "This is the planned cost of doing business with each retailer — it exists "
-        "whether or not a single deduction is ever taken. $4,435,513 (17.3% of revenue).")
+        "whether or not a single deduction is ever taken. $5,207,524 (18.9% of revenue).")
     row = _write_pair(ws, row, "Bucket 2: Operational Waste",
         "Trailing-365-day deductions excluding promo_billback. These are unplanned cash "
         "outflows from compliance failures (label fines, pallet fines), logistics issues "
         "(short ships, late deliveries, damages), spoilage, and vague/unclassified codes. "
-        "$1,012,455 (3.9% of revenue).")
+        "$1,967,416 (7.2% of revenue).")
     row += 1
     row = _write_pair(ws, row, "Why not three buckets?",
         "The original brief proposed a third \"promotional\" bucket using off-invoice discounts. "
         "Investigation revealed that off-invoice is a funding mechanism, not a cost category — "
         "including it as a separate bucket double-counts costs already captured in the structural "
         "trade rate. The promotions table's promo_cost sum ($20.5K) is too small to constitute "
-        "a meaningful standalone bucket. Two buckets tell a cleaner story: you budgeted 17%, "
-        "you're spending 21%, the gap is operational waste.")
+        "a meaningful standalone bucket. Two buckets tell a cleaner story: you budgeted 19%, "
+        "you're spending 26%, the gap is operational waste.")
     row = _write_pair(ws, row, "Promo billback exclusion",
-        "Promo_billback deductions ($213,017 trailing-365) are excluded from the operational "
+        "Promo_billback deductions ($1,776,218 trailing-365) are excluded from the operational "
         "waste bucket because they represent planned promotional activity, not operational failures. "
         "They appear on the Deduction Ledger tab but do not inflate the waste figure.")
 
@@ -89,13 +89,13 @@ def build_methodology(ws: Worksheet) -> None:
     row += 1
     row = _write_pair(ws, row, "scan_data",
         "Point-of-sale weekly volumes and dollar sales by SKU and store. "
-        "104 weeks (2024-05-11 to 2026-05-02). Used for revenue calculations (trailing 52 weeks = "
+        "104 weeks (2025-01-11 to 2027-01-02). Used for revenue calculations (trailing 52 weeks = "
         "52 most recent distinct week_ending values) and promotion lift analysis.")
     row = _write_pair(ws, row, "sku_costs",
         "Per-SKU cost structure: COGS, wholesale prices by channel, trade spend percentages by channel. "
         "Static reference table. Used for structural trade rate calculation and gross margin derivation.")
     row = _write_pair(ws, row, "deductions",
-        "3,087 deduction records (2024-07-04 to 2026-05-02). Each record: retailer, type, amount, date, "
+        "3,087 deduction records (2024-07-04 to 2026-12-31). Each record: retailer, type, amount, date, "
         "codes, flags (vague, post-audit, double-dip). Trailing-365 filter applied for operational waste "
         "calculations. Joined to deduction_codes for translations and to disputes for recovery data.")
     row = _write_pair(ws, row, "promotions",
@@ -108,7 +108,7 @@ def build_methodology(ws: Worksheet) -> None:
         "and standardized categories. 19 verified from vendor guides, 78 inferred via pattern matching. "
         "292 deduction records in the trailing-365 window have no matching crosswalk entry.")
     row = _write_pair(ws, row, "disputes",
-        "1,409 dispute records with outcome, recovered amount, filed/closed dates. "
+        "6,105 dispute records with outcome, recovered amount, filed/closed dates. "
         "Joined to deductions on deduction_id. Recovery rate = total recovered / total disputed dollars.")
     row = _write_pair(ws, row, "stores",
         "Store-to-retailer mapping. Used to aggregate scan_data from store level to retailer/channel level.")
@@ -167,7 +167,7 @@ def build_methodology(ws: Worksheet) -> None:
     row += 1
     row = _write_section(ws, row, "5. Recovery Rate & Addressable Improvement")
     row = _write_pair(ws, row, "Current recovery rate",
-        "Total recovered dollars ($98,216) ÷ total disputed dollars ($716,083) = 13.7%. "
+        "Total recovered dollars ($987,798) ÷ total disputed dollars ($4,989,889) = 19.8%. "
         "This counts won_full (100% recovery) and won_partial (~49% average recovery) outcomes.")
     row = _write_pair(ws, row, "Target recovery input",
         "Tab 2 cell C41 allows entering a target recovery rate (0–100%). "

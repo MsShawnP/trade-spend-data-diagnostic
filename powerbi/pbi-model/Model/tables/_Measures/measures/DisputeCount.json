@@ -1,6 +1,0 @@
-{
-  "name": "DisputeCount",
-  "expression": "COUNTROWS(fact_disputes)",
-  "formatString": "#,##0",
-  "displayFolder": "Global"
-}

@@ -1,6 +1,0 @@
-{
-  "name": "PromoCost",
-  "expression": "SUMX(\n    dim_promo,\n    IF(\n        NOT(ISBLANK(dim_promo[actual_cost])),\n        dim_promo[actual_cost],\n        dim_promo[planned_cost]\n    )\n)",
-  "formatString": "$#,##0",
-  "displayFolder": "Promo Performance"
-}

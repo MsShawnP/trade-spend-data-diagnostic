@@ -7,7 +7,7 @@
 -- Output:   total_revenue (dollars)
 -- Params:   :oldest_week — the 52nd-most-recent distinct
 --           week_ending from trailing_52_weeks.sql
--- Notes:    Locked number: $25,597,699. Use the oldest week_ending
+-- Notes:    Locked number: $27,483,467. Use the oldest week_ending
 --           from trailing_52_weeks.sql as the parameter.
 -- ============================================
 
@@ -16,4 +16,4 @@ FROM scan_data
 WHERE week_ending >= :oldest_week;
 -- To run in sqlite3 CLI:
 --   Replace :oldest_week with the value from trailing_52_weeks.sql,
---   e.g. WHERE week_ending >= '2025-05-10'
+--   e.g. WHERE week_ending >= '2026-01-10'

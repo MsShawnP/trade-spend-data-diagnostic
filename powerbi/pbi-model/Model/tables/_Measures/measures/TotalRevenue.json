@@ -1,6 +1,0 @@
-{
-  "name": "TotalRevenue",
-  "expression": "SUM(fact_scan_data[dollars_sold])",
-  "formatString": "$#,##0",
-  "displayFolder": "Global"
-}

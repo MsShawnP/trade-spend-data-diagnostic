@@ -9,6 +9,33 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-17 — Platform data sync and Power BI removal
+
+**Started from:** cinderhaven-data-platform had major data changes (50 SKUs, 13.5K deductions, KeHE as full channel, Shopify DTC data). Needed to sync the seed repo and re-lock the diagnostic.
+
+**Did:**
+- Exported all 30 raw tables from Fly.io Postgres to fresh SQLite (977K scan, 13.5K deductions, 6.1K disputes, plus 9 new tables: Shopify orders/lines/chargebacks/refunds/transactions/payouts, distributors, sku_distributors, retailer_requirements)
+- Added KeHE to all channel rate mappings (trade_spend_pct_kehe, wholesale_kehe) in tab_executive_pulse.py, tab_retailer_risk.py, and 4 SQL files
+- Removed KeHE "deduction-only" special case from tab_retailer_risk.py — KeHE now has $2.6M trailing-52w revenue
+- Re-locked all numbers across 15+ files:
+  - Revenue: $25,597,699 → $27,483,467
+  - Structural: $4,435,513 (17.3%) → $5,207,524 (18.9%)
+  - Op waste: $1,012,455 (4.0%) → $1,967,416 (7.2%)
+  - All-in: $5,447,968 (21.3%) → $7,174,939 (26.1%)
+  - Gap: ~4pp → 7.2pp
+  - Disputes: 1,410 → 6,105
+  - Recovery: $98,216 (13.7%) → $987,798 (19.8%)
+  - SKUs: 90 → 50
+- Removed powerbi/ directory entirely (Power BI dropped from all projects)
+- Updated README.md, walkthrough.md, DECISIONS.md, all SQL comments
+- 59/59 validation checks passing
+
+**State:** Diagnostic fully synced with platform data. Narrative tells a stronger story — 7.2pp gap instead of 4pp, $2M waste instead of $1M, much better recovery story ($988K recovered). Workbook has 11 retailers including KeHE as a proper channel.
+
+**Next:** Commit and merge. The cinderhaven-data generation scripts are stale (still produce 90-SKU dataset) — they should be updated to reproduce the platform data, but that's cinderhaven-data repo work.
+
+---
+
 ## 2026-05-17 — Data source audit and number re-lock
 
 **Started from:** cinderhaven-data upstream had substantial changes (random seed refactoring across 18 scripts: `random.seed()` → `random.Random(SEED)`). Needed to verify all math and analysis still holds.

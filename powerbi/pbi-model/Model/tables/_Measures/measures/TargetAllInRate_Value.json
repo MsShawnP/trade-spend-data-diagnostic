@@ -1,6 +1,0 @@
-{
-  "name": "TargetAllInRate Value",
-  "expression": "SELECTEDVALUE(TargetAllInRate[TargetAllInRate Value], 0.18)",
-  "formatString": "0.0%",
-  "displayFolder": "What-If Parameters"
-}

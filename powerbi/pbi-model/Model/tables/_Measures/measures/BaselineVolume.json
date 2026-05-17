@@ -1,6 +1,0 @@
-{
-  "name": "BaselineVolume",
-  "expression": "AVERAGE(dim_promo[baseline_avg_volume])",
-  "formatString": "0.00",
-  "displayFolder": "Promo Performance"
-}
