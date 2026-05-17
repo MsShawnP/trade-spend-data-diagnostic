@@ -1,29 +1,59 @@
-# Trade Spend Data Diagnostic — Cinderhaven Provisions
+# Cinderhaven Provisions is leaking $2M of margin to operational waste
 
-A complete trade spend diagnostic for a mid-market CPG company,
-built from simulated data that mirrors the structure and messiness
-of real retailer deduction feeds.
+A trade spend diagnostic for a mid-market natural/specialty CPG
+company. Cinderhaven budgets 19% for trade — the negotiated rate-card
+cost of shelf access. The actual all-in cost is 26%. The 7-point
+gap is $2 million per year in deductions taken beyond the rate card:
+vague charges with no clear basis, spoilage claims, short-ship
+charges, and compliance fines. Industry range is 19-23%. The
+structural rate is fine. The operational waste is not.
 
-## The finding
+The diagnostic quantifies the gap, classifies every deduction into a
+defensible taxonomy, identifies $1.9M in addressable waste, and
+provides a retailer-by-retailer P&L showing where the margin erosion
+concentrates.
 
-Cinderhaven Provisions has $27.5M in trailing-twelve-month wholesale
-revenue. The company budgets 18.9% for structural trade spend — the
-negotiated rate-card cost of shelf access. The actual all-in cost is
-26.1%. The 7.2-point gap is $2 million in annual operational waste:
-deductions taken beyond the rate card, largely unclassified and
-uncontested. Full methodology and detailed findings in
-[`walkthrough.md`](walkthrough.md).
+## Download the workbook
+
+**[Cinderhaven_Trade_Diagnostic.xlsx](https://github.com/MsShawnP/trade-spend-data-diagnostic/releases/latest/download/Cinderhaven_Trade_Diagnostic.xlsx)** — 7-tab Excel diagnostic. Open it cold; Tab 1 has the punchline.
+
+## Deliverables
+
+**Excel workbook** — 7-tab diagnostic built from a trailing-365-day
+dataset. Tab 1 leads with the finding and an industry benchmark.
+Tabs 2-4 break down waste by category, promo ROI, and retailer risk
+(with channel rollup). Tab 5 is the full deduction ledger. Tabs 6-7
+are reference. Interactive inputs: adjustable recovery rate, promo
+comparison window, per-retailer what-if trade rates.
+
+**Executive memo** ([`EXECUTIVE_MEMO.md`](EXECUTIVE_MEMO.md)) —
+one-page condensation: the finding, where the money goes, what to
+do Monday morning.
+
+**Defensibility log** ([`DEFENSIBILITY.md`](DEFENSIBILITY.md)) —
+classification rules and rebuttal text for every deduction bucket.
+Pre-empts the "your consultant doesn't understand our business"
+pushback.
+
+**Walkthrough** ([`walkthrough.md`](walkthrough.md)) — full
+methodology, findings, and deliverable orientation for someone
+evaluating whether this analysis is worth commissioning.
+
+**SQL query library** — 25 queries answering specific diagnostic
+questions, from total revenue to ghost promo identification.
+See [`sql/README.md`](sql/README.md).
 
 ## What's in this repo
 
 ```
+EXECUTIVE_MEMO.md           One-page CEO summary
+DEFENSIBILITY.md            Deduction classification rules + rebuttals
 walkthrough.md              Full methodology and findings narrative
 build_workbook.py           Generates the 7-tab diagnostic workbook
 validate_workbook.py        59-check acceptance test suite
 workbook/                   Workbook generation modules (one per tab)
 sql/                        25 standalone diagnostic queries
 cinderhaven-data/           Simulated dataset (git submodule, 30 tables)
-scripts/                    Database build utilities
 output/                     Generated workbook (.gitignored)
 requirements.txt            Python dependencies
 ```
@@ -35,6 +65,7 @@ git clone --recurse-submodules <repo-url>
 cd trade-spend-data-diagnostic
 pip install -r requirements.txt
 python build_workbook.py
+python validate_workbook.py   # 59 checks
 ```
 
 The `--recurse-submodules` flag is required — the `cinderhaven-data`
@@ -46,24 +77,13 @@ git submodule update --init
 
 Output lands at `output/trade_spend_diagnostic.xlsx`.
 
-## Deliverables
-
-**Excel workbook** — 7-tab static diagnostic with the two-bucket
-punchline, waste breakdown, promo ROI calculator, retailer P&L,
-and full deduction ledger. Run `python build_workbook.py` to
-generate.
-
-**SQL query library** — 25 queries answering specific diagnostic
-questions, from total revenue to ghost promo identification.
-See [`sql/README.md`](sql/README.md).
-
 ## Stack
 
 Python 3.10+, openpyxl, pandas, rapidfuzz, SQLite.
 
 ## License
 
-Not yet determined.
+MIT. See [LICENSE](LICENSE).
 
 ## Contact
 
