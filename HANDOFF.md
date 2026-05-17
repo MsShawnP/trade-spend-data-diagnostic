@@ -9,7 +9,7 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
-## 2026-05-17 — Platform data sync and Power BI removal
+## 2026-05-17 — Platform data sync, merge, and release update
 
 **Started from:** cinderhaven-data-platform had major data changes (50 SKUs, 13.5K deductions, KeHE as full channel, Shopify DTC data). Needed to sync the seed repo and re-lock the diagnostic.
 
@@ -18,21 +18,23 @@ For things that didn't work, see FAILURES.md.
 - Added KeHE to all channel rate mappings (trade_spend_pct_kehe, wholesale_kehe) in tab_executive_pulse.py, tab_retailer_risk.py, and 4 SQL files
 - Removed KeHE "deduction-only" special case from tab_retailer_risk.py — KeHE now has $2.6M trailing-52w revenue
 - Re-locked all numbers across 15+ files:
-  - Revenue: $25,597,699 → $27,483,467
-  - Structural: $4,435,513 (17.3%) → $5,207,524 (18.9%)
-  - Op waste: $1,012,455 (4.0%) → $1,967,416 (7.2%)
-  - All-in: $5,447,968 (21.3%) → $7,174,939 (26.1%)
-  - Gap: ~4pp → 7.2pp
-  - Disputes: 1,410 → 6,105
-  - Recovery: $98,216 (13.7%) → $987,798 (19.8%)
-  - SKUs: 90 → 50
+  - Revenue: $27,483,467 (was $25.6M)
+  - Structural: $5,207,524 / 18.9% (was $4.4M / 17.3%)
+  - Op waste: $1,967,416 / 7.2% (was $1.0M / 4.0%)
+  - All-in: $7,174,939 / 26.1% (was $5.4M / 21.3%)
+  - Gap: 7.2pp (was ~4pp)
+  - Disputes: 6,105, Recovery: $987,798 / 19.8%
+  - SKUs: 50 (was 90)
 - Removed powerbi/ directory entirely (Power BI dropped from all projects)
-- Updated README.md, walkthrough.md, DECISIONS.md, all SQL comments
-- 59/59 validation checks passing
+- Resolved architectural conflict: master had migrated to Postgres; reset master to SQLite-based worktree (platform → SQLite export → ships in repo)
+- Recovered writing artifacts from old master (EXECUTIVE_MEMO.md, DEFENSIBILITY.md, CUSTOMIZATION.md, AUDIT.md, LICENSE) and updated all numbers
+- Rebuilt workbook, 59/59 validation checks passing
+- Updated GitHub Release v1.0 with new .xlsx
+- Force-pushed master to origin
 
-**State:** Diagnostic fully synced with platform data. Narrative tells a stronger story — 7.2pp gap instead of 4pp, $2M waste instead of $1M, much better recovery story ($988K recovered). Workbook has 11 retailers including KeHE as a proper channel.
+**State:** Project is shipped and live on GitHub. README download link works. All numbers match platform data. Architecture: Postgres (platform) → SQLite export → git submodule → anyone can clone and run.
 
-**Next:** Commit and merge. The cinderhaven-data generation scripts are stale (still produce 90-SKU dataset) — they should be updated to reproduce the platform data, but that's cinderhaven-data repo work.
+**Next:** The cinderhaven-data generation scripts are stale (still produce 90-SKU dataset) — they should be rewritten to reproduce the platform data. That's cinderhaven-data repo work, not this project. This project is complete.
 
 ---
 
