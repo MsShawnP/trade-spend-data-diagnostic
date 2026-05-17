@@ -49,7 +49,7 @@ and assesses whether it's reusable as a standalone diagnostic.
 | # | What needs to happen |
 |---|---|
 | 4 | Replace Python f-string column interpolation with a single query that returns AVG for all 6 trade_spend_pct columns in one SELECT |
-| 12 | Add optional WHERE clause for SKU/retailer filter; result set is 104 weeks × 90 SKUs × 11 retailers — needs scoping for practical standalone use |
+| 12 | Add optional WHERE clause for SKU/retailer filter; result set is 157 weeks × 50 SKUs × 11 retailers — needs scoping for practical standalone use |
 | 17 | Same pattern as #4 — f-string column interpolation for 6 wholesale price columns. Combine into single query returning all channels |
 
 ### Gaps — diagnostics answered by Python logic, not SQL

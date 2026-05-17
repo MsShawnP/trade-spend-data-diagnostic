@@ -180,7 +180,7 @@ dev/powerbi/
 ├── data/
 │   ├── DATA_DICTIONARY.md     ← Column definitions, types, relationships
 │   ├── dim_retailer.csv       ← 11 retailers with rates and margins
-│   ├── dim_product.csv        ← 90 SKUs with costs and prices
+│   ├── dim_product.csv        ← 50 SKUs with costs and prices
 │   ├── dim_promo.csv          ← 188 promotions with pre-computed ROI
 │   ├── fact_deductions.csv    ← 2,374 deductions with translations
 │   ├── fact_structural_trade.csv ← 10 retailer-level trade amounts

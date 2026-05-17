@@ -58,7 +58,8 @@ def _query_retailer_data() -> dict:
     gm_map = {}
     for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
                           ("Whole Foods", "wholesale_whole_foods"), ("UNFI", "wholesale_unfi"),
-                          ("DTC", "wholesale_dtc"), ("Regional", "wholesale_regional")]:
+                          ("KeHE", "wholesale_kehe"), ("DTC", "wholesale_dtc"),
+                          ("Regional", "wholesale_regional")]:
         r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM stg_sku_costs").fetchone()
         gm_map[channel] = (r[1] - r[0]) / r[1] if r[1] else 0
 

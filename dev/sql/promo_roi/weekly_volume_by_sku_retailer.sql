@@ -8,7 +8,7 @@
 -- Params:   :sku_filter (optional) — filter to a specific SKU
 --           :retailer_filter (optional) — filter to a specific
 --           retailer
--- Notes:    Large result set (104 weeks x 90 SKUs x 11
+-- Notes:    Large result set (157 weeks x 50 SKUs x 11
 --           retailers). Use the optional filters to scope down
 --           for practical analysis. Feeds the promo ROI
 --           pre/during/post volume comparison.

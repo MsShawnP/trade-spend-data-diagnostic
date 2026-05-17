@@ -5,6 +5,7 @@ CHANNEL_RATE_COLS: dict[str, str] = {
     "Costco": "trade_spend_pct_costco",
     "Whole Foods": "trade_spend_pct_whole_foods",
     "UNFI": "trade_spend_pct_unfi",
+    "KeHE": "trade_spend_pct_kehe",
     "DTC": "trade_spend_pct_dtc",
     "Regional": "trade_spend_pct_regional",
 }

@@ -89,7 +89,7 @@ def build_methodology(ws: Worksheet) -> None:
     row += 1
     row = _write_pair(ws, row, "scan_data",
         "Point-of-sale weekly volumes and dollar sales by SKU and store. "
-        "104 weeks (2024-05-11 to 2026-05-02). Used for revenue calculations (trailing 52 weeks = "
+        "157 weeks (2024-01-06 to 2027-01-02). Used for revenue calculations (trailing 52 weeks = "
         "52 most recent distinct week_ending values) and promotion lift analysis.")
     row = _write_pair(ws, row, "sku_costs",
         "Per-SKU cost structure: COGS, wholesale prices by channel, trade spend percentages by channel. "
