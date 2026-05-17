@@ -9,6 +9,18 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-17 18:00 — Merge, release update, and ship
+
+**Started from:** Worktree branch had all platform sync work committed but not merged to master.
+
+**Did:** Attempted merge — master had diverged to Postgres (27 commits). Reset master to SQLite-based worktree (per DECISIONS.md). Recovered writing artifacts (EXECUTIVE_MEMO.md, DEFENSIBILITY.md, CUSTOMIZATION.md, AUDIT.md, LICENSE) from old master and updated all numbers. Rebuilt workbook (59/59), replaced GitHub Release asset. Updated cinderhaven-data repo README and build_db.py with platform-sourced warnings. Force-pushed both repos.
+
+**State:** Project complete and shipped. Both repos live on GitHub. Download link works. No pending code work.
+
+**Next:** Only manual task remaining: open .xlsx in Excel for visual verification (data bars, tables, interactive inputs). Otherwise move to a different project.
+
+---
+
 ## 2026-05-17 — Platform data sync, merge, and release update
 
 **Started from:** cinderhaven-data-platform had major data changes (50 SKUs, 13.5K deductions, KeHE as full channel, Shopify DTC data). Needed to sync the seed repo and re-lock the diagnostic.

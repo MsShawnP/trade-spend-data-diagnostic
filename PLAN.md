@@ -7,9 +7,8 @@ session. For session-by-session state, see HANDOFF.md.
 
 ## Current arc
 
-No active arc. All five planned arcs are complete. Post-arc refinement
-work has been done on the workbook and Power BI deliverables — see
-arc history below and HANDOFF.md for session details.
+No active arc. All five planned arcs are complete. Project is shipped
+and live on GitHub. See arc history below and HANDOFF.md for details.
 
 ---
 

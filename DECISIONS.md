@@ -61,6 +61,17 @@ Each entry:
   stays — it's portable, free, and works offline. The platform is the
   upstream; SQLite is the local format.
 
+### 2026-05-17 — Reset master to SQLite after conflicting Postgres migration
+- **Why:** A prior session migrated the diagnostic to Postgres (`stg_*` tables,
+  psycopg2, `DATABASE_URL`). This contradicted the explicit decision to keep
+  SQLite for portability. Master was reset to the SQLite-based worktree branch;
+  writing artifacts recovered selectively. The Postgres code is preserved at
+  `backup/master-before-reset` but is not the active architecture.
+- **Scope:** Global — project architecture, all code paths
+- **Do not:** Re-attempt a Postgres migration for this project. The platform is
+  upstream; SQLite is the distribution format. If the data needs refreshing,
+  re-export from platform to SQLite.
+
 ### 2026-05-17 — Remove Power BI from all projects
 - **Why:** User decision. Power BI deliverables dropped across all
   Lailara projects. The powerbi/ directory and all references removed.
