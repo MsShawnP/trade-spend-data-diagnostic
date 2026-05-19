@@ -34,8 +34,7 @@ CHANNEL_RATE_COLS = {
 }
 
 REGIONAL_RETAILERS = [
-    "Green Basket Market", "Southside Grocers",
-    "Prairie Provisions", "Mountain Pantry Co", "Harbor Fresh",
+    "Kroger", "Sprouts", "Regional Group",
 ]
 
 TABLE_STYLE = TableStyleInfo(
