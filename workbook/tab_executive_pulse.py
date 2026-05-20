@@ -14,6 +14,9 @@ from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_LEFT,
     ALIGN_RIGHT,
+    BORDER_SECTION,
+    CHICAGO_20,
+    FILL_HEADER,
     FONT_BODY,
     FONT_HEADER,
     FONT_KPI_LABEL,
@@ -21,8 +24,15 @@ from workbook.styles import (
     FONT_NAV,
     FONT_SECTION,
     FONT_SMALL,
+    FONT_TABLE_HEADER,
+    HK_35,
+    LONDON_35,
+    LONDON_5,
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
+    SANS,
+    SINGAPORE_55,
+    TOKYO_40,
 )
 
 CATEGORY_TO_DEPT = {
@@ -47,7 +57,7 @@ NAV_TABS = [
 ]
 
 TABLE_STYLE = TableStyleInfo(
-    name="TableStyleMedium2", showFirstColumn=False,
+    name="TableStyleLight1", showFirstColumn=False,
     showLastColumn=False, showRowStripes=True, showColumnStripes=False,
 )
 
@@ -174,12 +184,11 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
 
     ws.merge_cells("B7:F7")
     ws["B7"] = "You budgeted 17%. You're spending 21%. The extra 4 points is operational waste."
-    ws["B7"].font = Font(name="Calibri", size=11, italic=True)
+    ws["B7"].font = Font(name=SANS, size=11, italic=True, color=LONDON_35)
     ws["B7"].alignment = ALIGN_LEFT
 
-    section_sep = Border(bottom=Side(style="thin", color="CCCCCC"))
     for col in range(2, 7):
-        ws.cell(row=8, column=col).border = section_sep
+        ws.cell(row=8, column=col).border = BORDER_SECTION
 
     # --- Hidden source data (rows 10-14) for named ranges ---
     ws.cell(row=9, column=2, value="Waterfall: Revenue to Net-After-Trade").font = FONT_SECTION
@@ -206,10 +215,10 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
 
     # --- In-cell waterfall (rows 16-19) ---
     waterfall_visible = [
-        ("Revenue", f"=D{chart_start + 1}", "2F5496"),
-        ("Structural Trade", f"=D{chart_start + 2}", "ED7D31"),
-        ("Operational Waste", f"=D{chart_start + 3}", "C00000"),
-        ("Net After Trade", f"=D{chart_start + 4}", "2F5496"),
+        ("Revenue", f"=D{chart_start + 1}", CHICAGO_20),
+        ("Structural Trade", f"=D{chart_start + 2}", SINGAPORE_55),
+        ("Operational Waste", f"=D{chart_start + 3}", TOKYO_40),
+        ("Net After Trade", f"=D{chart_start + 4}", HK_35),
     ]
     for i, (label, formula, color) in enumerate(waterfall_visible):
         r = 16 + i
@@ -228,7 +237,7 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
         )
 
     for col in range(2, 7):
-        ws.cell(row=21, column=col).border = section_sep
+        ws.cell(row=21, column=col).border = BORDER_SECTION
 
     # --- Addressable Improvement (rows 22-30) ---
     ws.cell(row=22, column=2, value="Addressable Improvement").font = FONT_SECTION
@@ -264,7 +273,7 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
     ws.add_table(imp_table)
 
     for col in range(2, 7):
-        ws.cell(row=imp_end_row + 1, column=col).border = section_sep
+        ws.cell(row=imp_end_row + 1, column=col).border = BORDER_SECTION
 
     # --- Responsibility Matrix (rows 32+) ---
     resp_title_row = imp_end_row + 2

@@ -20,8 +20,12 @@ from workbook.styles import (
     FONT_HEADER,
     FONT_SECTION,
     FONT_SMALL,
+    HK_35,
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
+    SANS,
+    SINGAPORE_55,
+    TOKYO_40,
 )
 
 CHANNEL_RATE_COLS = {
@@ -38,7 +42,7 @@ REGIONAL_RETAILERS = [
 ]
 
 TABLE_STYLE = TableStyleInfo(
-    name="TableStyleMedium2", showFirstColumn=False,
+    name="TableStyleLight1", showFirstColumn=False,
     showLastColumn=False, showRowStripes=True, showColumnStripes=False,
 )
 
@@ -173,7 +177,7 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
     ]
     for c, h in enumerate(headers, 2):
         cell = ws.cell(row=row, column=c, value=h)
-        cell.font = Font(name="Calibri", size=10, bold=True)
+        cell.font = Font(name=SANS, size=10, bold=True)
         cell.alignment = ALIGN_CENTER
 
     table_start = row + 1
@@ -238,9 +242,9 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
     ws.conditional_formatting.add(
         margin_range,
         ColorScaleRule(
-            start_type="num", start_value=0, start_color="FFC7CE",
-            mid_type="num", mid_value=0.25, mid_color="FFEB9C",
-            end_type="num", end_value=0.5, end_color="C6EFCE",
+            start_type="num", start_value=0, start_color=TOKYO_40,
+            mid_type="num", mid_value=0.25, mid_color=SINGAPORE_55,
+            end_type="num", end_value=0.5, end_color=HK_35,
         ),
     )
 
@@ -283,7 +287,7 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
                       "Trade at Target", "Current Trade", "Annual Savings", "What-If Margin"]
     for c, h in enumerate(whatif_headers, 2):
         cell = ws.cell(row=whatif_row, column=c, value=h)
-        cell.font = Font(name="Calibri", size=10, bold=True)
+        cell.font = Font(name=SANS, size=10, bold=True)
         cell.alignment = ALIGN_CENTER
 
     dv = DataValidation(type="decimal", operator="between", formula1="0", formula2="0.5")

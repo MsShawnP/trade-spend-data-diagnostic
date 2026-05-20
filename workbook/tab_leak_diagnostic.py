@@ -15,13 +15,17 @@ from openpyxl.worksheet.worksheet import Worksheet
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_RIGHT,
+    FILL_BAD,
+    FILL_GOOD,
     FILL_INPUT,
+    FILL_WARN,
     FONT_BODY,
     FONT_HEADER,
     FONT_SECTION,
     FONT_SMALL,
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
+    SANS,
 )
 
 RECOVERABILITY = {
@@ -36,7 +40,7 @@ RECOVERABILITY = {
 }
 
 TABLE_STYLE = TableStyleInfo(
-    name="TableStyleMedium2", showFirstColumn=False,
+    name="TableStyleLight1", showFirstColumn=False,
     showLastColumn=False, showRowStripes=True, showColumnStripes=False,
 )
 
@@ -121,7 +125,7 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     headers = ["Category", "Count", "Total Amount", "% of Waste", "Avg Days to Resolve", "Recoverability"]
     for c, h in enumerate(headers, 2):
         cell = ws.cell(row=row, column=c, value=h)
-        cell.font = Font(name="Calibri", size=11, bold=True)
+        cell.font = Font(name=SANS, size=11, bold=True)
         cell.alignment = ALIGN_CENTER
 
     table_start_row = row + 1
@@ -154,30 +158,27 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     recov_range = f"G{table_start_row}:G{table_end_row}"
     ws.conditional_formatting.add(
         recov_range,
-        CellIsRule(operator="equal", formula=['"High"'],
-                   fill=PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")),
+        CellIsRule(operator="equal", formula=['"High"'], fill=FILL_GOOD),
     )
     ws.conditional_formatting.add(
         recov_range,
-        CellIsRule(operator="equal", formula=['"Medium"'],
-                   fill=PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")),
+        CellIsRule(operator="equal", formula=['"Medium"'], fill=FILL_WARN),
     )
     ws.conditional_formatting.add(
         recov_range,
-        CellIsRule(operator="equal", formula=['"Low"'],
-                   fill=PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")),
+        CellIsRule(operator="equal", formula=['"Low"'], fill=FILL_BAD),
     )
 
     # Totals row (outside table)
     totals_row = table_end_row + 1
-    ws.cell(row=totals_row, column=2, value="Total").font = Font(name="Calibri", size=11, bold=True)
+    ws.cell(row=totals_row, column=2, value="Total").font = Font(name=SANS, size=11, bold=True)
     c_tcnt = ws.cell(row=totals_row, column=3, value=sum(r[1] for r in data["categories"]))
     c_tcnt.alignment = ALIGN_RIGHT
-    c_tcnt.font = Font(name="Calibri", size=11, bold=True)
+    c_tcnt.font = Font(name=SANS, size=11, bold=True)
     c_tamt = ws.cell(row=totals_row, column=4, value=data["operational_waste"])
     c_tamt.number_format = NUM_FMT_DOLLAR
     c_tamt.alignment = ALIGN_RIGHT
-    c_tamt.font = Font(name="Calibri", size=11, bold=True)
+    c_tamt.font = Font(name=SANS, size=11, bold=True)
 
     # --- Double-dip alert (compact — no chart gap) ---
     dd_row = totals_row + 2
@@ -194,7 +195,7 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     dd_headers = ["Deduction ID", "Retailer", "Amount", "Date", "Type"]
     for c, h in enumerate(dd_headers, 2):
         cell = ws.cell(row=dd_row, column=c, value=h)
-        cell.font = Font(name="Calibri", size=11, bold=True)
+        cell.font = Font(name=SANS, size=11, bold=True)
 
     for i, (ded_id, retailer, amount, ded_date, dtype) in enumerate(data["double_dips"]):
         r = dd_row + 1 + i

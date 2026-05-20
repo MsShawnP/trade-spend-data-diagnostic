@@ -11,8 +11,11 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.styles import (
     ALIGN_CENTER,
+    FILL_GOOD,
+    FILL_WARN,
     FONT_HEADER,
     FONT_SMALL,
+    SANS,
 )
 
 COLUMNS = [
@@ -59,7 +62,7 @@ def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
 
     # --- Column headers (row 4) ---
     header_row = 4
-    header_font = Font(name="Calibri", size=10, bold=True)
+    header_font = Font(name=SANS, size=10, bold=True)
 
     for c, (name, width) in enumerate(COLUMNS, 1):
         cell = ws.cell(row=header_row, column=c, value=name)
@@ -89,7 +92,7 @@ def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
     table_ref = f"A{header_row}:{last_col}{table_end}"
 
     style = TableStyleInfo(
-        name="TableStyleMedium2", showFirstColumn=False,
+        name="TableStyleLight1", showFirstColumn=False,
         showLastColumn=False, showRowStripes=True, showColumnStripes=False,
     )
     table = Table(displayName="tbl_CodeCrosswalk", ref=table_ref)
@@ -100,11 +103,9 @@ def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
     status_range = f"E{header_row + 1}:E{table_end}"
     ws.conditional_formatting.add(
         status_range,
-        CellIsRule(operator="equal", formula=['"Verified"'],
-                   fill=PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")),
+        CellIsRule(operator="equal", formula=['"Verified"'], fill=FILL_GOOD),
     )
     ws.conditional_formatting.add(
         status_range,
-        CellIsRule(operator="equal", formula=['"Inferred"'],
-                   fill=PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")),
+        CellIsRule(operator="equal", formula=['"Inferred"'], fill=FILL_WARN),
     )

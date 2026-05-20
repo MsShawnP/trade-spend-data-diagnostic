@@ -15,20 +15,24 @@ from openpyxl.worksheet.worksheet import Worksheet
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_RIGHT,
+    FILL_BAD,
+    FILL_GOOD,
     FILL_INPUT,
+    FILL_WARN,
     FONT_BODY,
     FONT_HEADER,
     FONT_SECTION,
     FONT_SMALL,
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
+    SANS,
 )
 
 _HELPER_COL_START = 27
 _MAX_WINDOW = 12
 
 TABLE_STYLE = TableStyleInfo(
-    name="TableStyleMedium2", showFirstColumn=False,
+    name="TableStyleLight1", showFirstColumn=False,
     showLastColumn=False, showRowStripes=True, showColumnStripes=False,
 )
 
@@ -277,7 +281,7 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
     ]
     for c, h in enumerate(headers, 2):
         cell = ws.cell(row=table_header_row, column=c, value=h)
-        cell.font = Font(name="Calibri", size=10, bold=True)
+        cell.font = Font(name=SANS, size=10, bold=True)
         cell.alignment = ALIGN_CENTER
 
     ws.freeze_panes = f"B{table_header_row + 1}"
@@ -396,33 +400,27 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
     qual_range = f"Q{table_header_row + 1}:Q{table_end_row}"
     ws.conditional_formatting.add(
         qual_range,
-        CellIsRule(operator="equal", formula=['"Full"'],
-                   fill=PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")),
+        CellIsRule(operator="equal", formula=['"Full"'], fill=FILL_GOOD),
     )
     ws.conditional_formatting.add(
         qual_range,
-        CellIsRule(operator="equal", formula=['"Partial"'],
-                   fill=PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")),
+        CellIsRule(operator="equal", formula=['"Partial"'], fill=FILL_WARN),
     )
     ws.conditional_formatting.add(
         qual_range,
-        CellIsRule(operator="equal", formula=['"No POS"'],
-                   fill=PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")),
+        CellIsRule(operator="equal", formula=['"No POS"'], fill=FILL_BAD),
     )
 
-    # Conditional formatting on ROI (col O = 15): <1 red first, ≥1 green second
     roi_range = f"O{table_header_row + 1}:O{table_end_row}"
     ws.conditional_formatting.add(
         roi_range,
         CellIsRule(operator="lessThan", formula=["1"],
-                   stopIfTrue=True,
-                   fill=PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")),
+                   stopIfTrue=True, fill=FILL_BAD),
     )
     ws.conditional_formatting.add(
         roi_range,
         CellIsRule(operator="greaterThanOrEqual", formula=["1"],
-                   stopIfTrue=True,
-                   fill=PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")),
+                   stopIfTrue=True, fill=FILL_GOOD),
     )
 
     # --- Ghost promos section ---
@@ -440,7 +438,7 @@ def build_promo_efficacy(ws: Worksheet, db_path: Path) -> None:
     ghost_headers = ["Deduction ID", "Retailer", "Amount", "Date"]
     for c, h in enumerate(ghost_headers, 2):
         cell = ws.cell(row=ghost_row, column=c, value=h)
-        cell.font = Font(name="Calibri", size=10, bold=True)
+        cell.font = Font(name=SANS, size=10, bold=True)
 
     for i, (ded_id, retailer, amount, ded_date) in enumerate(data["ghosts"]):
         r = ghost_row + 1 + i

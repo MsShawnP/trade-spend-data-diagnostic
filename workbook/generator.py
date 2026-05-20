@@ -15,13 +15,13 @@ from workbook.tab_retailer_risk import build_retailer_risk
 
 
 TAB_SPEC = [
-    ("Executive Pulse", "00B050"),
-    ("Leak Diagnostic", "00B050"),
-    ("Promo Efficacy", "00B050"),
-    ("Retailer Risk", "00B050"),
-    ("Deduction Ledger", "4472C4"),
-    ("Deduction Code Crosswalk", "A5A5A5"),
-    ("Methodology & Logic", "A5A5A5"),
+    ("Executive Pulse", "1f2e7a"),
+    ("Leak Diagnostic", "1f2e7a"),
+    ("Promo Efficacy", "1f2e7a"),
+    ("Retailer Risk", "1f2e7a"),
+    ("Deduction Ledger", "158f75"),
+    ("Deduction Code Crosswalk", "b3b3b3"),
+    ("Methodology & Logic", "b3b3b3"),
 ]
 
 

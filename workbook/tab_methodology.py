@@ -6,11 +6,11 @@ from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from workbook.styles import FONT_HEADER, FONT_SECTION, FONT_SMALL
+from workbook.styles import FONT_HEADER, FONT_SECTION, FONT_SMALL, LONDON_20, SANS
 
-_BODY_FONT = Font(name="Calibri", size=11)
+_BODY_FONT = Font(name=SANS, size=11, color=LONDON_20)
 _WRAP = Alignment(vertical="top", wrap_text=True)
-_LABEL_FONT = Font(name="Calibri", size=11, bold=True)
+_LABEL_FONT = Font(name=SANS, size=11, bold=True, color=LONDON_20)
 
 
 def _write_section(ws: Worksheet, row: int, title: str) -> int:

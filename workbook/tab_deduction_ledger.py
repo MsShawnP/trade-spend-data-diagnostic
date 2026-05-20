@@ -109,7 +109,8 @@ def build_deduction_ledger(ws: Worksheet, db_path: Path) -> None:
 
     # --- Column headers (row 4) ---
     header_row = 4
-    header_font = Font(name="Calibri", size=10, bold=True)
+    from workbook.styles import SANS
+    header_font = Font(name=SANS, size=10, bold=True)
 
     for c, (name, width) in enumerate(COLUMNS, 1):
         cell = ws.cell(row=header_row, column=c, value=name)
@@ -146,7 +147,7 @@ def build_deduction_ledger(ws: Worksheet, db_path: Path) -> None:
     table_ref = f"A{header_row}:{last_col}{table_end}"
 
     style = TableStyleInfo(
-        name="TableStyleMedium2", showFirstColumn=False,
+        name="TableStyleLight1", showFirstColumn=False,
         showLastColumn=False, showRowStripes=True, showColumnStripes=False,
     )
     table = Table(displayName="tbl_DeductionLedger", ref=table_ref)
