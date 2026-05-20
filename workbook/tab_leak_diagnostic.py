@@ -1,17 +1,19 @@
 """Tab 2: Leak Diagnostic — where the operational waste is and what's recoverable."""
 
+import contextlib
 import sqlite3
 from datetime import date
 from pathlib import Path
 
 from openpyxl.comments import Comment
 from openpyxl.formatting.rule import CellIsRule
-from openpyxl.styles import Font, PatternFill, Protection
+from openpyxl.styles import Font, Protection
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.queries import get_trailing_bounds
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_RIGHT,
@@ -26,6 +28,7 @@ from workbook.styles import (
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
     SANS,
+    TABLE_STYLE,
 )
 
 RECOVERABILITY = {
@@ -39,61 +42,49 @@ RECOVERABILITY = {
     "pallet_fine": "Low",
 }
 
-TABLE_STYLE = TableStyleInfo(
-    name="TableStyleLight1", showFirstColumn=False,
-    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-)
-
 
 def _query_data(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+    with contextlib.closing(sqlite3.connect(db_path)) as conn:
+        oldest_week, max_scan = get_trailing_bounds(conn)
 
-    weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
-    ).fetchall()
-    oldest_week = weeks[-1][0]
-    max_scan = weeks[0][0]
+        categories = conn.execute("""
+            SELECT
+                d.deduction_type,
+                COUNT(*) as cnt,
+                SUM(d.amount) as total,
+                AVG(
+                    CASE WHEN dis.closed_date IS NOT NULL
+                         THEN julianday(dis.closed_date) - julianday(d.deduction_date)
+                    END
+                ) as avg_days
+            FROM deductions d
+            LEFT JOIN disputes dis ON dis.deduction_id = d.deduction_id
+            WHERE d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?
+              AND d.deduction_type != 'promo_billback'
+            GROUP BY d.deduction_type
+            ORDER BY SUM(d.amount) DESC
+        """, (max_scan, max_scan)).fetchall()
 
-    categories = conn.execute("""
-        SELECT
-            d.deduction_type,
-            COUNT(*) as cnt,
-            SUM(d.amount) as total,
-            AVG(
-                CASE WHEN dis.closed_date IS NOT NULL
-                     THEN julianday(dis.closed_date) - julianday(d.deduction_date)
-                END
-            ) as avg_days
-        FROM deductions d
-        LEFT JOIN disputes dis ON dis.deduction_id = d.deduction_id
-        WHERE d.deduction_date > date(?, '-365 days') AND d.deduction_date <= ?
-          AND d.deduction_type != 'promo_billback'
-        GROUP BY d.deduction_type
-        ORDER BY SUM(d.amount) DESC
-    """, (max_scan, max_scan)).fetchall()
+        operational_waste = sum(r[2] for r in categories)
 
-    operational_waste = sum(r[2] for r in categories)
+        double_dips = conn.execute("""
+            SELECT deduction_id, retailer_id, amount, deduction_date, deduction_type
+            FROM deductions
+            WHERE is_double_dip = 1
+            ORDER BY amount DESC
+        """).fetchall()
 
-    double_dips = conn.execute("""
-        SELECT deduction_id, retailer_id, amount, deduction_date, deduction_type
-        FROM deductions
-        WHERE is_double_dip = 1
-        ORDER BY amount DESC
-    """).fetchall()
-
-    recovery = conn.execute("""
-        SELECT COUNT(*), SUM(recovered_amount)
-        FROM disputes
-    """).fetchone()
-
-    conn.close()
+        recovery = conn.execute("""
+            SELECT COUNT(*), SUM(recovered_amount)
+            FROM disputes
+        """).fetchone()
 
     return {
         "categories": categories,
         "operational_waste": operational_waste,
         "double_dips": double_dips,
         "dispute_count": recovery[0],
-        "total_recovered": recovery[1],
+        "total_recovered": recovery[1] or 0.0,
         "oldest_week": oldest_week,
         "max_scan": max_scan,
     }
@@ -132,7 +123,7 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     for i, (dtype, cnt, total, avg_days) in enumerate(data["categories"]):
         r = table_start_row + i
         label = dtype.replace("_", " ").title()
-        pct = total / data["operational_waste"]
+        pct = total / data["operational_waste"] if data["operational_waste"] else 0
         recov = RECOVERABILITY.get(dtype, "Low")
 
         ws.cell(row=r, column=2, value=label)
@@ -149,25 +140,24 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
 
     table_end_row = table_start_row + len(data["categories"]) - 1
 
-    # Excel Table for category breakdown
-    cat_table = Table(displayName="tbl_WasteByCategory", ref=f"B{row}:G{table_end_row}")
-    cat_table.tableStyleInfo = TABLE_STYLE
-    ws.add_table(cat_table)
+    if data["categories"]:
+        cat_table = Table(displayName="tbl_WasteByCategory", ref=f"B{row}:G{table_end_row}")
+        cat_table.tableStyleInfo = TABLE_STYLE
+        ws.add_table(cat_table)
 
-    # Conditional formatting on recoverability column
-    recov_range = f"G{table_start_row}:G{table_end_row}"
-    ws.conditional_formatting.add(
-        recov_range,
-        CellIsRule(operator="equal", formula=['"High"'], fill=FILL_GOOD),
-    )
-    ws.conditional_formatting.add(
-        recov_range,
-        CellIsRule(operator="equal", formula=['"Medium"'], fill=FILL_WARN),
-    )
-    ws.conditional_formatting.add(
-        recov_range,
-        CellIsRule(operator="equal", formula=['"Low"'], fill=FILL_BAD),
-    )
+        recov_range = f"G{table_start_row}:G{table_end_row}"
+        ws.conditional_formatting.add(
+            recov_range,
+            CellIsRule(operator="equal", formula=['"High"'], fill=FILL_GOOD),
+        )
+        ws.conditional_formatting.add(
+            recov_range,
+            CellIsRule(operator="equal", formula=['"Medium"'], fill=FILL_WARN),
+        )
+        ws.conditional_formatting.add(
+            recov_range,
+            CellIsRule(operator="equal", formula=['"Low"'], fill=FILL_BAD),
+        )
 
     # Totals row (outside table)
     totals_row = table_end_row + 1
@@ -180,7 +170,7 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     c_tamt.alignment = ALIGN_RIGHT
     c_tamt.font = Font(name=SANS, size=11, bold=True)
 
-    # --- Double-dip alert (compact — no chart gap) ---
+    # --- Double-dip alert ---
     dd_row = totals_row + 2
     ws.cell(row=dd_row, column=2, value="Double-Dip Alert").font = FONT_SECTION
 
@@ -214,7 +204,6 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
 
     dd_end_row = dd_row + len(data["double_dips"])
 
-    # Excel Table for double-dips
     if data["double_dips"]:
         dd_table = Table(displayName="tbl_DoubleDips", ref=f"B{dd_header_row}:F{dd_end_row}")
         dd_table.tableStyleInfo = TABLE_STYLE
@@ -236,7 +225,7 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
         "Cells below will recalculate automatically.",
         "System", width=250, height=60,
     )
-    input_ref = f"C{recov_row}"
+    input_ref = f"$C${recov_row}"
 
     dv = DataValidation(type="decimal", operator="between", formula1="0", formula2="1")
     dv.error = "Please enter a value between 0% and 100%"
@@ -250,12 +239,14 @@ def build_leak_diagnostic(ws: Worksheet, db_path: Path) -> None:
     ws.cell(row=recov_row, column=3, value=data["operational_waste"]).number_format = NUM_FMT_DOLLAR
 
     recov_row += 1
-    ws.cell(row=recov_row, column=2, value="Current recovery (19.8%):").font = FONT_BODY
-    ws.cell(row=recov_row, column=3, value=data["total_recovered"]).number_format = NUM_FMT_DOLLAR
+    recovered = data["total_recovered"]
+    actual_rate = recovered / data["operational_waste"] if data["operational_waste"] else 0
+    ws.cell(row=recov_row, column=2, value=f"Current recovery ({actual_rate:.1%}):").font = FONT_BODY
+    ws.cell(row=recov_row, column=3, value=recovered).number_format = NUM_FMT_DOLLAR
 
     recov_row += 1
     ws.cell(row=recov_row, column=2, value="Recovery at target rate:").font = FONT_BODY
-    ws.cell(row=recov_row, column=3, value=f"=C{waste_cell_row}*{input_ref}").number_format = NUM_FMT_DOLLAR
+    ws.cell(row=recov_row, column=3, value=f"=$C${waste_cell_row}*{input_ref}").number_format = NUM_FMT_DOLLAR
 
     recov_row += 1
     ws.cell(row=recov_row, column=2, value="Incremental opportunity:").font = FONT_BODY

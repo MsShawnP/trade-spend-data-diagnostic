@@ -1,9 +1,12 @@
 """Shared workbook styles — Lailara Design System v2."""
 
-from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.worksheet.table import TableStyleInfo
 
+SERIF = "Playfair Display"
 SANS = "Source Sans 3"
 
+# --- Lailara palette (complete) ---
 CHICAGO_20 = "1f2e7a"
 CHICAGO_10 = "141e52"
 CHICAGO_70 = "8e9ad0"
@@ -24,34 +27,44 @@ LONDON_35 = "595959"
 LONDON_70 = "b3b3b3"
 LONDON_85 = "d9d9d9"
 
-FONT_HEADER = Font(name=SANS, size=14, bold=True, color=LONDON_5)
-FONT_SECTION = Font(name=SANS, size=12, bold=True, color=LONDON_5)
-FONT_KPI_VALUE = Font(name=SANS, size=18, bold=True, color=CHICAGO_20)
+# --- Fonts (Playfair Display for editorial, Source Sans 3 for functional) ---
+FONT_HEADER = Font(name=SERIF, size=16, bold=True, color=LONDON_5)
+FONT_SECTION = Font(name=SERIF, size=13, bold=True, color=LONDON_5)
+FONT_KPI_VALUE = Font(name=SERIF, size=20, bold=True, color=CHICAGO_20)
 FONT_KPI_LABEL = Font(name=SANS, size=11, color=LONDON_35)
 FONT_BODY = Font(name=SANS, size=11, color=LONDON_20)
 FONT_SMALL = Font(name=SANS, size=10, italic=True, color=LONDON_35)
 FONT_NAV = Font(name=SANS, size=10, underline="single", color=CHICAGO_20)
 FONT_TABLE_HEADER = Font(name=SANS, size=11, bold=True, color="FFFFFF")
 
+# --- Fills ---
 FILL_HEADER = PatternFill(start_color=CHICAGO_20, end_color=CHICAGO_20, fill_type="solid")
 FILL_INPUT = PatternFill(start_color=SINGAPORE_95, end_color=SINGAPORE_95, fill_type="solid")
-FILL_ROW_ALT = PatternFill(start_color=CHICAGO_95, end_color=CHICAGO_95, fill_type="solid")
-
 FILL_GOOD = PatternFill(start_color=HK_95, end_color=HK_95, fill_type="solid")
 FILL_WARN = PatternFill(start_color=SINGAPORE_95, end_color=SINGAPORE_95, fill_type="solid")
 FILL_BAD = PatternFill(start_color=TOKYO_95, end_color=TOKYO_95, fill_type="solid")
 
+# --- Alignment ---
 ALIGN_CENTER = Alignment(horizontal="center", vertical="center")
 ALIGN_LEFT = Alignment(horizontal="left", vertical="center", wrap_text=True)
 ALIGN_RIGHT = Alignment(horizontal="right", vertical="center")
 
-BORDER_THIN = Border(
-    left=Side(style="thin", color=LONDON_85),
-    right=Side(style="thin", color=LONDON_85),
-    top=Side(style="thin", color=LONDON_85),
-    bottom=Side(style="thin", color=LONDON_85),
-)
+# --- Borders ---
 BORDER_SECTION = Border(bottom=Side(style="thin", color=LONDON_85))
 
+# --- Number formats ---
 NUM_FMT_DOLLAR = '#,##0'
 NUM_FMT_PCT = '0.0%'
+
+# --- Table style ---
+TABLE_STYLE = TableStyleInfo(
+    name="TableStyleLight1", showFirstColumn=False,
+    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
+)
+
+# --- Tab names (canonical order, used by generator and nav links) ---
+TAB_NAMES = (
+    "Executive Pulse", "Leak Diagnostic", "Promo Efficacy",
+    "Retailer Risk", "Deduction Ledger", "Deduction Code Crosswalk",
+    "Methodology & Logic",
+)

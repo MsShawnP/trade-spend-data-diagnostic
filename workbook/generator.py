@@ -5,6 +5,7 @@ from pathlib import Path
 from openpyxl import Workbook
 from openpyxl.workbook.defined_name import DefinedName
 
+from workbook.styles import TAB_NAMES
 from workbook.tab_code_crosswalk import build_code_crosswalk
 from workbook.tab_deduction_ledger import build_deduction_ledger
 from workbook.tab_executive_pulse import build_executive_pulse
@@ -13,20 +14,23 @@ from workbook.tab_methodology import build_methodology
 from workbook.tab_promo_efficacy import build_promo_efficacy
 from workbook.tab_retailer_risk import build_retailer_risk
 
-
 TAB_SPEC = [
-    ("Executive Pulse", "1f2e7a"),
-    ("Leak Diagnostic", "1f2e7a"),
-    ("Promo Efficacy", "1f2e7a"),
-    ("Retailer Risk", "1f2e7a"),
-    ("Deduction Ledger", "158f75"),
-    ("Deduction Code Crosswalk", "b3b3b3"),
-    ("Methodology & Logic", "b3b3b3"),
+    (TAB_NAMES[0], "1f2e7a"),
+    (TAB_NAMES[1], "1f2e7a"),
+    (TAB_NAMES[2], "1f2e7a"),
+    (TAB_NAMES[3], "1f2e7a"),
+    (TAB_NAMES[4], "158f75"),
+    (TAB_NAMES[5], "b3b3b3"),
+    (TAB_NAMES[6], "b3b3b3"),
 ]
 
 
 def _add_named_ranges(wb: Workbook) -> None:
-    """Define named ranges for key metrics referenced by other tools."""
+    """Define named ranges for key metrics referenced by other tools.
+
+    Cell addresses are coupled to the layout in tab_executive_pulse.py.
+    If the waterfall section moves, these must be updated to match.
+    """
     ranges = {
         "AllInTradeRate": "'Executive Pulse'!$B$5",
         "StructuralTradeRate": "'Executive Pulse'!$C$5",
@@ -36,12 +40,6 @@ def _add_named_ranges(wb: Workbook) -> None:
         "OperationalWaste": "'Executive Pulse'!$D$13",
         "AllInTradeCost": "'Executive Pulse'!$D$12+'Executive Pulse'!$D$13",
         "RecoveryRate": "'Executive Pulse'!$C$25",
-        "KPI_AllInTradeRate": "'Executive Pulse'!$B$5",
-        "KPI_PlannedTradeRate": "'Executive Pulse'!$C$5",
-        "KPI_OperationalWaste": "'Executive Pulse'!$D$5",
-        "KPI_Revenue": "'Executive Pulse'!$D$11",
-        "KPI_StructuralTrade": "'Executive Pulse'!$D$12",
-        "KPI_OpWasteAmount": "'Executive Pulse'!$D$13",
     }
     for name, ref in ranges.items():
         dn = DefinedName(name, attr_text=ref)
@@ -62,6 +60,9 @@ def _set_print_areas(wb: Workbook) -> None:
 
 
 def generate_workbook(db_path: Path, output_path: Path) -> Path:
+    if not db_path.exists():
+        raise FileNotFoundError(f"Database not found: {db_path}")
+
     wb = Workbook()
     wb.remove(wb.active)
 
@@ -80,7 +81,6 @@ def generate_workbook(db_path: Path, output_path: Path) -> Path:
     _add_named_ranges(wb)
     _set_print_areas(wb)
 
-    # Set active sheet to Tab 1
     wb.active = wb.sheetnames.index("Executive Pulse")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

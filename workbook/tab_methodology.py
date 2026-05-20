@@ -3,14 +3,12 @@
 from datetime import date
 
 from openpyxl.styles import Alignment, Font
-from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from workbook.styles import FONT_HEADER, FONT_SECTION, FONT_SMALL, LONDON_20, SANS
+from workbook.styles import FONT_BODY, FONT_HEADER, FONT_SECTION, FONT_SMALL, LONDON_20, SANS
 
-_BODY_FONT = Font(name=SANS, size=11, color=LONDON_20)
-_WRAP = Alignment(vertical="top", wrap_text=True)
 _LABEL_FONT = Font(name=SANS, size=11, bold=True, color=LONDON_20)
+_WRAP = Alignment(vertical="top", wrap_text=True)
 
 
 def _write_section(ws: Worksheet, row: int, title: str) -> int:
@@ -20,7 +18,7 @@ def _write_section(ws: Worksheet, row: int, title: str) -> int:
 
 def _write_body(ws: Worksheet, row: int, text: str) -> int:
     cell = ws.cell(row=row, column=1, value=text)
-    cell.font = _BODY_FONT
+    cell.font = FONT_BODY
     cell.alignment = _WRAP
     return row + 1
 
@@ -30,7 +28,7 @@ def _write_pair(ws: Worksheet, row: int, label: str, text: str) -> int:
     c1.font = _LABEL_FONT
     c1.alignment = Alignment(vertical="top")
     c2 = ws.cell(row=row, column=2, value=text)
-    c2.font = _BODY_FONT
+    c2.font = FONT_BODY
     c2.alignment = _WRAP
     return row + 1
 

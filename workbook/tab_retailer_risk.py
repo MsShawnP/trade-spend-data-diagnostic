@@ -1,5 +1,6 @@
 """Tab 4: Retailer Risk — net-net margin by retailer with what-if scenarios."""
 
+import contextlib
 import sqlite3
 from datetime import date
 from pathlib import Path
@@ -9,9 +10,15 @@ from openpyxl.formatting.rule import ColorScaleRule
 from openpyxl.styles import Font, Protection
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.queries import (
+    CHANNEL_RATE_COLS,
+    fetch_channel_rates,
+    get_trailing_bounds,
+    retailer_key,
+)
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_RIGHT,
@@ -25,101 +32,81 @@ from workbook.styles import (
     NUM_FMT_PCT,
     SANS,
     SINGAPORE_55,
+    TABLE_STYLE,
     TOKYO_40,
 )
-
-CHANNEL_RATE_COLS = {
-    "Walmart": "trade_spend_pct_walmart",
-    "Costco": "trade_spend_pct_costco",
-    "Whole Foods": "trade_spend_pct_whole_foods",
-    "UNFI": "trade_spend_pct_unfi",
-    "DTC": "trade_spend_pct_dtc",
-    "KeHE": "trade_spend_pct_kehe",
-}
 
 REGIONAL_RETAILERS = [
     "Kroger", "Sprouts", "Regional Group",
 ]
 
-TABLE_STYLE = TableStyleInfo(
-    name="TableStyleLight1", showFirstColumn=False,
-    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-)
-
 
 def _query_retailer_data(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+    with contextlib.closing(sqlite3.connect(db_path)) as conn:
+        oldest_week, max_scan = get_trailing_bounds(conn)
 
-    weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
-    ).fetchall()
-    oldest_week = weeks[-1][0]
-    max_scan = weeks[0][0]
+        rev_rows = conn.execute("""
+            SELECT s.retailer, SUM(sd.dollars_sold)
+            FROM scan_data sd JOIN stores s ON sd.store_id = s.store_id
+            WHERE sd.week_ending >= ?
+            GROUP BY s.retailer
+        """, (oldest_week,)).fetchall()
+        revenue_map = dict(rev_rows)
+        total_revenue = sum(revenue_map.values())
 
-    rev_rows = conn.execute("""
-        SELECT s.retailer, SUM(sd.dollars_sold)
-        FROM scan_data sd JOIN stores s ON sd.store_id = s.store_id
-        WHERE sd.week_ending >= ?
-        GROUP BY s.retailer
-    """, (oldest_week,)).fetchall()
-    revenue_map = dict(rev_rows)
-    total_revenue = sum(revenue_map.values())
+        rates, regional_rate = fetch_channel_rates(conn)
 
-    rates = {}
-    for channel, col in CHANNEL_RATE_COLS.items():
-        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
+        gm_map: dict[str, float] = {}
+        for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
+                              ("Whole Foods", "wholesale_whole_foods"), ("UNFI", "wholesale_unfi"),
+                              ("DTC", "wholesale_dtc"), ("KeHE", "wholesale_kehe"),
+                              ("Regional", "wholesale_regional")]:
+            r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM sku_costs").fetchone()
+            if r[0] is not None and r[1]:
+                gm_map[channel] = (r[1] - r[0]) / r[1]
+            else:
+                gm_map[channel] = 0
 
-    gm_map = {}
-    for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
-                          ("Whole Foods", "wholesale_whole_foods"), ("UNFI", "wholesale_unfi"),
-                          ("DTC", "wholesale_dtc"), ("KeHE", "wholesale_kehe"),
-                          ("Regional", "wholesale_regional")]:
-        r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM sku_costs").fetchone()
-        gm_map[channel] = (r[1] - r[0]) / r[1] if r[1] else 0
+        op_ded_rows = conn.execute("""
+            SELECT retailer_id, SUM(amount)
+            FROM deductions
+            WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+              AND deduction_type != 'promo_billback'
+            GROUP BY retailer_id
+        """, (max_scan, max_scan)).fetchall()
+        op_ded_map = dict(op_ded_rows)
 
-    op_ded_rows = conn.execute("""
-        SELECT retailer_id, SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
-          AND deduction_type != 'promo_billback'
-        GROUP BY retailer_id
-    """, (max_scan, max_scan)).fetchall()
-    op_ded_map = dict(op_ded_rows)
-
-    pb_rows = conn.execute("""
-        SELECT retailer_id, SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
-          AND deduction_type = 'promo_billback'
-        GROUP BY retailer_id
-    """, (max_scan, max_scan)).fetchall()
-    pb_map = dict(pb_rows)
-
-    conn.close()
+        pb_rows = conn.execute("""
+            SELECT retailer_id, SUM(amount)
+            FROM deductions
+            WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+              AND deduction_type = 'promo_billback'
+            GROUP BY retailer_id
+        """, (max_scan, max_scan)).fetchall()
+        pb_map = dict(pb_rows)
 
     channel_order = ["Walmart", "UNFI", "KeHE", "Whole Foods", "Costco", "DTC"] + REGIONAL_RETAILERS
 
     retailers = []
-    for retailer in channel_order:
-        rev = revenue_map.get(retailer, 0)
-        rate = rates.get(retailer, regional_rate)
+    for retailer_name in channel_order:
+        rev = revenue_map.get(retailer_name, 0)
+        rate = rates.get(retailer_name, regional_rate)
         structural = rev * rate
 
-        retailer_key = retailer.lower().replace(" ", "_")
-        op_ded = op_ded_map.get(retailer_key, 0)
-        pb_ded = pb_map.get(retailer_key, 0)
+        rkey = retailer_key(retailer_name)
+        op_ded = op_ded_map.get(rkey, 0)
+        pb_ded = pb_map.get(rkey, 0)
 
         all_in = structural + op_ded + pb_ded
         all_in_rate = all_in / rev if rev else 0
 
-        gm_key = retailer if retailer in gm_map else "Regional"
+        gm_key = retailer_name if retailer_name in gm_map else "Regional"
         gross_margin = gm_map.get(gm_key, gm_map.get("Regional", 0.4))
 
         total_ded = op_ded + pb_ded
 
         retailers.append({
-            "name": retailer,
+            "name": retailer_name,
             "revenue": rev,
             "rev_share": rev / total_revenue if total_revenue else 0,
             "structural": structural,
@@ -232,12 +219,10 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
 
     table_end = table_start + len(retailers) - 1
 
-    # Excel Table for P&L
     pnl_table = Table(displayName="tbl_RetailerPnL", ref=f"B{row}:M{table_end}")
     pnl_table.tableStyleInfo = TABLE_STYLE
     ws.add_table(pnl_table)
 
-    # Conditional formatting on net-net margin
     margin_range = f"M{table_start}:M{table_end}"
     ws.conditional_formatting.add(
         margin_range,
@@ -248,7 +233,7 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         ),
     )
 
-    # --- Concentration risk data table (no chart) ---
+    # --- Concentration risk data table ---
     chart_retailers = [r for r in retailers if r["revenue"] > 0]
 
     cr_section_row = table_end + 3
@@ -267,12 +252,17 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
 
     cr_end_row = cr_header_row + len(chart_retailers)
 
-    # Excel Table for concentration risk
     cr_table = Table(displayName="tbl_ConcentrationRisk", ref=f"B{cr_header_row}:D{cr_end_row}")
     cr_table.tableStyleInfo = TABLE_STYLE
     ws.add_table(cr_table)
 
-    # --- What-if trade rate inputs (compact — no chart gap) ---
+    if len(chart_retailers) < len(retailers):
+        note_row = cr_end_row + 1
+        ws.cell(row=note_row, column=2,
+                value=f"Note: {len(retailers) - len(chart_retailers)} retailer(s) with zero revenue excluded from scenario tables."
+                ).font = FONT_SMALL
+
+    # --- What-if trade rate inputs ---
     whatif_row = cr_end_row + 2
     ws.cell(row=whatif_row, column=2, value="What-If Trade Rate Scenario").font = FONT_SECTION
 
@@ -320,7 +310,6 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         )
         dv.add(target_cell)
 
-        # Trade at target = revenue × target rate
         ws.cell(row=rw, column=6, value=f"=C{rw}*E{rw}").number_format = NUM_FMT_DOLLAR
         ws.cell(row=rw, column=6).alignment = ALIGN_RIGHT
 
@@ -328,11 +317,9 @@ def build_retailer_risk(ws: Worksheet, db_path: Path) -> None:
         cur_trade.number_format = NUM_FMT_DOLLAR
         cur_trade.alignment = ALIGN_RIGHT
 
-        # Annual savings = current trade - trade at target
         ws.cell(row=rw, column=8, value=f"=G{rw}-F{rw}").number_format = NUM_FMT_DOLLAR
         ws.cell(row=rw, column=8).alignment = ALIGN_RIGHT
 
-        # What-if margin = gross_margin - target_rate
         gm_literal = f"{r['gross_margin']:.6f}"
         ws.cell(row=rw, column=9, value=f"={gm_literal}-E{rw}").number_format = NUM_FMT_PCT
         ws.cell(row=rw, column=9).alignment = ALIGN_CENTER

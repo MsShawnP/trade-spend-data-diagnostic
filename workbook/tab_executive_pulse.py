@@ -1,22 +1,23 @@
 """Tab 1: Executive Pulse — the CEO punchline."""
 
+import contextlib
 import sqlite3
 from datetime import date
 from pathlib import Path
 
 from openpyxl.formatting.rule import DataBarRule
-from openpyxl.styles import Border, Font, Side
+from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.queries import fetch_channel_rates, get_trailing_bounds
 from workbook.styles import (
     ALIGN_CENTER,
     ALIGN_LEFT,
     ALIGN_RIGHT,
     BORDER_SECTION,
     CHICAGO_20,
-    FILL_HEADER,
     FONT_BODY,
     FONT_HEADER,
     FONT_KPI_LABEL,
@@ -24,14 +25,13 @@ from workbook.styles import (
     FONT_NAV,
     FONT_SECTION,
     FONT_SMALL,
-    FONT_TABLE_HEADER,
     HK_35,
-    LONDON_35,
-    LONDON_5,
     NUM_FMT_DOLLAR,
     NUM_FMT_PCT,
     SANS,
     SINGAPORE_55,
+    TAB_NAMES,
+    TABLE_STYLE,
     TOKYO_40,
 )
 
@@ -46,78 +46,53 @@ CATEGORY_TO_DEPT = {
     "vague": ("Finance", "Unclear codes — investigate"),
 }
 
-NAV_TABS = [
-    "Executive Pulse",
-    "Leak Diagnostic",
-    "Promo Efficacy",
-    "Retailer Risk",
-    "Deduction Ledger",
-    "Deduction Code Crosswalk",
-    "Methodology & Logic",
-]
-
-TABLE_STYLE = TableStyleInfo(
-    name="TableStyleLight1", showFirstColumn=False,
-    showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-)
-
 
 def _query_metrics(db_path: Path) -> dict:
-    conn = sqlite3.connect(db_path)
+    with contextlib.closing(sqlite3.connect(db_path)) as conn:
+        oldest_week, max_scan = get_trailing_bounds(conn)
 
-    weeks = conn.execute(
-        "SELECT DISTINCT week_ending FROM scan_data ORDER BY week_ending DESC LIMIT 52"
-    ).fetchall()
-    oldest_week = weeks[-1][0]
+        revenue = conn.execute(
+            "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
+            (oldest_week,),
+        ).fetchone()[0]
+        if not revenue:
+            raise ValueError("scan_data.dollars_sold is NULL or zero — revenue base is required")
 
-    revenue = conn.execute(
-        "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
-        (oldest_week,),
-    ).fetchone()[0]
+        channel_rev = conn.execute("""
+            SELECT s.retailer, SUM(sd.dollars_sold)
+            FROM scan_data sd
+            JOIN stores s ON sd.store_id = s.store_id
+            WHERE sd.week_ending >= ?
+            GROUP BY s.retailer
+        """, (oldest_week,)).fetchall()
 
-    channel_rev = conn.execute("""
-        SELECT s.retailer, SUM(sd.dollars_sold)
-        FROM scan_data sd
-        JOIN stores s ON sd.store_id = s.store_id
-        WHERE sd.week_ending >= ?
-        GROUP BY s.retailer
-    """, (oldest_week,)).fetchall()
+        rates, regional_rate = fetch_channel_rates(conn)
 
-    channel_rate_cols = {
-        "Walmart": "trade_spend_pct_walmart",
-        "Costco": "trade_spend_pct_costco",
-        "Whole Foods": "trade_spend_pct_whole_foods",
-        "UNFI": "trade_spend_pct_unfi",
-        "DTC": "trade_spend_pct_dtc",
-        "KeHE": "trade_spend_pct_kehe",
-    }
-    rates = {}
-    for channel, col in channel_rate_cols.items():
-        rates[channel] = conn.execute(f"SELECT AVG({col}) FROM sku_costs").fetchone()[0]
-    regional_rate = conn.execute("SELECT AVG(trade_spend_pct_regional) FROM sku_costs").fetchone()[0]
+        channel_trade = 0.0
+        for retailer, rev in channel_rev:
+            channel_trade += rev * rates.get(retailer, regional_rate)
 
-    channel_trade = 0.0
-    for retailer, rev in channel_rev:
-        channel_trade += rev * rates.get(retailer, regional_rate)
+        deductions_by_type = conn.execute("""
+            SELECT deduction_type, COUNT(*), SUM(amount)
+            FROM deductions
+            WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
+              AND deduction_type != 'promo_billback'
+            GROUP BY deduction_type
+            ORDER BY SUM(amount) DESC
+        """, (max_scan, max_scan)).fetchall()
 
-    max_scan = weeks[0][0]
-    deductions_by_type = conn.execute("""
-        SELECT deduction_type, COUNT(*), SUM(amount)
-        FROM deductions
-        WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?
-          AND deduction_type != 'promo_billback'
-        GROUP BY deduction_type
-        ORDER BY SUM(amount) DESC
-    """, (max_scan, max_scan)).fetchall()
+        operational_waste = sum(r[2] for r in deductions_by_type)
 
-    operational_waste = sum(r[2] for r in deductions_by_type)
+        dispute_stats = conn.execute("""
+            SELECT COUNT(*), SUM(recovered_amount)
+            FROM disputes
+        """).fetchone()
 
-    dispute_stats = conn.execute("""
-        SELECT COUNT(*), SUM(recovered_amount)
-        FROM disputes
-    """).fetchone()
-
-    conn.close()
+        total_disputed = conn.execute("""
+            SELECT SUM(d.amount)
+            FROM deductions d
+            JOIN disputes dis ON dis.deduction_id = d.deduction_id
+        """).fetchone()[0] or 0.0
 
     return {
         "revenue": revenue,
@@ -125,7 +100,8 @@ def _query_metrics(db_path: Path) -> dict:
         "operational_waste": operational_waste,
         "deductions_by_type": deductions_by_type,
         "dispute_count": dispute_stats[0],
-        "total_recovered": dispute_stats[1],
+        "total_recovered": dispute_stats[1] or 0.0,
+        "total_disputed": total_disputed,
         "oldest_week": oldest_week,
         "max_scan": max_scan,
     }
@@ -144,8 +120,9 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
     waste_rate = waste / revenue
     all_in_rate = all_in / revenue
 
-    recovery_rate = metrics["total_recovered"] / (metrics["total_recovered"] / 0.143) if metrics["total_recovered"] else 0
     total_recovered = metrics["total_recovered"]
+    total_disputed = metrics["total_disputed"]
+    recovery_rate = total_recovered / total_disputed if total_disputed else 0.0
 
     ws.sheet_view.showGridLines = False
 
@@ -184,7 +161,7 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
 
     ws.merge_cells("B7:F7")
     ws["B7"] = "You budgeted 17%. You're spending 21%. The extra 4 points is operational waste."
-    ws["B7"].font = Font(name=SANS, size=11, italic=True, color=LONDON_35)
+    ws["B7"].font = FONT_SMALL
     ws["B7"].alignment = ALIGN_LEFT
 
     for col in range(2, 7):
@@ -307,7 +284,7 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
     ws.cell(row=nav_row, column=2, value="Navigate to:").font = FONT_SECTION
 
     nav_row += 1
-    for i, tab_name in enumerate(NAV_TABS):
+    for i, tab_name in enumerate(TAB_NAMES):
         cell = ws.cell(row=nav_row, column=2 + i, value=tab_name)
         cell.font = FONT_NAV
         cell.hyperlink = f"#'{tab_name}'!A1"

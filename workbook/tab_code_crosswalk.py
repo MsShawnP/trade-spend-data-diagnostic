@@ -1,12 +1,13 @@
 """Tab 6: Deduction Code Crosswalk — reference mapping of retailer codes."""
 
+import contextlib
 import sqlite3
 from pathlib import Path
 
 from openpyxl.formatting.rule import CellIsRule
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl.worksheet.worksheet import Worksheet
 
 from workbook.styles import (
@@ -16,6 +17,7 @@ from workbook.styles import (
     FONT_HEADER,
     FONT_SMALL,
     SANS,
+    TABLE_STYLE,
 )
 
 COLUMNS = [
@@ -28,18 +30,17 @@ COLUMNS = [
 
 
 def _query_crosswalk(db_path: Path) -> list[tuple]:
-    conn = sqlite3.connect(db_path)
-    rows = conn.execute("""
-        SELECT
-            retailer_id,
-            code,
-            name,
-            deduction_type,
-            CASE WHEN is_published = 1 THEN 'Verified' ELSE 'Inferred' END
-        FROM deduction_codes
-        ORDER BY retailer_id, deduction_type, code
-    """).fetchall()
-    conn.close()
+    with contextlib.closing(sqlite3.connect(db_path)) as conn:
+        rows = conn.execute("""
+            SELECT
+                retailer_id,
+                code,
+                name,
+                deduction_type,
+                CASE WHEN is_published = 1 THEN 'Verified' ELSE 'Inferred' END
+            FROM deduction_codes
+            ORDER BY retailer_id, deduction_type, code
+        """).fetchall()
     return rows
 
 
@@ -91,12 +92,8 @@ def build_code_crosswalk(ws: Worksheet, db_path: Path) -> None:
     last_col = get_column_letter(len(COLUMNS))
     table_ref = f"A{header_row}:{last_col}{table_end}"
 
-    style = TableStyleInfo(
-        name="TableStyleLight1", showFirstColumn=False,
-        showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-    )
     table = Table(displayName="tbl_CodeCrosswalk", ref=table_ref)
-    table.tableStyleInfo = style
+    table.tableStyleInfo = TABLE_STYLE
     ws.add_table(table)
 
     # Conditional formatting on status column
