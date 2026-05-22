@@ -46,6 +46,8 @@ def _query_methodology_numbers(db_path: Path) -> dict:
             "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
             (oldest_week,),
         ).fetchone()[0]
+        if not revenue:
+            raise ValueError("No revenue data found in scan_data for the trailing window")
 
         channel_rev = conn.execute(
             "SELECT s.retailer, SUM(sd.dollars_sold) FROM scan_data sd "
@@ -56,31 +58,32 @@ def _query_methodology_numbers(db_path: Path) -> dict:
         rates, regional_rate = fetch_channel_rates(conn)
         structural = sum(r * rates.get(ch, regional_rate) for ch, r in channel_rev)
 
-        waste = conn.execute(
-            "SELECT SUM(amount) FROM deductions "
-            "WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ? "
-            "AND deduction_type != 'promo_billback'",
+        ded_sums = conn.execute(
+            "SELECT "
+            "SUM(CASE WHEN deduction_type != 'promo_billback' THEN amount ELSE 0 END), "
+            "SUM(CASE WHEN deduction_type = 'promo_billback' THEN amount ELSE 0 END) "
+            "FROM deductions "
+            "WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ?",
             (max_scan, max_scan),
-        ).fetchone()[0] or 0
-
-        pb = conn.execute(
-            "SELECT SUM(amount) FROM deductions "
-            "WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ? "
-            "AND deduction_type = 'promo_billback'",
-            (max_scan, max_scan),
-        ).fetchone()[0] or 0
+        ).fetchone()
+        waste = ded_sums[0] or 0
+        pb = ded_sums[1] or 0
 
         total_ded = conn.execute("SELECT COUNT(*) FROM deductions").fetchone()[0]
         ded_range = conn.execute(
             "SELECT MIN(deduction_date), MAX(deduction_date) FROM deductions"
         ).fetchone()
 
-        promo_rows = conn.execute("SELECT COUNT(*) FROM promotions").fetchone()[0]
-        promo_distinct = conn.execute("SELECT COUNT(DISTINCT promo_id) FROM promotions").fetchone()[0]
-        promo_cost_sum = conn.execute("SELECT SUM(promo_cost) FROM promotions").fetchone()[0] or 0
+        promo_row = conn.execute(
+            "SELECT COUNT(*), COUNT(DISTINCT promo_id), COALESCE(SUM(promo_cost), 0) FROM promotions"
+        ).fetchone()
+        promo_rows, promo_distinct, promo_cost_sum = promo_row
 
-        code_total = conn.execute("SELECT COUNT(*) FROM deduction_codes").fetchone()[0]
-        code_published = conn.execute("SELECT COUNT(*) FROM deduction_codes WHERE is_published = 1").fetchone()[0]
+        code_row = conn.execute(
+            "SELECT COUNT(*), SUM(CASE WHEN is_published = 1 THEN 1 ELSE 0 END) FROM deduction_codes"
+        ).fetchone()
+        code_total = code_row[0]
+        code_published = code_row[1]
         code_inferred = code_total - code_published
 
         dispute_count = conn.execute("SELECT COUNT(*) FROM disputes").fetchone()[0]
@@ -264,7 +267,7 @@ def build_methodology(ws: Worksheet, db_path: Path) -> None:
     row += 1
     row = _write_section(ws, row, "5. Recovery Rate & Addressable Improvement")
     row = _write_pair(ws, row, "Current recovery rate",
-        "Total recovered dollars ($987,798) ÷ total disputed dollars ($4,989,889) = 19.8%. "
+        f"Total recovered dollars (${n['recovered']:,.0f}) ÷ total disputed dollars (${n['disputed_total']:,.0f}) = {n['recovery_pct']:.1f}%. "
         "This counts won_full (100% recovery) and won_partial (~49% average recovery) outcomes.")
     row = _write_pair(ws, row, "Target recovery input",
         "Tab 2 cell C41 allows entering a target recovery rate (0–100%). "
