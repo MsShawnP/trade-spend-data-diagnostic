@@ -1,10 +1,15 @@
 """Tab 7: Methodology & Logic — self-contained documentation of all calculations."""
 
+import contextlib
+import os
+import sqlite3
 from datetime import date
+from pathlib import Path
 
 from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet.worksheet import Worksheet
 
+from workbook.queries import fetch_channel_rates, get_trailing_bounds
 from workbook.styles import FONT_BODY, FONT_HEADER, FONT_SECTION, FONT_SMALL, LONDON_20, SANS
 
 _LABEL_FONT = Font(name=SANS, size=11, bold=True, color=LONDON_20)
@@ -33,7 +38,102 @@ def _write_pair(ws: Worksheet, row: int, label: str, text: str) -> int:
     return row + 1
 
 
-def build_methodology(ws: Worksheet) -> None:
+def _query_methodology_numbers(db_path: Path) -> dict:
+    with contextlib.closing(sqlite3.connect(db_path)) as conn:
+        oldest_week, max_scan = get_trailing_bounds(conn)
+
+        revenue = conn.execute(
+            "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
+            (oldest_week,),
+        ).fetchone()[0]
+
+        channel_rev = conn.execute(
+            "SELECT s.retailer, SUM(sd.dollars_sold) FROM scan_data sd "
+            "JOIN stores s ON sd.store_id = s.store_id "
+            "WHERE sd.week_ending >= ? GROUP BY s.retailer",
+            (oldest_week,),
+        ).fetchall()
+        rates, regional_rate = fetch_channel_rates(conn)
+        structural = sum(r * rates.get(ch, regional_rate) for ch, r in channel_rev)
+
+        waste = conn.execute(
+            "SELECT SUM(amount) FROM deductions "
+            "WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ? "
+            "AND deduction_type != 'promo_billback'",
+            (max_scan, max_scan),
+        ).fetchone()[0] or 0
+
+        pb = conn.execute(
+            "SELECT SUM(amount) FROM deductions "
+            "WHERE deduction_date > date(?, '-365 days') AND deduction_date <= ? "
+            "AND deduction_type = 'promo_billback'",
+            (max_scan, max_scan),
+        ).fetchone()[0] or 0
+
+        total_ded = conn.execute("SELECT COUNT(*) FROM deductions").fetchone()[0]
+        ded_range = conn.execute(
+            "SELECT MIN(deduction_date), MAX(deduction_date) FROM deductions"
+        ).fetchone()
+
+        promo_rows = conn.execute("SELECT COUNT(*) FROM promotions").fetchone()[0]
+        promo_distinct = conn.execute("SELECT COUNT(DISTINCT promo_id) FROM promotions").fetchone()[0]
+        promo_cost_sum = conn.execute("SELECT SUM(promo_cost) FROM promotions").fetchone()[0] or 0
+
+        code_total = conn.execute("SELECT COUNT(*) FROM deduction_codes").fetchone()[0]
+        code_published = conn.execute("SELECT COUNT(*) FROM deduction_codes WHERE is_published = 1").fetchone()[0]
+        code_inferred = code_total - code_published
+
+        dispute_count = conn.execute("SELECT COUNT(*) FROM disputes").fetchone()[0]
+        recovered = conn.execute("SELECT SUM(recovered_amount) FROM disputes").fetchone()[0] or 0
+        disputed_total = conn.execute(
+            "SELECT SUM(d.amount) FROM deductions d "
+            "JOIN disputes dis ON dis.deduction_id = d.deduction_id"
+        ).fetchone()[0] or 0
+
+        scan_range = conn.execute(
+            "SELECT MIN(week_ending), MAX(week_ending), COUNT(DISTINCT week_ending) FROM scan_data"
+        ).fetchone()
+
+        table_count = conn.execute(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
+        ).fetchone()[0]
+
+        db_size_mb = os.path.getsize(db_path) / (1024 * 1024)
+
+    all_in = structural + waste
+    return {
+        "revenue": revenue,
+        "structural": structural,
+        "structural_pct": structural / revenue * 100,
+        "waste": waste,
+        "waste_pct": waste / revenue * 100,
+        "all_in": all_in,
+        "all_in_pct": all_in / revenue * 100,
+        "pb": pb,
+        "total_ded": total_ded,
+        "ded_start": ded_range[0],
+        "ded_end": ded_range[1],
+        "promo_rows": promo_rows,
+        "promo_distinct": promo_distinct,
+        "promo_cost_sum": promo_cost_sum,
+        "code_total": code_total,
+        "code_published": code_published,
+        "code_inferred": code_inferred,
+        "dispute_count": dispute_count,
+        "recovered": recovered,
+        "disputed_total": disputed_total,
+        "recovery_pct": recovered / disputed_total * 100 if disputed_total else 0,
+        "scan_start": scan_range[0],
+        "scan_end": scan_range[1],
+        "scan_weeks": scan_range[2],
+        "table_count": table_count,
+        "db_size_mb": db_size_mb,
+    }
+
+
+def build_methodology(ws: Worksheet, db_path: Path) -> None:
+    n = _query_methodology_numbers(db_path)
+
     ws.sheet_view.showGridLines = False
 
     ws.column_dimensions["A"].width = 35
@@ -59,22 +159,22 @@ def build_methodology(ws: Worksheet) -> None:
         "The negotiated rate-card discount embedded in wholesale pricing by channel. "
         "Derived from sku_costs.trade_spend_pct columns multiplied by channel revenue. "
         "This is the planned cost of doing business with each retailer — it exists "
-        "whether or not a single deduction is ever taken. $5,207,524 (18.9% of revenue).")
+        f"whether or not a single deduction is ever taken. ${n['structural']:,.0f} ({n['structural_pct']:.1f}% of revenue).")
     row = _write_pair(ws, row, "Bucket 2: Operational Waste",
         "Trailing-365-day deductions excluding promo_billback. These are unplanned cash "
         "outflows from compliance failures (label fines, pallet fines), logistics issues "
         "(short ships, late deliveries, damages), spoilage, and vague/unclassified codes. "
-        "$1,967,416 (7.2% of revenue).")
+        f"${n['waste']:,.0f} ({n['waste_pct']:.1f}% of revenue).")
     row += 1
     row = _write_pair(ws, row, "Why not three buckets?",
         "The original brief proposed a third \"promotional\" bucket using off-invoice discounts. "
         "Investigation revealed that off-invoice is a funding mechanism, not a cost category — "
         "including it as a separate bucket double-counts costs already captured in the structural "
-        "trade rate. The promotions table's promo_cost sum ($20.5K) is too small to constitute "
-        "a meaningful standalone bucket. Two buckets tell a cleaner story: you budgeted 19%, "
-        "you're spending 26%, the gap is operational waste.")
+        f"trade rate. The promotions table's promo_cost sum (${n['promo_cost_sum']:,.0f}) is too small to constitute "
+        f"a meaningful standalone bucket. Two buckets tell a cleaner story: you budgeted {n['structural_pct']:.0f}%, "
+        f"you're spending {n['all_in_pct']:.0f}%, the gap is operational waste.")
     row = _write_pair(ws, row, "Promo billback exclusion",
-        "Promo_billback deductions ($1,776,218 trailing-365) are excluded from the operational "
+        f"Promo_billback deductions (${n['pb']:,.0f} trailing-365) are excluded from the operational "
         "waste bucket because they represent planned promotional activity, not operational failures. "
         "They appear on the Deduction Ledger tab but do not inflate the waste figure.")
 
@@ -83,30 +183,29 @@ def build_methodology(ws: Worksheet) -> None:
     row = _write_section(ws, row, "2. Data Lineage")
     row = _write_body(ws, row,
         "All data originates from the cinderhaven-data SQLite database (cinderhaven_product_master.db), "
-        "built via the cinderhaven-data/build_db.py pipeline. 21 tables, 163.7 MB.")
+        f"built via the cinderhaven-data/build_db.py pipeline. {n['table_count']} tables, {n['db_size_mb']:.1f} MB.")
     row += 1
     row = _write_pair(ws, row, "scan_data",
         "Point-of-sale weekly volumes and dollar sales by SKU and store. "
-        "104 weeks (2025-01-11 to 2027-01-02). Used for revenue calculations (trailing 52 weeks = "
+        f"{n['scan_weeks']} weeks ({n['scan_start']} to {n['scan_end']}). Used for revenue calculations (trailing 52 weeks = "
         "52 most recent distinct week_ending values) and promotion lift analysis.")
     row = _write_pair(ws, row, "sku_costs",
         "Per-SKU cost structure: COGS, wholesale prices by channel, trade spend percentages by channel. "
         "Static reference table. Used for structural trade rate calculation and gross margin derivation.")
     row = _write_pair(ws, row, "deductions",
-        "3,087 deduction records (2024-07-04 to 2026-12-31). Each record: retailer, type, amount, date, "
+        f"{n['total_ded']:,} deduction records ({n['ded_start']} to {n['ded_end']}). Each record: retailer, type, amount, date, "
         "codes, flags (vague, post-audit, double-dip). Trailing-365 filter applied for operational waste "
         "calculations. Joined to deduction_codes for translations and to disputes for recovery data.")
     row = _write_pair(ws, row, "promotions",
-        "188 promotion rows across 75 distinct events. Fields: SKU, retailer, date window, promo type, "
+        f"{n['promo_rows']} promotion rows across {n['promo_distinct']} distinct events. Fields: SKU, retailer, date window, promo type, "
         "promo_cost, funding_mechanism. Coverage: not all promotions have matched POS data. "
         "Limitation: promo calendar may be incomplete — ghost promo analysis identifies deductions "
         "that reference promotions not in this table.")
     row = _write_pair(ws, row, "deduction_codes",
-        "97 retailer-specific code entries mapping raw remittance codes to plain-English descriptions "
-        "and standardized categories. 19 verified from vendor guides, 78 inferred via pattern matching. "
-        "292 deduction records in the trailing-365 window have no matching crosswalk entry.")
+        f"{n['code_total']} retailer-specific code entries mapping raw remittance codes to plain-English descriptions "
+        f"and standardized categories. {n['code_published']} verified from vendor guides, {n['code_inferred']} inferred via pattern matching.")
     row = _write_pair(ws, row, "disputes",
-        "6,105 dispute records with outcome, recovered amount, filed/closed dates. "
+        f"{n['dispute_count']:,} dispute records with outcome, recovered amount, filed/closed dates. "
         "Joined to deductions on deduction_id. Recovery rate = total recovered / total disputed dollars.")
     row = _write_pair(ws, row, "stores",
         "Store-to-retailer mapping. Used to aggregate scan_data from store level to retailer/channel level.")

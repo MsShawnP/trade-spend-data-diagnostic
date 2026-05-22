@@ -1,10 +1,10 @@
 # Trade Spend Diagnostic — Walkthrough
 
-Cinderhaven Provisions, a specialty food company with $27.5 million
-in trailing-twelve-month wholesale revenue, budgets 18.9% of that
+Cinderhaven Provisions, a specialty food company with $29.9 million
+in trailing-twelve-month wholesale revenue, budgets 16.7% of that
 revenue for trade spend — the rate-card allowances negotiated with
-retailers as a cost of shelf access. The actual all-in cost is 26.1%.
-The 7.2-point gap represents roughly $2 million in annual operational
+retailers as a cost of shelf access. The actual all-in cost is 20.4%.
+The 3.8-point gap represents $1.1 million in annual operational
 waste: deductions taken by retailers beyond the negotiated trade
 rate, flowing through in retailer-specific codes, weeks after the
 transactions they reference, and largely uncontested.
@@ -43,8 +43,8 @@ closes.
 
 The gap between planned and actual is not hypothetical. It is
 measurable, and the measurement is the point of this diagnostic.
-Cinderhaven's numbers are representative of the pattern: an 18.9%
-planned trade rate, a 26.1% actual all-in rate, and $2 million in
+Cinderhaven's numbers are representative of the pattern: a 16.7%
+planned trade rate, a 20.4% actual all-in rate, and $1.1 million in
 the space between them that did not appear in any report until the
 infrastructure to calculate it was built.
 
@@ -68,7 +68,7 @@ separating promotional trade from structural and operational.
 Investigation revealed that off-invoice allowances — the primary
 promotional funding mechanism in Cinderhaven's contracts — are
 already embedded in the rate card. Treating them as a separate
-bucket double-counts. The promotions table's direct cost ($20,484
+bucket double-counts. The promotions table's direct cost ($16,357
 in planned spend) is too small to constitute a meaningful standalone
 category at the executive level. The detail tabs break out
 promotional performance separately; the executive framing stays at
@@ -76,7 +76,7 @@ two buckets.
 
 ### Data sources
 
-Six source types feed the diagnostic, unified into 21 tables in a
+Six source types feed the diagnostic, unified into 22 tables in a
 single SQLite database:
 
 - **SKU cost tables** — 50 products with COGS, wholesale prices by
@@ -85,30 +85,27 @@ single SQLite database:
   SKUs per channel), not per-SKU rates. The rate card is negotiated
   at the channel level; per-SKU application introduces false
   precision.
-- **Deduction log** — 2,374 trailing-365-day deductions across 11
+- **Deduction log** — 2,731 trailing-365-day deductions across 9
   retailers, each carrying a retailer-specific code, an amount, and
   a date. These are the raw material for the operational waste
   calculation.
-- **Promotions calendar** — 188 planned promotions across four types
+- **Promotions calendar** — 138 planned promotions across four types
   (TPR, Feature, Display, BOGO), with planned costs and funding
   mechanisms.
-- **POS scan data** — 601,341 weekly point-of-sale records from 11
+- **POS scan data** — weekly point-of-sale records from 9
   retailers, used to measure promotional lift.
-- **Dispute records** — 6,105 filed disputes with outcomes and
+- **Dispute records** — 3,581 filed disputes with outcomes and
   recovery amounts.
-- **Deduction code crosswalk** — 97 retailer-specific codes mapped
+- **Deduction code crosswalk** — 79 retailer-specific codes mapped
   to a common 8-category taxonomy. Fuzzy matching (via rapidfuzz)
   handles naming inconsistencies across retailers — "WFM" versus
-  "Whole Foods," "short ship" versus "shipping shortage." The
-  crosswalk achieves a ~68% clean match rate. 292 deductions remain
-  unmapped: their retailer codes have no entry in the crosswalk
-  table (query: `crosswalk/deduction_codes.sql`).
+  "Whole Foods," "short ship" versus "shipping shortage."
 
 ### Promotion measurement
 
 Promotional ROI uses a pre/during/post volume comparison against POS
 scan data. Baseline volume is the average weekly units in the
-pre-period window (adjustable from 1 to 8 weeks; default 4).
+pre-period window (adjustable from 1 to 12 weeks; default 4).
 Incremental revenue is the lift in during-period volume over
 baseline, multiplied by the average selling price. This is arithmetic
 with stated assumptions, not causal inference. It does not control
@@ -122,28 +119,28 @@ diagnostic-level engagement.
 
 ### The headline
 
-Cinderhaven's structural trade rate is 18.9% of revenue — $5,207,524
-on $27,483,467 in trailing-twelve-month wholesale sales. The all-in
-trade cost, including operational deductions, is 26.1% —
-$7,174,939. The difference is $1,967,416 in operational waste,
-representing 7.2% of revenue (see Tab 1: Executive Pulse).
+Cinderhaven's structural trade rate is 16.7% of revenue — $4,972,381
+on $29,854,750 in trailing-twelve-month wholesale sales. The all-in
+trade cost, including operational deductions, is 20.4% —
+$6,103,524. The difference is $1,131,144 in operational waste,
+representing 3.8% of revenue (see Tab 1: Executive Pulse).
 
 ### Where the waste comes from
 
 Eight deduction categories compose the operational waste, led by
-three that account for two-thirds of the total (query:
+three that account for the majority of the total (query:
 `deductions/waste_by_category.sql`):
 
 | Category | Count | Amount | Share |
 |----------|------:|-------:|------:|
-| Vague / unclassified | 189 | $293,927 | 29.0% |
-| Label fines | 344 | $197,488 | 19.5% |
-| Short-ship charges | 814 | $184,411 | 18.2% |
-| Spoilage claims | 102 | $92,446 | 9.1% |
-| Late delivery | 457 | $87,869 | 8.7% |
-| Slotting fees | 22 | $79,160 | 7.8% |
-| Damaged goods | 98 | $63,321 | 6.3% |
-| Pallet fines | 80 | $13,833 | 1.4% |
+| Vague / unclassified | 283 | $405,698 | 35.9% |
+| Label fines | 393 | $196,417 | 17.4% |
+| Short-ship charges | 811 | $184,914 | 16.4% |
+| Spoilage claims | 158 | $147,838 | 13.1% |
+| Late delivery | 392 | $84,769 | 7.5% |
+| Damaged goods | 95 | $54,109 | 4.8% |
+| Slotting fees | 10 | $41,114 | 3.6% |
+| Pallet fines | 93 | $16,284 | 1.4% |
 
 The largest single category — vague deductions with missing or
 ambiguous reason codes — is the least actionable. These are
@@ -155,7 +152,7 @@ diagnostic finding (see Tab 2: Leak Diagnostic).
 
 ### Double-dip detection
 
-Three deduction events totaling $19,524 were identified as
+Three deduction events totaling $18,795 were identified as
 double-payments: the same promotion received both an off-invoice
 discount on the original invoice and a subsequent promo-billback
 deduction. The dollar amount is small. The finding is significant
@@ -166,7 +163,7 @@ and amount — did not exist before this diagnostic was built (query:
 
 ### Ghost promotions
 
-137 promo-billback deductions totaling $95,826 reference promotions
+405 promo-billback deductions totaling $245,441 reference promotions
 that do not appear in Cinderhaven's promotion calendar. These "ghost
 promos" have two possible explanations: the promotion existed but
 was never recorded in the calendar, or the retailer billed for
@@ -175,64 +172,34 @@ indicate a process gap — either in promotion planning or in
 deduction validation (see Tab 3: Promo Efficacy; query:
 `promo_roi/ghost_promo_summary.sql`).
 
-### Promotion performance
-
-Of 188 promotions in the trailing period, 160 have sufficient POS
-scan data to measure ROI. Data coverage: 82% of promotions have
-full pre/during/post POS data, 4% have partial coverage, and 14%
-have no usable POS data at all.
-
-Among the 160 measurable promotions, 48 (30%) generated positive
-ROI — incremental revenue exceeding the promotion cost. Eight (5%)
-were roughly breakeven. The remaining 104 (65%) generated negative
-ROI: the cost of the promotion exceeded the incremental revenue it
-produced. The distribution varies by promo type; TPRs (temporary
-price reductions, 71 promotions) and Features (68) dominate the
-calendar, while BOGOs (12) are the smallest category (see Tab 3:
-Promo Efficacy; query: `promo_roi/promo_performance.sql`).
-
 ### Retailer margin spread
 
 Net-net effective margin — gross margin minus all trade costs as a
-percentage of revenue — ranges from 62.5% for DTC (which carries
-no trade spend) to 12.5% for Walmart. Excluding DTC as a zero-trade
-benchmark, the range is 33.8% (Mountain Pantry Co) to 12.5%
-(Walmart). Walmart's position at the bottom reflects its 21.5%
-structural trade rate — the highest in the portfolio — combined with
-operational deductions that push the all-in rate further (see Tab 4:
-Retailer Risk; query: `retailer/net_net_margin.sql`).
-
-Five regional chains (Green Basket Market, Southside Grocers,
-Prairie Provisions, Mountain Pantry Co, Harbor Fresh) cluster between
-28% and 34% net-net margin, all on a 9.9% structural rate. Their
-low trade cost is partly a function of scale — smaller retailers
-have less bargaining power to extract allowances — and partly a function of
-lower deduction volume. Concentration risk is the inverse concern:
-Walmart contributes 51% of revenue but generates a disproportionate
-share of deductions.
+percentage of revenue — varies significantly across the retailer
+portfolio. DTC carries no trade spend and represents the zero-trade
+benchmark. Excluding DTC, the spread reflects both the structural
+rate negotiated with each channel and the operational deductions
+layered on top (see Tab 4: Retailer Risk; query:
+`retailer/net_net_margin.sql`).
 
 ### Dispute recovery
 
-Cinderhaven filed 6,105 disputes against retailer deductions,
-recovering $987,798 — a 19.8% recovery rate by dollar value. The gap
-between the amount disputed ($4,989,889) and the amount recovered
-represents either valid deductions that were correctly upheld,
-disputes where evidence was insufficient, or disputes that expired
-before resolution. An adjustable recovery model in the workbook
-shows the addressable improvement at higher target rates (query:
+Cinderhaven filed 3,581 disputes against retailer deductions,
+recovering $295,872 — an 18.6% recovery rate by dollar value.
+An adjustable recovery model in the workbook shows the addressable
+improvement at higher target rates (query:
 `reconciliation/recovery_rate.sql`).
 
 ### Data quality
 
-292 of 2,374 trailing-year deductions (12.3%) have no crosswalk
-translation — the retailer's code does not appear in the deduction
-code table. These unmapped deductions still carry a dollar amount
-and a category assignment from the raw data, but the human-readable
-translation is missing. For promotions, the 14% of promotions with
-no POS data represent a measurement gap: their ROI cannot be
-evaluated at all. Both findings point to the same root cause —
-incomplete integration between Cinderhaven's internal records and
-retailer-provided data (see Tab 6: Deduction Code Crosswalk).
+Some trailing-year deductions have no crosswalk translation — the
+retailer's code does not appear in the deduction code table. These
+unmapped deductions still carry a dollar amount and a category
+assignment from the raw data, but the human-readable translation is
+missing. Both this and any promotions with no POS data represent
+measurement gaps that point to incomplete integration between
+Cinderhaven's internal records and retailer-provided data (see
+Tab 6: Deduction Code Crosswalk).
 
 ---
 
@@ -243,15 +210,15 @@ for a different user and a different moment.
 
 **The Excel workbook** (7 tabs) is the static diagnostic. It opens
 cold — no database connection, no setup. Tab 1 (Executive Pulse)
-leads with the two-bucket punchline: 18.9% structural, 7.2%
-operational, 26.1% all-in. Tabs 2 through 4 (Leak Diagnostic,
+leads with the two-bucket punchline: 16.7% structural, 3.8%
+operational, 20.4% all-in. Tabs 2 through 4 (Leak Diagnostic,
 Promo Efficacy, Retailer Risk) provide the supporting detail with
 adjustable inputs — a target recovery rate, a promo comparison
 window, and per-retailer what-if trade rates. Tab 5 (Deduction
 Ledger) is the full trailing-year data with auto-filters and freeze
 panes. Tab 6 maps retailer codes to plain English. Tab 7 documents
-every calculation. Color-coded: green for output tabs, blue for
-input data, gray for reference.
+every calculation. Color-coded: navy for analysis tabs, teal for
+data, gray for reference.
 
 **The SQL query library** (25 queries in 6 categories) is for the
 analyst who wants to run their own cuts. Each `.sql` file answers
@@ -260,23 +227,10 @@ promo-billback deductions have no matching promotion?" A 10-step
 suggested execution order mirrors the diagnostic narrative, from
 revenue through waste, promotions, retailer risk, and recovery.
 
-**The Power BI dashboard** (4 pages) is the interactive companion.
-It adds six capabilities that are impossible or impractical in the
-static workbook: cross-filtering the margin erosion waterfall by
-retailer, time-series deduction trends with click-to-filter, a
-scatter plot of 188 promotions by cost versus incremental revenue,
-a what-if slider that instantly recalculates savings across all
-retailers, small-multiples waterfalls for side-by-side retailer
-comparison, and drill-through navigation from summary to detail.
-The dashboard is assembled manually in Power BI Desktop using
-exported CSVs and 49 pre-generated DAX measures.
-
-All three deliverables are built from the same SQLite database,
-maintained as a git submodule. When the underlying data is updated,
-the workbook is regenerated (`python build_workbook.py`), the CSVs
-are re-exported (`python powerbi/export_data.py`), and the dashboard
-refreshes in place. The numbers stay consistent because there is one
-source.
+All deliverables are built from the same SQLite database, maintained
+as a git submodule. When the underlying data is updated, the workbook
+is regenerated (`python build_workbook.py`) and the numbers stay
+consistent because there is one source.
 
 ---
 
@@ -290,18 +244,17 @@ in five respects.
 **Causal promotion modeling.** The pre/during/post methodology
 measures volume change during a promotion without controlling for
 confounders. A real engagement would build seasonality-adjusted
-baselines using 18–24 months of history, controlling for trends,
+baselines using 18-24 months of history, controlling for trends,
 holidays, distribution changes, and competitor activity. The
 difference matters: simple comparison overstates lift for products
 that sell well in the promotion's season and understates it for
 counter-seasonal items.
 
 **Automated deduction classification.** The diagnostic's crosswalk
-covers 97 codes across 11 retailers, with 292 deductions still
-unmapped. A production system would ingest retailer EDI feeds
-directly, apply ML-based code classification for new or ambiguous
-codes, and maintain the crosswalk continuously rather than as a
-static lookup table.
+covers 79 codes across 9 retailers. A production system would ingest
+retailer EDI feeds directly, apply ML-based code classification for
+new or ambiguous codes, and maintain the crosswalk continuously
+rather than as a static lookup table.
 
 **System integration.** The diagnostic works from exported flat
 files. A live engagement would connect to the ERP (invoice and
@@ -310,13 +263,11 @@ and retailer portals (deduction feeds, POS data, compliance
 reports). Integration surfaces double-dips and ghost promos in near
 real-time, not after a year of accumulation.
 
-**Dispute workflow automation.** The current 19.8% recovery rate
+**Dispute workflow automation.** The current 18.6% recovery rate
 reflects manual, reactive dispute filing. Automated workflows —
 deadline tracking, evidence assembly, escalation rules,
 auto-filing for categories with high win rates — typically push
-recovery into the 25–35% range. On Cinderhaven's $4,989,889 in
-disputed deductions, the difference between 19.8% and 30% recovery
-is roughly $508,000 in additional annual recovery.
+recovery into the 25-35% range.
 
 **Ongoing monitoring.** The diagnostic answers "where is the money
 going?" once. The engagement answers it every month, with trend

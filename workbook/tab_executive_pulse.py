@@ -160,7 +160,8 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
         cell_lbl.alignment = ALIGN_CENTER
 
     ws.merge_cells("B7:F7")
-    ws["B7"] = "You budgeted 17%. You're spending 21%. The extra 4 points is operational waste."
+    gap_pp = round((all_in_rate - structural_rate) * 100)
+    ws["B7"] = f"You budgeted {structural_rate:.0%}. You're spending {all_in_rate:.0%}. The extra {gap_pp} points is operational waste."
     ws["B7"].font = FONT_SMALL
     ws["B7"].alignment = ALIGN_LEFT
 

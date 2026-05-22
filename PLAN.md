@@ -14,6 +14,23 @@ and live on GitHub. See arc history below and HANDOFF.md for details.
 
 ## Arc history
 
+### 2026-05-22 — Improvement pass
+- **Trigger:** User-initiated `/improve` + `pip audit`
+- **What was reviewed:** Code, documentation, architecture (SQLite vs Postgres alignment), data integrity, dependencies
+- **What was fixed:**
+  - Tab 7 (Methodology) made fully dynamic — all numbers now queried from DB at build time instead of hardcoded
+  - Tab 1 summary sentence made dynamic (structural rate, all-in rate computed from data)
+  - `scripts/build_db.py` — removed hardcoded absolute path, simplified to submodule-only
+  - README.md, EXECUTIVE_MEMO.md, DEFENSIBILITY.md, walkthrough.md — all rewritten with correct numbers from current DB
+  - sql/README.md — locked numbers table and suggested execution order updated to current DB values
+  - CUSTOMIZATION.md — rewritten for SQLite architecture (was referencing stg_* Postgres tables and DATABASE_URL)
+  - AUDIT.md — removed (entirely from Postgres era, all findings stale)
+  - Stale output files removed (v2, v3, v4 workbooks)
+  - requirements.txt — pinned version ranges for openpyxl, pandas, rapidfuzz
+- **Deferred:** Security review and code quality review (deep automated passes) — not run this session
+- **Validation:** 60/60 checks passing after all changes
+- **Next review:** 2026-06-22
+
 ### Post-arc: Power BI bug fixes and presentation redesign (2026-05-11)
 - Fixed 5 data bugs (AllInTradeCost double-count, waterfall sort,
   double-dip $0, ghost promo context, total row explosion)

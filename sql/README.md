@@ -110,15 +110,15 @@ For a new analyst walking through the diagnostic narrative:
 
 1. **trailing_52_weeks.sql** — establish the analysis window; note
    the oldest and newest dates for use as parameters in later queries
-2. **total_revenue.sql** — the revenue headline ($27.5M)
-3. **all_in_trade_rate.sql** — the punchline: 18.9% structural +
-   7.2% waste = 26.1% all-in
-4. **waste_by_category.sql** — where the 7.2% comes from (8 deduction
+2. **total_revenue.sql** — the revenue headline ($29.9M)
+3. **all_in_trade_rate.sql** — the punchline: 16.7% structural +
+   3.8% waste = 20.4% all-in
+4. **waste_by_category.sql** — where the 3.8% comes from (8 deduction
    types, resolution timelines)
-5. **double_dip_events.sql** — the 3 double-payment events ($19.5K)
+5. **double_dip_events.sql** — the 3 double-payment events ($18.8K)
 6. **promo_performance.sql** — which promotions created value vs.
    destroyed it
-7. **ghost_promo_summary.sql** — $96K in deductions referencing
+7. **ghost_promo_summary.sql** — $245K in deductions referencing
    promotions not in the calendar
 8. **net_net_margin.sql** — true margin by retailer after all trade costs
 9. **recovery_rate.sql** — current dispute recovery performance
@@ -156,13 +156,13 @@ nondeterminism.
 
 | Metric | Locked value | Query to check |
 |--------|-------------|----------------|
-| Annual wholesale revenue | $27,483,467 | total_revenue.sql |
-| Structural trade | $5,207,524 (18.9%) | structural_trade_amount.sql |
-| Operational waste | $1,967,416 (7.2%) | waste_by_category.sql |
-| All-in trade cost | $7,174,939 (26.1%) | all_in_trade_rate.sql |
-| Double-dip events | 3 / $19,524 | double_dip_events.sql |
-| Disputes filed | ~6,105 | dispute_summary.sql |
-| Total recovered | $987,798 | dispute_summary.sql |
-| Ghost promos | 137 / $95,826 | ghost_promo_summary.sql |
-| Deduction codes | 97 | deduction_codes.sql |
-| Trailing-365 deductions | ~2,374 | full_deduction_ledger.sql |
+| Annual wholesale revenue | $29,854,750 | total_revenue.sql |
+| Structural trade | $4,972,381 (16.7%) | structural_trade_amount.sql |
+| Operational waste | $1,131,144 (3.8%) | waste_by_category.sql |
+| All-in trade cost | $6,103,524 (20.4%) | all_in_trade_rate.sql |
+| Double-dip events | 3 / $18,795 | double_dip_events.sql |
+| Disputes filed | 3,581 | dispute_summary.sql |
+| Total recovered | $295,872 | dispute_summary.sql |
+| Ghost promos | 405 / $245,441 | ghost_promo_summary.sql |
+| Deduction codes | 79 | deduction_codes.sql |
+| Trailing-365 deductions | 2,731 | full_deduction_ledger.sql |

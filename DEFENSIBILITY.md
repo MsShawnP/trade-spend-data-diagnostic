@@ -22,7 +22,7 @@ These are operational failures, compliance gaps, or logistics
 breakdowns. They are not standard fees. They are not negotiated
 terms. They are cash leaving the building because something broke.
 
-### Short Ship (~$211K, ~833 deductions)
+### Short Ship (~$185K, ~811 deductions)
 
 **Taxonomy:** Probable Waste — addressable.
 
@@ -36,20 +36,20 @@ possibly the retailer's receiving process. Either way, it is
 disputable. If the warehouse genuinely shorted the order, Operations
 owns the root cause and can fix it.
 
-### Label Fine (~$156K, ~395 deductions)
+### Label Fine (~$196K, ~393 deductions)
 
 **Taxonomy:** Probable Waste — addressable.
 
 **Defense:** Labeling compliance failures. Fixable with updated
 processes.
 
-**Rebuttal to "every manufacturer gets label fines":** At ~$156K/year,
+**Rebuttal to "every manufacturer gets label fines":** At ~$196K/year,
 this is not a rounding error. Retailer labeling specifications are
 published. Compliance is a process problem — wrong UPC placement,
 missing nutrition panel updates, incorrect case-pack markings — not a
 cost of doing business. The fix is a pre-ship QC checklist.
 
-### Late Delivery (~$68K, ~333 deductions)
+### Late Delivery (~$85K, ~392 deductions)
 
 **Taxonomy:** Probable Waste — addressable.
 
@@ -62,7 +62,7 @@ the carrier. If Cinderhaven released the shipment late, the root
 cause is internal and fixable. Either way, the deduction should not
 be silently absorbed.
 
-### Spoilage (~$472K, ~535 deductions)
+### Spoilage (~$148K, ~158 deductions)
 
 **Taxonomy:** Probable Waste — addressable.
 
@@ -70,13 +70,13 @@ be silently absorbed.
 procedures.
 
 **Rebuttal to "spoilage is normal for perishables":** Some spoilage
-is expected. ~$472K in charges should be cross-referenced against
+is expected. ~$148K in charges should be cross-referenced against
 actual shelf-life dates and retailer handling — was the product
 within code at delivery? Did the retailer's distribution center
 hold it past the sell-by window? Spoilage deductions where the
 product was delivered within spec are disputable.
 
-### Damaged Goods (~$47K, ~86 deductions)
+### Damaged Goods (~$54K, ~95 deductions)
 
 **Taxonomy:** Probable Waste — addressable.
 
@@ -89,7 +89,7 @@ to spec and the carrier mishandled it, the manufacturer has a claim
 against the carrier. Recurring damage patterns point to packaging
 design issues — fixable.
 
-### Pallet Fine (~$19K, ~100 deductions)
+### Pallet Fine (~$16K, ~93 deductions)
 
 **Taxonomy:** Probable Waste — addressable.
 
@@ -99,14 +99,14 @@ changes.
 **Rebuttal to "retailers nitpick pallet specs":** Pallet
 specifications (height, weight, wrap, labeling, stacking pattern)
 are published in retailer vendor guides. Compliance is a warehouse
-SOP issue. At ~$19K it is the smallest category, but the fix
+SOP issue. At ~$16K it is the smallest category, but the fix
 (training, checklists) is also the cheapest.
 
 ---
 
 ## Bucket 2: Unknown (addressable)
 
-### Vague / Unclassified (~$948K, ~782 deductions)
+### Vague / Unclassified (~$406K, ~283 deductions)
 
 **Taxonomy:** Unknown — addressable.
 
@@ -119,14 +119,14 @@ retailer — a referenced invoice, a specific compliance failure, a
 documented shortage. Deductions without a specific, documented basis
 are disputable: the absence of clear justification is itself the
 dispute grounds. This is the highest-priority category for
-investigation because the ~$948K represents the largest single
+investigation because the ~$406K represents the largest single
 category of operational waste and the least understood.
 
 ---
 
 ## Bucket 3: Contractual (non-addressable)
 
-### Slotting (~$47K, ~11 deductions)
+### Slotting (~$41K, ~10 deductions)
 
 **Taxonomy:** Contractual — not addressable in this diagnostic.
 
@@ -148,7 +148,7 @@ agreed slotting fee and the actual deduction are disputable.
 **Defense:** Authorized promotional activity. Verify against promo
 calendar.
 
-**Why it's excluded:** Promo billbacks (~$212K trailing-365) are
+**Why it's excluded:** Promo billbacks (~$357K trailing-365) are
 planned promotional spend funded through deductions. They appear on
 the Deduction Ledger for completeness but do not inflate the
 operational waste figure. The relevant question for billbacks is not
@@ -159,16 +159,16 @@ the ghost promo analysis on Tab 3.
 
 ## The addressable total
 
-Of ~$1.97M in trailing-365 operational waste:
+Of ~$1.13M in trailing-365 operational waste:
 
-- **~$1.92M is addressable** (Probable Waste + Unknown buckets) —
+- **~$1.09M is addressable** (Probable Waste + Unknown buckets) —
   deductions that can be reduced through operational improvement,
   process fixes, or active dispute.
-- **~$47K is contractual** (slotting) — a negotiated term, not an
+- **~$41K is contractual** (slotting) — a negotiated term, not an
   operational failure.
 
-The $1.92M addressable figure is the number that matters for
-remediation planning. At Cinderhaven's current 19.8% recovery rate,
-~$988K is being recovered. At a 30% recovery rate (achievable with
-automated dispute workflows), that becomes ~$576K on the addressable
-portion — an incremental ~$290K in annual recovery.
+The $1.09M addressable figure is the number that matters for
+remediation planning. At Cinderhaven's current 18.6% recovery rate,
+~$296K is being recovered. At a 30% recovery rate (achievable with
+automated dispute workflows), recovery would increase meaningfully
+on the addressable portion.

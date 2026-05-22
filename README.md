@@ -1,16 +1,16 @@
-# Cinderhaven Provisions is leaking $2M of margin to operational waste
+# Cinderhaven Provisions is leaking $1.1M of margin to operational waste
 
 A trade spend diagnostic for a mid-market natural/specialty CPG
-company. Cinderhaven budgets 19% for trade — the negotiated rate-card
-cost of shelf access. The actual all-in cost is 26%. The 7-point
-gap is $2 million per year in deductions taken beyond the rate card:
-vague charges with no clear basis, spoilage claims, short-ship
-charges, and compliance fines. Industry range is 19-23%. The
-structural rate is fine. The operational waste is not.
+company. Cinderhaven budgets 17% for trade — the negotiated rate-card
+cost of shelf access. The actual all-in cost is 20%. The 4-point
+gap is $1.1 million per year in deductions taken beyond the rate card:
+vague charges with no clear basis, short-ship charges, spoilage claims,
+and compliance fines. Industry range is 19-23%. The structural rate
+is competitive. The operational waste is not.
 
 The diagnostic quantifies the gap, classifies every deduction into a
-defensible taxonomy, identifies $1.9M in addressable waste, and
-provides a retailer-by-retailer P&L showing where the margin erosion
+defensible taxonomy, identifies addressable waste, and provides a
+retailer-by-retailer P&L showing where the margin erosion
 concentrates.
 
 ## Download the workbook
@@ -50,10 +50,10 @@ EXECUTIVE_MEMO.md           One-page CEO summary
 DEFENSIBILITY.md            Deduction classification rules + rebuttals
 walkthrough.md              Full methodology and findings narrative
 build_workbook.py           Generates the 7-tab diagnostic workbook
-validate_workbook.py        59-check acceptance test suite
+validate_workbook.py        60-check acceptance test suite
 workbook/                   Workbook generation modules (one per tab)
 sql/                        25 standalone diagnostic queries
-cinderhaven-data/           Simulated dataset (git submodule, 30 tables)
+cinderhaven-data/           Simulated dataset (git submodule, 22 tables)
 output/                     Generated workbook (.gitignored)
 requirements.txt            Python dependencies
 ```
@@ -65,7 +65,7 @@ git clone --recurse-submodules <repo-url>
 cd trade-spend-data-diagnostic
 pip install -r requirements.txt
 python build_workbook.py
-python validate_workbook.py   # 59 checks
+python validate_workbook.py   # 60 checks
 ```
 
 The `--recurse-submodules` flag is required — the `cinderhaven-data`

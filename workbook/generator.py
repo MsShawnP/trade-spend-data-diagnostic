@@ -76,7 +76,7 @@ def generate_workbook(db_path: Path, output_path: Path) -> Path:
     build_retailer_risk(wb["Retailer Risk"], db_path)
     build_deduction_ledger(wb["Deduction Ledger"], db_path)
     build_code_crosswalk(wb["Deduction Code Crosswalk"], db_path)
-    build_methodology(wb["Methodology & Logic"])
+    build_methodology(wb["Methodology & Logic"], db_path)
 
     _add_named_ranges(wb)
     _set_print_areas(wb)

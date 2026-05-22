@@ -9,6 +9,28 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-05-22 — Improvement pass (fix all)
+
+**Started from:** `/improve` audit identified 10 findings (4 critical, 4 important, 2 nice-to-have). User said "fix all."
+
+**Did:**
+- Made Tab 7 (Methodology) fully dynamic — added `_query_methodology_numbers(db_path)` that queries 25+ metrics from DB. No more hardcoded dollar figures.
+- Made Tab 1 summary sentence dynamic (computes structural/all-in rates from data).
+- Removed hardcoded absolute path from `scripts/build_db.py`.
+- Rewrote 5 markdown docs with correct numbers: README.md, EXECUTIVE_MEMO.md, DEFENSIBILITY.md, walkthrough.md, sql/README.md (locked numbers table + execution order).
+- Rewrote CUSTOMIZATION.md — was referencing Postgres stg_* tables and DATABASE_URL; now describes SQLite architecture with correct table names.
+- Removed AUDIT.md — entirely from Postgres era, all findings stale.
+- Removed 3 stale output files (v2, v3, v4 workbooks).
+- Pinned requirements.txt (openpyxl>=3.1.5,<4.0, pandas>=2.0,<4.0, rapidfuzz>=3.0,<4.0).
+- Ran pip audit — no vulnerabilities found.
+- Updated project-health.md tracker.
+
+**State:** 60/60 validation passing. All docs now reference correct DB numbers. No hardcoded stale figures remain. Project is clean and consistent.
+
+**Next:** Commit this work. Consider running /security-review and /ce:review (deep automated passes deferred from this session). Otherwise project is complete — next `/improve` due 2026-06-22.
+
+---
+
 ## 2026-05-17 18:00 — Merge, release update, and ship
 
 **Started from:** Worktree branch had all platform sync work committed but not merged to master.

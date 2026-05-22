@@ -6,29 +6,30 @@ and update the configuration constants described below.
 
 ## Database schema
 
-The workbook reads from 8 tables in the `public_staging` schema.
-Load your client's data into these tables, preserving column names
-and types.
+The workbook reads from a SQLite database at
+`cinderhaven-data/data/cinderhaven_product_master.db`, shipped as a
+git submodule. Load your client's data into these tables, preserving
+column names and types.
 
 ### Required tables
 
 | Table | Purpose | Key columns |
 |-------|---------|-------------|
-| `stg_scan_data` | Weekly POS data by store | `store_id`, `sku`, `week_ending`, `units_sold`, `dollars_sold` |
-| `stg_stores` | Store/retailer dimension | `store_id`, `retailer` |
-| `stg_deductions` | Deduction line items | `deduction_id`, `deduction_date`, `retailer_id`, `code_as_remitted`, `code_id`, `deduction_type`, `amount`, `order_id`, `shipment_id`, `remittance_id`, `remittance_description`, `dispute_deadline`, `is_vague`, `is_post_audit`, `is_double_dip` |
-| `stg_deduction_codes` | Retailer code dictionary | `code_id`, `retailer_id`, `code`, `name`, `deduction_type`, `is_published` |
-| `stg_disputes` | Dispute outcomes | `deduction_id`, `outcome`, `recovered_amount`, `filed_date`, `closed_date` |
-| `stg_promotions` | Promo calendar | `promo_id`, `sku`, `retailer`, `start_week`, `end_week`, `duration_weeks`, `discount_depth_pct`, `promo_type`, `promo_cost`, `funding_mechanism` |
-| `stg_retailers` | Retailer lookup | `name` (display name, e.g. "Walmart") |
-| `stg_sku_costs` | COGS and contracted trade rates | `cogs_per_unit`, plus one `trade_spend_pct_*` column per channel |
+| `scan_data` | Weekly POS data by store | `sku`, `store_id`, `week_ending`, `units_sold`, `dollars_sold` |
+| `stores` | Store/retailer dimension | `store_id`, `retailer`, `chain_name`, `region`, `state`, `volume_tier` |
+| `deductions` | Deduction line items | `deduction_id`, `retailer_id`, `deduction_date`, `deduction_type`, `code_id`, `code_as_remitted`, `amount`, `is_vague`, `is_post_audit`, `is_double_dip` |
+| `deduction_codes` | Retailer code dictionary | `code_id`, `retailer_id`, `code`, `name`, `deduction_type`, `is_published` |
+| `disputes` | Dispute outcomes | `dispute_id`, `deduction_id`, `filed_date`, `outcome`, `recovered_amount`, `closed_date` |
+| `promotions` | Promo calendar | `promo_id`, `sku`, `retailer`, `start_week`, `end_week`, `duration_weeks`, `discount_depth_pct`, `promo_type`, `promo_cost`, `funding_mechanism` |
+| `retailers` | Retailer lookup | `retailer_id`, `name`, `channel_type` |
+| `sku_costs` | COGS and contracted trade rates | `sku`, `cogs_per_unit`, `wholesale_price`, plus per-channel `wholesale_*` and `trade_spend_pct_*` columns |
 
 ### Data requirements
 
-- `stg_scan_data` must have at least 52 weeks of `week_ending` values
-- `stg_deductions.deduction_type` must use the keys defined in the taxonomy (see below)
-- `stg_deductions.retailer_id` must be lowercase with underscores (e.g. `whole_foods`)
-- `stg_stores.retailer` uses display format (e.g. `Whole Foods`)
+- `scan_data` must have at least 52 weeks of `week_ending` values
+- `deductions.deduction_type` must use the keys defined in the taxonomy (see below)
+- `deductions.retailer_id` must be lowercase with underscores (e.g. `whole_foods`)
+- `stores.retailer` uses display format (e.g. `Whole Foods`)
 - All monetary values in USD, not cents
 
 ## Configuration constants to update
@@ -46,7 +47,7 @@ RETAILER_TO_CHANNEL = {
 
 CHANNEL_RATE_COLS = {
     "Walmart": "trade_spend_pct_walmart",
-    # ... must match columns in stg_sku_costs
+    # ... must match columns in sku_costs
 }
 ```
 
@@ -63,9 +64,8 @@ Adjust for the client's category. Common ranges:
 
 ### 3. Budgeted rate
 
-The summary sentence on Tab 1 says "You budgeted 17%." This is
-hardcoded in the text template in `build_executive_pulse()`. Replace
-`17` with the client's planned structural rate.
+The summary sentence on Tab 1 is computed dynamically from the
+structural trade rate in the database. No hardcoded value to change.
 
 ### 4. Deduction taxonomy (`workbook/deduction_taxonomy.py`)
 
@@ -102,10 +102,18 @@ match the client's org structure.
 ## Build steps
 
 ```bash
+git clone --recurse-submodules <repo-url>
+cd trade-spend-data-diagnostic
 pip install -r requirements.txt
-export DATABASE_URL=postgresql://user:pass@host:5432/dbname
-python build_workbook.py -o output/ClientName_Trade_Diagnostic.xlsx
-python validate_workbook.py  # 62 checks
+python build_workbook.py
+python validate_workbook.py  # 60 checks
+```
+
+The `--recurse-submodules` flag pulls the SQLite database via git
+submodule. If you cloned without it:
+
+```bash
+git submodule update --init
 ```
 
 ## Branding
