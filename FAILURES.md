@@ -28,3 +28,8 @@ should handle partial builds gracefully.
 **Why it failed:** Two sessions made contradicting architectural choices without checking the decision log. The Postgres session didn't read or update DECISIONS.md before migrating. No guard existed to prevent architectural drift between concurrent worktrees/sessions.
 **What we learned:** Before making architectural changes, always check DECISIONS.md for existing rulings. The decision log exists precisely to prevent this — but only works if every session reads it first. Worktrees that diverge significantly from main should be merged early or abandoned, not left to accumulate drift.
 **Resolution:** Reset master to the SQLite branch (the user-approved architecture), preserved old master as `backup/master-before-reset`, selectively recovered writing artifacts. The reset approach was faster and safer than resolving 100+ conflicts across incompatible architectures.
+
+## [2026-05-22] "Make everything dynamic" pass missed hardcoded numbers in Section 5
+**What happened:** After making Tab 7 fully dynamic (25+ metrics queried from DB), Section 5 (Recovery Rate) still had `$987,798`, `$4,989,889`, and `19.8%` hardcoded as string literals — leftover from the Postgres era.
+**Why it failed:** The dynamic-numbers refactor focused on Sections 1-2 (the heaviest hardcoding) and the data lineage section, but didn't audit every prose string in the file for embedded dollar figures. Manual review missed it; the 3-agent code review caught it.
+**What we learned:** After a "make it dynamic" pass, always run the code review before committing. Automated reviewers catch literal-vs-computed inconsistencies that manual scanning misses, especially in long prose strings where numbers blend into text.

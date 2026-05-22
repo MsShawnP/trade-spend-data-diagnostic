@@ -9,7 +9,7 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
-## 2026-05-22 — Improvement pass (fix all)
+## 2026-05-22 22:00 — Improvement pass + code review + security review
 
 **Started from:** `/improve` audit identified 10 findings (4 critical, 4 important, 2 nice-to-have). User said "fix all."
 
@@ -25,9 +25,9 @@ For things that didn't work, see FAILURES.md.
 - Ran pip audit — no vulnerabilities found.
 - Updated project-health.md tracker.
 
-**State:** 60/60 validation passing. All docs now reference correct DB numbers. No hardcoded stale figures remain. Project is clean and consistent.
+**State:** 60/60 validation passing. All numbers flow from SQLite DB. No hardcoded stale figures in code or docs. Code review clean (3 findings fixed). Security review clean (0 vulnerabilities). Two commits pushed to origin.
 
-**Next:** Commit this work. Consider running /security-review and /ce:review (deep automated passes deferred from this session). Otherwise project is complete — next `/improve` due 2026-06-22.
+**Next:** No pending work. Project in maintenance mode. Next `/improve` due 2026-06-22. Next dep audit due 2026-07-22.
 
 ---
 
