@@ -128,6 +128,12 @@ Each entry:
 - **Scope:** Excel workbook tab ordering, README tab, summary tab design
 - **Do not:** Bury the headline in tab 7. Lead with the answer.
 
+### 2026-06-02 — Cinderhaven 5-line seed calibration targets
+- **Why:** Original 3-line seed at VELOCITY_SCALE=1.21 produced $33M TTM — incompatible with "$25M brand" description. Trade rates were flat and unrealistically low (11.3% all-in). Designed from ground up for 5 lines at realistic CPG economics.
+- **Scope:** All cinderhaven-data generation scripts, all downstream repos that consume the dataset, all website figures.
+- **Key parameters:** VELOCITY_SCALE=0.66, AS=1.30/PS=1.10/SC=1.00/DG=0.90/SB=0.85, UNFI=40 doors, KeHE=25, trade rates per-channel (Walmart 18-25%, Costco 15-20%, Kroger 16-22%, WFM 10-15%, Sprouts 12-16%, Regional 8-12%, UNFI 12-18%, KeHE 10-16%, DTC 0%).
+- **Do not:** Change VELOCITY_SCALE or line multipliers without re-running the full pipeline and reporting all headline metrics. Do not propagate figures until sign-off.
+
 ---
 
 ## Data & Schema

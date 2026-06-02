@@ -29,6 +29,17 @@ should handle partial builds gracefully.
 **What we learned:** Before making architectural changes, always check DECISIONS.md for existing rulings. The decision log exists precisely to prevent this — but only works if every session reads it first. Worktrees that diverge significantly from main should be merged early or abandoned, not left to accumulate drift.
 **Resolution:** Reset master to the SQLite branch (the user-approved architecture), preserved old master as `backup/master-before-reset`, selectively recovered writing artifacts. The reset approach was faster and safer than resolving 100+ conflicts across incompatible architectures.
 
+## [2026-06-02] P2 ALTER TABLE fix was throwaway — full recalibration replaced it
+**What happened:** Added Kroger/Sprouts columns to the live database via ALTER TABLE + UPDATE, rebuilt the workbook, and reported "corrected" figures. Then the user requested a full seed recalibration, which ran build_db.py --force and regenerated the entire database from scratch — discarding the ALTER TABLE changes.
+**Why it failed:** Treated P2 as an incremental fix (add two columns) when the underlying problem was structural (3-line seed producing $33M, flat unrealistic trade rates). The incremental fix was correct in isolation but was immediately superseded by the larger scope.
+**What we learned:** Before patching a dataset, ask whether the dataset itself is about to be regenerated. If a recalibration is on the horizon, skip the incremental fix and go straight to the redesign. The ~15 minutes spent on ALTER TABLE + workbook rebuild + reporting was wasted.
+
+## [2026-06-02] build_db.py --force destroyed the 5-line product_master
+**What happened:** Ran `build_db.py --force` expecting it to regenerate all 5 product lines. It deleted the existing DB and re-seeded from `seed_product_master.sql`, which only had 3 product lines (AS=22, SC=16, PS=12). Dried Goods and Snack Bites disappeared. The first build produced $22.4M revenue from only 3 lines.
+**Why it failed:** The 5-line product master came from the platform Postgres database, not the seed SQL. The seed SQL was never updated when the 5th line was added. Running --force from the seed SQL reverted to the 3-line version.
+**What we learned:** Before running a destructive regeneration (--force), verify the seed files match the expected state. Specifically: check that seed_product_master.sql has the right product line count and SKU distribution. The seed SQL is the source of truth for build_db.py, not the previously-generated DB.
+**Resolution:** Updated seed_product_master.sql with DG/SB product definitions (UPDATE statements for 20 reassigned SKUs) and broadened active_retailers. Took one extra build cycle to discover and fix.
+
 ## [2026-05-22] "Make everything dynamic" pass missed hardcoded numbers in Section 5
 **What happened:** After making Tab 7 fully dynamic (25+ metrics queried from DB), Section 5 (Recovery Rate) still had `$987,798`, `$4,989,889`, and `19.8%` hardcoded as string literals — leftover from the Postgres era.
 **Why it failed:** The dynamic-numbers refactor focused on Sections 1-2 (the heaviest hardcoding) and the data lineage section, but didn't audit every prose string in the file for embedded dollar figures. Manual review missed it; the 3-agent code review caught it.
