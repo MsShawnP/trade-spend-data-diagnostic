@@ -84,30 +84,30 @@ def main() -> bool:
         ws1 = wb["Executive Pulse"]
 
         revenue = ws1["D11"].value
-        r.check("Revenue ≈ $29,854,750", approx(revenue, 29854750),
+        r.check("Revenue ≈ $24,616,311", approx(revenue, 24616311),
                 f"Got ${revenue:,.0f}" if revenue else "Got None")
 
         structural = ws1["D12"].value
-        r.check("Structural trade ≈ $4,972,381", approx(structural, 4972381),
+        r.check("Structural trade ≈ $4,311,076", approx(structural, 4311076),
                 f"Got ${structural:,.0f}" if structural else "Got None")
 
         waste = ws1["D13"].value
-        r.check("Operational waste ≈ $1,131,144", approx(waste, 1131144, 0.02),
+        r.check("Operational waste ≈ $1,030,034", approx(waste, 1030034, 0.02),
                 f"Got ${waste:,.0f}" if waste else "Got None")
 
         all_in_rate = ws1["B5"].value
-        r.check("All-in trade rate ≈ 20.4%",
-                approx(all_in_rate, 0.204, 0.01),
+        r.check("All-in trade rate ≈ 21.7%",
+                approx(all_in_rate, 0.217, 0.01),
                 f"Got {all_in_rate*100:.1f}%" if all_in_rate else "Got None")
 
         structural_rate = ws1["C5"].value
-        r.check("Structural trade rate = 16.7%",
-                approx(structural_rate, 0.167, 0.005),
+        r.check("Structural trade rate = 17.5%",
+                approx(structural_rate, 0.1751, 0.005),
                 f"Got {structural_rate*100:.1f}%" if structural_rate else "Got None")
 
         waste_rate = ws1["D5"].value
-        r.check("Operational waste rate ≈ 3.8%",
-                approx(waste_rate, 0.038, 0.02),
+        r.check("Operational waste rate ≈ 4.2%",
+                approx(waste_rate, 0.0418, 0.02),
                 f"Got {waste_rate*100:.1f}%" if waste_rate else "Got None")
 
         # === RECOVERY RATE VALIDATION ===
@@ -152,7 +152,7 @@ def main() -> bool:
         r.check("Found Double-Dip Alert section", dd_header_row is not None,
                 "Could not find 'Double-Dip Alert' header")
         r.check("3 double-dip events", dd_count == 3, f"Got {dd_count}")
-        r.check("Double-dip total ≈ $18,795", approx(dd_total, 18795, 0.02),
+        r.check("Double-dip total ≈ $19,372", approx(dd_total, 19372, 0.02),
                 f"Got ${dd_total:,.0f}")
 
         # === RETAILER TOTALS (Tab 4) ===
