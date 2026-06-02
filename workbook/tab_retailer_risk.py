@@ -37,7 +37,7 @@ from workbook.styles import (
 )
 
 REGIONAL_RETAILERS = [
-    "Kroger", "Sprouts", "Regional Group",
+    "Regional Group",
 ]
 
 
@@ -58,7 +58,8 @@ def _query_retailer_data(db_path: Path) -> dict:
 
         gm_map: dict[str, float] = {}
         for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
-                              ("Whole Foods", "wholesale_whole_foods"), ("UNFI", "wholesale_unfi"),
+                              ("Kroger", "wholesale_kroger"), ("Whole Foods", "wholesale_whole_foods"),
+                              ("Sprouts", "wholesale_sprouts"), ("UNFI", "wholesale_unfi"),
                               ("DTC", "wholesale_dtc"), ("KeHE", "wholesale_kehe"),
                               ("Regional", "wholesale_regional")]:
             r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM sku_costs").fetchone()

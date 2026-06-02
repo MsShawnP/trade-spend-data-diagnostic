@@ -13,6 +13,12 @@ defensible taxonomy, identifies addressable waste, and provides a
 retailer-by-retailer P&L showing where the margin erosion
 concentrates.
 
+## Data Contract
+
+Cinderhaven canonical platform data: 50 SKUs across 5 product lines (Artisan Sauces, Pantry Staples, Specialty Condiments, Dried Goods, Snack Bites), 6 contracted retailers (Walmart, Costco, Whole Foods, Sprouts, Kroger, Regional Group), 3 distributors (UNFI, KeHE, DPI Northwest) + 1 DTC channel (Shopify). Source: `CINDERHAVEN_CANONICAL.md` in `cinderhaven-data-platform`.
+
+> **Note:** Current baked data contains 3 product lines from an earlier platform export. A re-export with all 5 lines is pending.
+
 ## Download the workbook
 
 **[Cinderhaven_Trade_Diagnostic.xlsx](https://github.com/MsShawnP/trade-spend-data-diagnostic/releases/latest/download/Cinderhaven_Trade_Diagnostic.xlsx)** — 7-tab Excel diagnostic. Open it cold; Tab 1 has the punchline.

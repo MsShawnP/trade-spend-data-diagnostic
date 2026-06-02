@@ -9,6 +9,18 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-06-02 15:02 — Seed recalibration build complete — 5-line dataset at $24.6M with realistic CPG economics
+
+**What changed:** Recalibrated Cinderhaven seed from 3-line/$33M to 5-line/$24.6M. Updated seed_product_master.sql (added Dried Goods + Snack Bites, broadened active_retailers), 03_generate_costs.py (Kroger/Sprouts columns, DG/SB margin ranges), 05_generate_scan_data.py (VELOCITY_SCALE=0.66, line velocity multipliers, DG/SB seasonality, reduced UNFI/KeHE equivalent doors). Rebuilt entire 17-step pipeline via build_db.py --force.
+
+**Why:** TTM revenue was $33M with 5 lines but only 3 lines in the seed. Trade spend was 11.3% all-in (unrealistically low). Design approved for ~$25M with 18-22% all-in trade. Dataset is now designed for 5 lines from the ground up.
+
+**State:** Database regenerated, workbook builds clean. Headline metrics: $24.6M revenue, 17.5% structural, 4.2% waste, 21.7% all-in, $296K chargebacks. Step 3 metrics reported, awaiting sign-off. Validation script has stale hardcoded bounds (reports FAIL on revenue check) — needs recalibration after sign-off. Downstream repos (short-ship-cost, product-data-health-audit, launch-cost, SKU rationalization) not yet re-exported.
+
+**Next:** Get sign-off on Step 3 metrics. Then: propagate figures to website (Step 4), update regression tests (Step 5), export baked artifacts to downstream repos.
+
+---
+
 ## 2026-05-22 22:00 — Improvement pass + code review + security review
 
 **Started from:** `/improve` audit identified 10 findings (4 critical, 4 important, 2 nice-to-have). User said "fix all."
