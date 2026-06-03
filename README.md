@@ -21,7 +21,7 @@ Cinderhaven canonical platform data: 50 SKUs across 5 product lines (Artisan Sau
 
 ## Download the workbook
 
-**[trade_spend_diagnostic.xlsx](https://github.com/MsShawnP/trade-spend-data-diagnostic/releases/latest/download/trade_spend_diagnostic.xlsx)** — 7-tab Excel diagnostic. Open it cold; Tab 1 has the punchline.
+**Download:** trade_spend_diagnostic.xlsx
 
 ## Deliverables
 
