@@ -94,3 +94,6 @@ MIT. See [LICENSE](LICENSE).
 ## Contact
 
 Shawn P — msshawnp@gmail.com
+
+---
+Built by [Lailara LLC](https://lailarallc.com) — data hygiene and analytics consulting for specialty food brands scaling into national retail.
