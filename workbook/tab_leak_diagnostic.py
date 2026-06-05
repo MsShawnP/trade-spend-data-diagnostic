@@ -40,6 +40,7 @@ RECOVERABILITY = {
     "slotting": "Low",
     "damaged": "Medium",
     "pallet_fine": "Low",
+    "pricing_error": "Medium",
 }
 
 

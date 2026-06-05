@@ -1,23 +1,29 @@
-# Cinderhaven Provisions is leaking $1.1M of margin to operational waste
+# ~$965K of operational waste is hiding in Cinderhaven's deductions
 
 A trade spend diagnostic for a mid-market natural/specialty CPG
-company. Cinderhaven budgets 17% for trade — the negotiated rate-card
-cost of shelf access. The actual all-in cost is 20%. The 4-point
-gap is $1.1 million per year in deductions taken beyond the rate card:
-vague charges with no clear basis, short-ship charges, spoilage claims,
-and compliance fines. Industry range is 19-23%. The structural rate
-is competitive. The operational waste is not.
+company. Cinderhaven's structural trade rate (10.8% of scan
+revenue) is healthy and competitive. The problem is operational:
+~$965K per year in avoidable deductions — $419K of it vague, with
+no clear basis and 30% lacking even a PO reference — that nobody
+is classifying, nobody is contesting, and that Cinderhaven recovers
+barely a fifth of (20.9%) when it does dispute. The money is not
+in a bloated rate. It is in the noise no one has time to fight.
 
-The diagnostic quantifies the gap, classifies every deduction into a
-defensible taxonomy, identifies addressable waste, and provides a
-retailer-by-retailer P&L showing where the margin erosion
-concentrates.
+The diagnostic quantifies the waste, classifies every deduction
+into a defensible taxonomy, identifies addressable waste, and
+provides a retailer-by-retailer P&L showing where the margin
+erosion concentrates.
 
 ## Data Contract
 
 Cinderhaven canonical platform data: 50 SKUs across 5 product lines (Artisan Sauces, Pantry Staples, Specialty Condiments, Dried Goods, Snack Bites), 6 contracted retailers (Walmart, Costco, Whole Foods, Sprouts, Kroger, Regional Group), 3 distributors (UNFI, KeHE, DPI Northwest) + 1 DTC channel (Shopify). Source: `CINDERHAVEN_CANONICAL.md` in `cinderhaven-data-platform`.
 
-> **Note:** Current baked data contains 3 product lines from an earlier platform export. A re-export with all 5 lines is pending.
+This diagnostic consumes the **distressed scenario** dataset —
+baseline revenue, structural trade, and chargebacks are unchanged;
+the deduction and dispute layers are regenerated with v1-style
+operational mess (real vague deductions, explicit double-dips,
+low recovery rates). See `CINDERHAVEN_CANONICAL.md` "Distressed
+Scenario" section for full figure table.
 
 ## Download the workbook
 
@@ -56,7 +62,7 @@ EXECUTIVE_MEMO.md           One-page CEO summary
 DEFENSIBILITY.md            Deduction classification rules + rebuttals
 walkthrough.md              Full methodology and findings narrative
 build_workbook.py           Generates the 7-tab diagnostic workbook
-validate_workbook.py        60-check acceptance test suite
+validate_workbook.py        59-check acceptance test suite
 workbook/                   Workbook generation modules (one per tab)
 sql/                        25 standalone diagnostic queries
 cinderhaven-data/           Simulated dataset (git submodule, 22 tables)
@@ -71,7 +77,7 @@ git clone --recurse-submodules <repo-url>
 cd trade-spend-data-diagnostic
 pip install -r requirements.txt
 python build_workbook.py
-python validate_workbook.py   # 60 checks
+python validate_workbook.py   # 59 checks
 ```
 
 The `--recurse-submodules` flag is required — the `cinderhaven-data`

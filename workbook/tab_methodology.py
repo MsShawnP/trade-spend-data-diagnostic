@@ -174,8 +174,8 @@ def build_methodology(ws: Worksheet, db_path: Path) -> None:
         "Investigation revealed that off-invoice is a funding mechanism, not a cost category — "
         "including it as a separate bucket double-counts costs already captured in the structural "
         f"trade rate. The promotions table's promo_cost sum (${n['promo_cost_sum']:,.0f}) is too small to constitute "
-        f"a meaningful standalone bucket. Two buckets tell a cleaner story: you budgeted {n['structural_pct']:.0f}%, "
-        f"you're spending {n['all_in_pct']:.0f}%, the gap is operational waste.")
+        f"a meaningful standalone bucket. Two buckets tell a cleaner story: structural trade at {n['structural_pct']:.0f}% "
+        f"is competitive; the {n['waste_pct']:.1f}% operational waste layer is where the addressable money is.")
     row = _write_pair(ws, row, "Promo billback exclusion",
         f"Promo_billback deductions (${n['pb']:,.0f} trailing-365) are excluded from the operational "
         "waste bucket because they represent planned promotional activity, not operational failures. "
