@@ -111,10 +111,10 @@ Each entry:
   own bucket double-counts. The promotions table's promo_cost sum
   ($20K) is too small to be a meaningful standalone bucket. The data
   supports two clean buckets:
-  - Structural/planned trade: $5.2M (18.9%) — the negotiated rate-card
-  - Operational/compliance: $2.0M (7.2%) — deductions beyond planned trade
-  All-in: $7.2M (26.1%). CEO takeaway: "You budgeted 19%. You're
-  spending 26%. The extra 7 points is operational waste."
+  - Structural/planned trade: $3.0M (9.2%) — the negotiated rate-card
+  - Operational waste: ~$977K (3.0%) — deductions beyond planned trade
+  All-in: ~$3.98M (12.2%). CEO takeaway: "Your structural rate is
+  competitive. ~$965K in operational waste is buried in the deductions."
 - **Scope:** Executive summary tab, dashboard, walkthrough
 - **Do not:** Use a three-bucket model unless the data is extended to
   support it. The detail tabs can break out deduction types and
@@ -143,28 +143,23 @@ Each entry:
 off-invoice, $4.5M total trade, 42/38/20 category split.~~
 **Superseded by 2026-05-09 entry below — verified numbers replace brief targets.**
 
-### 2026-05-09 — Use verified numbers from unified cinderhaven-data build, not original brief targets
-- **Why:** The 95% confidence session and Code investigation revealed the
-  original brief's numbers were internally inconsistent. The cinderhaven-data
-  repo now produces all trade spend and deduction data via a unified build
-  pipeline (21 tables). Verified numbers from TRADE_SPEND_VERIFICATION.md:
-  - Revenue: $27,483,467
-  - Structural trade (sku_costs rate-card): $5,207,524 (18.9%)
-  - Operational/compliance deductions (trailing-365, excl promo_billback): $1,967,416 (7.2%)
-  - Promo_billback deductions (trailing-365): $1,776,218
-  - All-in trade cost: $7,174,939 (26.1%)
-  - Double-dips: 3 events, $19,524
-  - Disputes: 6,105 filed, $987,798 recovered, 19.8% recovery rate
-  - SKUs: 50 (was 90)
-  - Scan window: 2026-01-10 to 2027-01-02
-  - KeHE now has its own trade_spend_pct_kehe column and scan revenue (~$2.6M)
-  The three-way split (contractual/promotional/operational) from the brief
-  was not derivable and had a double-counting error ("off-invoice" is a
-  funding mechanism, not a category). Replaced with a two-bucket executive
-  framing: structural/planned trade (18.9%) + operational waste (7.2%).
-- **Scope:** All deliverables — workbook, dashboard, walkthrough, SQL queries
-- **Do not:** Reference the original brief's 19.2%, 16.8%, $340K, $4.5M,
-  or 42/38/20 numbers. Use verified actuals only.
+### ~~2026-05-09 — Use verified numbers from unified cinderhaven-data build, not original brief targets~~
+~~Verified numbers from v1 build: Revenue $27.5M, Structural 18.9%, Operational 7.2%, All-in 26.1%.~~
+**Superseded 2026-06-05: v2 canonical reconciliation locked new baseline (see remittance-stub-parsing DECISIONS.md), then distressed scenario adopted for this diagnostic.**
+
+### 2026-06-05 — Diagnostic consumes the distressed scenario dataset (not v2 baseline)
+- **Why:** The v2 canonical data ($480K/yr waste, 44% recovery, 0 vague, 0 double-dips) makes the diagnostic's exposé narrative impossible — the baseline is too clean. Rather than re-baselining all 11+ portfolio pieces, a named distressed scenario generates an alternate deduction layer consumed only by this diagnostic. Baseline tables (revenue, structural trade, chargebacks) are unchanged.
+- **Scope:** All deliverables in this repo — workbook, walkthrough, EXECUTIVE_MEMO, DEFENSIBILITY, SQL queries
+- **Key figures (distressed):**
+  - Trailing-52w scan revenue: $32.5M (unchanged)
+  - Structural trade: $3.0M / 9.2% (unchanged)
+  - Operational waste: ~$977K trailing-365 (~$965K/yr), 3.0% of scan revenue
+  - Vague: 318 trailing-365 / $417K (43% of waste), 33% no-PO
+  - Double-dips: 3 / $19,062
+  - Ghost promos: 3,258 / $361K
+  - Disputes: 5,395 filed, $232K recovered, 20.9% recovery
+- **Narrative pivot:** Rate-gap framing is dead (v2 all-in ~12.2% is under any budget). Story is now waste-magnitude: "the money isn't in a bloated rate; it's in the noise no one has time to fight."
+- **Do not:** Use $1.13M, 20.4%, 3.8-point gap, 18.6% recovery, 405 ghost promos, 3,581 disputes, or any rate-gap framing. All are dead.
 
 ### 2026-05-09 — Build realistic quirks into simulated data sources
 - **Why:** The credibility of the diagnostic depends on the data looking
