@@ -6,18 +6,19 @@
 
 ## The finding
 
-Your structural trade rate is 10.8% of scan revenue — healthy and
-competitive for natural/specialty CPG. The problem is not the rate
-card. The problem is ~$965K per year in operational waste buried
-inside the deductions: charges taken by retailers beyond the
-negotiated rate, largely unclassified, uncontested, and invisible
-until the infrastructure to measure them was built.
+Your structural trade rate is 9.2% of scan revenue ($3.0M on
+$32.5M trailing-52w) — competitive for natural/specialty CPG.
+All-in trade cost, once operational deductions are layered on, is
+12.2%. The 3-point gap — $977K per year — is avoidable waste:
+charges taken by retailers beyond the negotiated rate, largely
+unclassified, uncontested, and invisible until the infrastructure
+to measure them was built.
 
-Of that ~$965K, $419K is vague — deductions with no clear basis
-and no specific justification. Nearly a third of those vague
-deductions (30.5%) lack even a PO reference, meaning they cannot
-be traced to a specific order. Cinderhaven recovers barely a fifth
-(20.9%) of what it does dispute.
+Of that $977K, $417K is vague — deductions with no clear basis
+and no specific justification. A third of those 318 trailing-year
+vague deductions (33%) lack even a PO reference, meaning they
+cannot be traced to a specific order. Cinderhaven recovers barely
+a fifth (20.9%) of what it does dispute.
 
 The money is not in a bloated rate. It is in the noise no one has
 time to fight.
@@ -35,12 +36,12 @@ time to fight.
 | Late delivery penalties | ~$31K | Yes |
 | Slotting fees | ~$28K | No |
 | Pricing errors | ~$6K | Yes |
-| **Total operational waste** | **~$977K** | |
+| **Total operational waste** | **$977K** | |
 | **Addressable portion** | **~$949K** | |
 
 The largest single category — vague deductions with missing or
 ambiguous reason codes — accounts for 43% of the waste. You are
-paying $417K per year for charges your retailers cannot specifically
+paying ~$417K per year for charges your retailers cannot specifically
 justify. Three double-dip events ($19,062) confirm that the
 matching infrastructure to catch duplicate payments did not exist
 before this diagnostic. Another 3,258 "ghost promo" billbacks
@@ -59,7 +60,7 @@ ones to contest.
 ## Three things to do Monday morning
 
 1. **Dispute the vague deductions.** $417K with no clear basis —
-   30% without even a PO link. Request supporting documentation
+   33% without even a PO link. Request supporting documentation
    from each retailer. Deductions without a specific, documented
    basis are disputable — the absence of clear justification is
    itself the dispute grounds.
@@ -78,13 +79,14 @@ These three actions address the majority of the addressable total.
 
 ## The bottom line
 
-Your structural trade rate is fine. Your retailers are not
-overcharging you on the rate card. The problem is operational:
-~$965K per year in avoidable charges — $419K of it vague, with no
-clear basis and 30% lacking even a PO reference — that nobody is
-classifying, nobody is contesting, and that Cinderhaven recovers
-barely a fifth of when it does dispute. The diagnostic quantifies
-the waste. The next step is closing it.
+Your structural trade rate (9.2%) is competitive. Your retailers
+are not overcharging you on the rate card. The problem is the
+3-point operational layer above it: $977K per year in avoidable
+charges — $417K of it vague, with no clear basis and 33% lacking
+even a PO reference — that nobody is classifying, nobody is
+contesting, and that Cinderhaven recovers barely a fifth of when
+it does dispute. The diagnostic quantifies the waste. The next
+step is closing it.
 
 ---
 

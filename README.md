@@ -1,13 +1,14 @@
-# ~$965K of operational waste is hiding in Cinderhaven's deductions
+# $977K of operational waste is hiding in Cinderhaven's deductions
 
 A trade spend diagnostic for a mid-market natural/specialty CPG
-company. Cinderhaven's structural trade rate (10.8% of scan
-revenue) is healthy and competitive. The problem is operational:
-~$965K per year in avoidable deductions — $419K of it vague, with
-no clear basis and 30% lacking even a PO reference — that nobody
+company. Cinderhaven's structural trade rate (9.2% of scan
+revenue) is competitive. The problem is operational:
+~$977K per year in avoidable deductions — $417K of it vague, with
+no clear basis and 33% lacking even a PO reference — that nobody
 is classifying, nobody is contesting, and that Cinderhaven recovers
-barely a fifth of (20.9%) when it does dispute. The money is not
-in a bloated rate. It is in the noise no one has time to fight.
+barely a fifth of (20.9%) when it does dispute. All-in trade cost
+including waste is 12.2% of revenue — the 3-point delta above the
+structural rate is where the recoverable money lives.
 
 The diagnostic quantifies the waste, classifies every deduction
 into a defensible taxonomy, identifies addressable waste, and
