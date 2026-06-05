@@ -58,10 +58,11 @@ def _query_retailer_data(db_path: Path) -> dict:
 
         gm_map: dict[str, float] = {}
         for channel, wcol in [("Walmart", "wholesale_walmart"), ("Costco", "wholesale_costco"),
-                              ("Kroger", "wholesale_kroger"), ("Whole Foods", "wholesale_whole_foods"),
+                              ("Whole Foods", "wholesale_whole_foods"),
                               ("Sprouts", "wholesale_sprouts"), ("UNFI", "wholesale_unfi"),
                               ("DTC", "wholesale_dtc"), ("KeHE", "wholesale_kehe"),
                               ("Regional", "wholesale_regional")]:
+            # Kroger has no dedicated wholesale column; uses regional rate
             r = conn.execute(f"SELECT AVG(cogs_per_unit), AVG({wcol}) FROM sku_costs").fetchone()
             if r[0] is not None and r[1]:
                 gm_map[channel] = (r[1] - r[0]) / r[1]
@@ -86,7 +87,8 @@ def _query_retailer_data(db_path: Path) -> dict:
         """, (max_scan, max_scan)).fetchall()
         pb_map = dict(pb_rows)
 
-    channel_order = ["Walmart", "UNFI", "KeHE", "Whole Foods", "Costco", "DTC"] + REGIONAL_RETAILERS
+    channel_order = ["Walmart", "UNFI", "KeHE", "Whole Foods", "Costco",
+                     "Kroger", "Sprouts", "DTC"] + REGIONAL_RETAILERS
 
     retailers = []
     for retailer_name in channel_order:
