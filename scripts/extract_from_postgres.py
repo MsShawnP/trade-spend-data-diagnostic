@@ -12,10 +12,11 @@ from pathlib import Path
 
 import psycopg2
 
-DB_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://postgres:XADNlCC9WhK772z@localhost:5432/cinderhaven",
-)
+_pw = os.environ.get("POSTGRES_PASSWORD")
+if not _pw:
+    print("Error: POSTGRES_PASSWORD environment variable is required.", file=sys.stderr)
+    sys.exit(1)
+DB_URL = os.environ.get("DATABASE_URL", f"postgresql://postgres:{_pw}@localhost:5432/cinderhaven")
 
 OUT = Path(__file__).resolve().parent.parent / "cinderhaven-data" / "data" / "cinderhaven_product_master.db"
 
