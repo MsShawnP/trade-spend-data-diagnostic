@@ -110,8 +110,8 @@ For a new analyst walking through the diagnostic narrative:
 
 1. **trailing_52_weeks.sql** — establish the analysis window; note
    the oldest and newest dates for use as parameters in later queries
-2. **total_revenue.sql** — the revenue headline ($32.5M)
-3. **all_in_trade_rate.sql** — the punchline: 9.2% structural +
+2. **total_revenue.sql** — the revenue headline ($32.8M)
+3. **all_in_trade_rate.sql** — the punchline: 9.9% structural +
    3.0% waste = 12.2% all-in (the rate is competitive; the waste
    magnitude is the story)
 4. **waste_by_category.sql** — where the 3.0% comes from (9 deduction
@@ -157,10 +157,10 @@ is expected from trailing-window boundary effects.
 
 | Metric | Locked value | Query to check |
 |--------|-------------|----------------|
-| Trailing-52w scan revenue | $32,539,868 | total_revenue.sql |
-| Structural trade | $3,005,686 (9.2%) | structural_trade_amount.sql |
+| Trailing-52w scan revenue | $32,800,000 | total_revenue.sql |
+| Structural trade | ~$3,200,000 (9.9%) | structural_trade_amount.sql |
 | Operational waste | ~$977,301 (3.0%) | waste_by_category.sql |
-| All-in trade cost | ~$3,982,987 (12.2%) | all_in_trade_rate.sql |
+| All-in trade cost | ~$3,700,000 (11.3%) | all_in_trade_rate.sql |
 | Vague deductions | 318 / $416,967 (43% of waste) | waste_by_category.sql |
 | Double-dip events | 3 / $19,062 | double_dip_events.sql |
 | Disputes filed | 5,395 | dispute_summary.sql |

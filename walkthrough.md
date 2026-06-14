@@ -1,8 +1,8 @@
 # Trade Spend Diagnostic — Walkthrough
 
-Cinderhaven Provisions, a specialty food company with $32.5 million
+Cinderhaven Provisions, a specialty food company with $32.8 million
 in trailing-52-week scan revenue, carries a structural trade rate
-of 9.2% ($3.0M) — competitive for natural/specialty CPG. All-in
+of 9.9% (~$3.2M) — competitive for natural/specialty CPG. All-in
 trade cost including operational deductions is 12.2%. The rate card
 is not the problem. The 3-point gap above it is: $977K per year in
 operational waste buried inside the deductions — vague charges with
@@ -45,7 +45,7 @@ filing window closes.
 
 The waste is measurable, and the measurement is the point of this
 diagnostic. Cinderhaven's numbers are representative of the pattern:
-a 9.2% structural trade rate that is competitive, and $977K per
+a 9.9% structural trade rate that is competitive, and $977K per
 year in operational waste (3.0% of scan revenue) that did not
 appear in any report until the infrastructure to calculate it was
 built. The all-in trade cost is 12.2% — the 3-point delta above
@@ -123,8 +123,8 @@ diagnostic-level engagement.
 
 ### The headline
 
-Cinderhaven's structural trade rate is 9.2% of trailing-52-week
-scan revenue ($32.5M) — $3.0M in planned trade. The all-in trade
+Cinderhaven's structural trade rate is 9.9% of trailing-52-week
+scan revenue ($32.8M) — ~$3.2M in planned trade. The all-in trade
 cost, including operational deductions, is 12.2% ($3.98M). The
 operational waste layer is $977K trailing-365-day, representing
 3.0% of scan revenue — the 3-point gap between the structural
@@ -222,7 +222,7 @@ for a different user and a different moment.
 
 **The Excel workbook** (7 tabs) is the static diagnostic. It opens
 cold — no database connection, no setup. Tab 1 (Executive Pulse)
-leads with the waste-magnitude punchline: 9.2% structural,
+leads with the waste-magnitude punchline: 9.9% structural,
 3.0% operational waste, $977K trailing-365, 12.2% all-in. Tabs 2 through 4
 (Leak Diagnostic, Promo Efficacy, Retailer Risk) provide the
 supporting detail with adjustable inputs — a target recovery rate,

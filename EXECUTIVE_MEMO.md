@@ -6,8 +6,8 @@
 
 ## The finding
 
-Your structural trade rate is 9.2% of scan revenue ($3.0M on
-$32.5M trailing-52w) — competitive for natural/specialty CPG.
+Your structural trade rate is 9.9% of scan revenue (~$3.2M on
+$32.8M trailing-52w) — competitive for natural/specialty CPG.
 All-in trade cost, once operational deductions are layered on, is
 12.2%. The 3-point gap — $977K per year — is avoidable waste:
 charges taken by retailers beyond the negotiated rate, largely
@@ -79,7 +79,7 @@ These three actions address the majority of the addressable total.
 
 ## The bottom line
 
-Your structural trade rate (9.2%) is competitive. Your retailers
+Your structural trade rate (9.9%) is competitive. Your retailers
 are not overcharging you on the rate card. The problem is the
 3-point operational layer above it: $977K per year in avoidable
 charges — $417K of it vague, with no clear basis and 33% lacking

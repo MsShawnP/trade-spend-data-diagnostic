@@ -53,6 +53,8 @@ def extract():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     if OUT.exists():
         backup = OUT.with_suffix(".db.bak")
+        if backup.exists():
+            backup.unlink()
         print(f"Backing up existing DB to {backup.name}")
         OUT.rename(backup)
 
