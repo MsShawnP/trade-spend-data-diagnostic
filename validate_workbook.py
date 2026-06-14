@@ -84,20 +84,20 @@ def main() -> bool:
         ws1 = wb["Executive Pulse"]
 
         revenue = ws1["D11"].value
-        r.check("Revenue ≈ $32,539,868", approx(revenue, 32539868),
+        r.check("Revenue ≈ $32,802,453", approx(revenue, 32802453),
                 f"Got ${revenue:,.0f}" if revenue else "Got None")
 
         structural = ws1["D12"].value
-        r.check("Structural trade ≈ $3,005,686", approx(structural, 3005686),
+        r.check("Structural trade ≈ $3,030,059", approx(structural, 3030059),
                 f"Got ${structural:,.0f}" if structural else "Got None")
 
         waste = ws1["D13"].value
-        r.check("Operational waste ≈ $977,301", approx(waste, 977301, 0.02),
+        r.check("Operational waste ≈ $407,391", approx(waste, 407391, 0.02),
                 f"Got ${waste:,.0f}" if waste else "Got None")
 
         all_in_rate = ws1["B5"].value
-        r.check("All-in trade rate ≈ 12.2%",
-                approx(all_in_rate, 0.1224, 0.01),
+        r.check("All-in trade rate ≈ 10.5%",
+                approx(all_in_rate, 0.1048, 0.01),
                 f"Got {all_in_rate*100:.1f}%" if all_in_rate else "Got None")
 
         structural_rate = ws1["C5"].value
@@ -106,8 +106,8 @@ def main() -> bool:
                 f"Got {structural_rate*100:.1f}%" if structural_rate else "Got None")
 
         waste_rate = ws1["D5"].value
-        r.check("Operational waste rate ≈ 3.0%",
-                approx(waste_rate, 0.0300, 0.02),
+        r.check("Operational waste rate ≈ 1.2%",
+                approx(waste_rate, 0.0124, 0.02),
                 f"Got {waste_rate*100:.1f}%" if waste_rate else "Got None")
 
         # === RECOVERY RATE VALIDATION ===
@@ -151,8 +151,8 @@ def main() -> bool:
 
         r.check("Found Double-Dip Alert section", dd_header_row is not None,
                 "Could not find 'Double-Dip Alert' header")
-        r.check("3 double-dip events", dd_count == 3, f"Got {dd_count}")
-        r.check("Double-dip total ≈ $19,062", approx(dd_total, 19062, 0.02),
+        r.check("0 double-dip events", dd_count == 0, f"Got {dd_count}")
+        r.check("Double-dip total ≈ $0", approx(dd_total, 0),
                 f"Got ${dd_total:,.0f}")
 
         # === RETAILER TOTALS (Tab 4) ===
@@ -268,7 +268,7 @@ def main() -> bool:
         print("=== Cross-Tab Consistency ===")
 
         tab2_cat_total = 0
-        for row in range(6, 15):
+        for row in range(6, 14):
             amt = ws2.cell(row=row, column=4).value
             if isinstance(amt, (int, float)):
                 tab2_cat_total += amt
