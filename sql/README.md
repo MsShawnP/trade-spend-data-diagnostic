@@ -160,7 +160,7 @@ is expected from trailing-window boundary effects.
 | Trailing-52w scan revenue | $32,800,000 | total_revenue.sql |
 | Structural trade | ~$3,200,000 (9.9%) | structural_trade_amount.sql |
 | Operational waste | ~$977,301 (3.0%) | waste_by_category.sql |
-| All-in trade cost | ~$3,700,000 (11.3%) | all_in_trade_rate.sql |
+| All-in trade cost | ~$4,180,000 (12.2%) | all_in_trade_rate.sql |
 | Vague deductions | 318 / $416,967 (43% of waste) | waste_by_category.sql |
 | Double-dip events | 3 / $19,062 | double_dip_events.sql |
 | Disputes filed | 5,395 | dispute_summary.sql |

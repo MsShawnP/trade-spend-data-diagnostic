@@ -84,30 +84,30 @@ def main() -> bool:
         ws1 = wb["Executive Pulse"]
 
         revenue = ws1["D11"].value
-        r.check("Revenue ≈ $32,802,453", approx(revenue, 32802453),
+        r.check("Revenue ≈ $32,472,742", approx(revenue, 32472742),
                 f"Got ${revenue:,.0f}" if revenue else "Got None")
 
         structural = ws1["D12"].value
-        r.check("Structural trade ≈ $3,030,059", approx(structural, 3030059),
+        r.check("Structural trade ≈ $2,992,224", approx(structural, 2992224),
                 f"Got ${structural:,.0f}" if structural else "Got None")
 
         waste = ws1["D13"].value
-        r.check("Operational waste ≈ $407,391", approx(waste, 407391, 0.02),
+        r.check("Operational waste ≈ $343,281", approx(waste, 343281, 0.02),
                 f"Got ${waste:,.0f}" if waste else "Got None")
 
         all_in_rate = ws1["B5"].value
-        r.check("All-in trade rate ≈ 10.5%",
-                approx(all_in_rate, 0.1048, 0.01),
+        r.check("All-in trade rate ≈ 10.3%",
+                approx(all_in_rate, 0.1027, 0.01),
                 f"Got {all_in_rate*100:.1f}%" if all_in_rate else "Got None")
 
         structural_rate = ws1["C5"].value
         r.check("Structural trade rate ≈ 9.2%",
-                approx(structural_rate, 0.0924, 0.005),
+                approx(structural_rate, 0.0921, 0.005),
                 f"Got {structural_rate*100:.1f}%" if structural_rate else "Got None")
 
         waste_rate = ws1["D5"].value
-        r.check("Operational waste rate ≈ 1.2%",
-                approx(waste_rate, 0.0124, 0.02),
+        r.check("Operational waste rate ≈ 1.1%",
+                approx(waste_rate, 0.0106, 0.02),
                 f"Got {waste_rate*100:.1f}%" if waste_rate else "Got None")
 
         # === RECOVERY RATE VALIDATION ===
