@@ -148,15 +148,15 @@ class TestCinderhavenCanonicalRegression:
         )
 
     def test_structural_trade(self, conn):
-        """Structural trade ~ $2,925,189 (understated: Kroger has no rate column)."""
+        """Structural trade ~ $2,914,207 (understated: Kroger/Sprouts/Regional use regional_rate fallback)."""
         oldest, _ = _trailing_bounds(conn)
         structural = _compute_structural_trade(conn, oldest)
-        assert self._approx(structural, 2_925_189, self.TOLERANCE), (
-            f"Structural trade {structural:,.2f} outside 0.5% of $2,925,189"
+        assert self._approx(structural, 2_914_207, self.TOLERANCE), (
+            f"Structural trade {structural:,.2f} outside 0.5% of $2,914,207"
         )
 
     def test_operational_waste(self, conn):
-        """Operational waste ~ $408,607 (5-line re-export 2026-06-02)."""
+        """Operational waste ~ $343,281 (regen 2026-06-30)."""
         _, max_scan = _trailing_bounds(conn)
         waste = conn.execute(
             "SELECT SUM(amount) FROM deductions "
@@ -164,12 +164,12 @@ class TestCinderhavenCanonicalRegression:
             "  AND deduction_type != 'promo_billback'",
             (max_scan, max_scan),
         ).fetchone()[0]
-        assert self._approx(waste, 408_607, self.TOLERANCE), (
-            f"Operational waste {waste:,.2f} outside 0.5% of $408,607"
+        assert self._approx(waste, 343_281, self.TOLERANCE), (
+            f"Operational waste {waste:,.2f} outside 0.5% of $343,281"
         )
 
     def test_all_in_rate(self, conn):
-        """All-in trade rate ~ 10.2% (5-line re-export 2026-06-02)."""
+        """All-in trade rate ~ 10.0% (regen 2026-06-30)."""
         oldest, max_scan = _trailing_bounds(conn)
         revenue = conn.execute(
             "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
@@ -183,12 +183,12 @@ class TestCinderhavenCanonicalRegression:
             (max_scan, max_scan),
         ).fetchone()[0]
         all_in = (structural + waste) / revenue
-        assert self._approx(all_in, 0.102, 0.01), (
-            f"All-in rate {all_in:.4f} ({all_in*100:.1f}%) outside tolerance of 10.2%"
+        assert self._approx(all_in, 0.1003, 0.01), (
+            f"All-in rate {all_in:.4f} ({all_in*100:.1f}%) outside tolerance of 10.0%"
         )
 
     def test_structural_rate(self, conn):
-        """Structural trade rate ~ 9.0% (5-line re-export 2026-06-02)."""
+        """Structural trade rate ~ 9.0% (regen 2026-06-30; understated vs workbook because regional fallback used for Kroger/Sprouts/Regional)."""
         oldest, _ = _trailing_bounds(conn)
         revenue = conn.execute(
             "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
@@ -196,12 +196,12 @@ class TestCinderhavenCanonicalRegression:
         ).fetchone()[0]
         structural = _compute_structural_trade(conn, oldest)
         rate = structural / revenue
-        assert self._approx(rate, 0.090, self.TOLERANCE), (
+        assert self._approx(rate, 0.0897, self.TOLERANCE), (
             f"Structural rate {rate:.4f} ({rate*100:.1f}%) outside 0.5% of 9.0%"
         )
 
     def test_waste_rate(self, conn):
-        """Operational waste rate ~ 1.3% (5-line re-export 2026-06-02)."""
+        """Operational waste rate ~ 1.06% (regen 2026-06-30)."""
         oldest, max_scan = _trailing_bounds(conn)
         revenue = conn.execute(
             "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
@@ -214,8 +214,8 @@ class TestCinderhavenCanonicalRegression:
             (max_scan, max_scan),
         ).fetchone()[0]
         rate = waste / revenue
-        assert self._approx(rate, 0.01256, self.TOLERANCE), (
-            f"Waste rate {rate:.4f} ({rate*100:.2f}%) outside 0.5% of 1.26%"
+        assert self._approx(rate, 0.01057, self.TOLERANCE), (
+            f"Waste rate {rate:.4f} ({rate*100:.2f}%) outside 0.5% of 1.06%"
         )
 
     def test_disputes_total(self, conn):
