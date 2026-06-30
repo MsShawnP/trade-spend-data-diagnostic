@@ -20,3 +20,5 @@ Read `../lailara-design-system/LAILARA_DESIGN_SYSTEM.md` before any visual work 
 
 ## Conventions
 <!-- Add coding conventions, tech stack notes, and project-specific rules here -->
+
+Never write secrets, tokens, or passwords into tracked files, READMEs, or commit messages — use environment variables and secret stores only.

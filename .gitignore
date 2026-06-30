@@ -3,3 +3,11 @@ output/
 __pycache__/
 *.db
 .venv/
+
+# Security - secret leak prevention
+.env
+.env.*
+*.pem
+*.key
+credentials.*
+secrets.*
