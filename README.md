@@ -1,13 +1,13 @@
-# Trade Spend Diagnostic — finding the $977K of operational waste hiding in Cinderhaven's deductions
+# Trade Spend Diagnostic — finding the $343K of operational waste hiding in Cinderhaven's deductions
 
 A trade spend diagnostic for a mid-market natural/specialty CPG company.
-Cinderhaven's structural trade rate (9.9% of scan revenue, ~$3.2M on $32.8M
-trailing-52-week) is competitive. The problem is operational: ~$977K per year
+Cinderhaven's structural trade rate (9.2% of scan revenue, ~$3.0M on $32.5M
+trailing-52-week) is competitive. The problem is operational: ~$343K per year
 in avoidable deductions — $417K of it vague, with no clear basis and 33%
 lacking even a PO reference — that nobody is classifying, nobody is
 contesting, and that Cinderhaven recovers barely a fifth of (20.9%) when it
-does dispute. All-in trade cost including waste is 12.2% of revenue; the
-3-point delta above the structural rate is where the recoverable money lives.
+does dispute. All-in trade cost including waste is 10.3% of revenue; the
+1.1-point delta above the structural rate is where the recoverable money lives.
 
 ## What it does
 
@@ -44,7 +44,7 @@ unplanned cost (compliance fines, short-ship charges, pricing errors, vague
 deductions) arrives as remittance line items no one has time to classify or
 dispute before the filing window closes. The result: companies know what they
 *planned* to spend on trade, not what they actually lost. This diagnostic
-makes the loss measurable — here, 3.0% of scan revenue that appeared in no
+makes the loss measurable — here, 1.1% of scan revenue that appeared in no
 report until the infrastructure to calculate it was built.
 
 ## Quick start

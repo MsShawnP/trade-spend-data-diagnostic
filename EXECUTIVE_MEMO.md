@@ -6,15 +6,15 @@
 
 ## The finding
 
-Your structural trade rate is 9.9% of scan revenue (~$3.2M on
-$32.8M trailing-52w) — competitive for natural/specialty CPG.
+Your structural trade rate is 9.2% of scan revenue (~$3.0M on
+$32.5M trailing-52w) — competitive for natural/specialty CPG.
 All-in trade cost, once operational deductions are layered on, is
-12.2%. The 3-point gap — $977K per year — is avoidable waste:
+10.3%. The 1.1-point gap — $343K per year — is avoidable waste:
 charges taken by retailers beyond the negotiated rate, largely
 unclassified, uncontested, and invisible until the infrastructure
 to measure them was built.
 
-Of that $977K, $417K is vague — deductions with no clear basis
+Of that $343K, $417K is vague — deductions with no clear basis
 and no specific justification. A third of those 318 trailing-year
 vague deductions (33%) lack even a PO reference, meaning they
 cannot be traced to a specific order. Cinderhaven recovers barely
@@ -36,7 +36,7 @@ time to fight.
 | Late delivery penalties | ~$31K | Yes |
 | Slotting fees | ~$28K | No |
 | Pricing errors | ~$6K | Yes |
-| **Total operational waste** | **$977K** | |
+| **Total operational waste** | **$343K** | |
 | **Addressable portion** | **~$949K** | |
 
 The largest single category — vague deductions with missing or
@@ -49,7 +49,7 @@ before this diagnostic. Another 3,258 "ghost promo" billbacks
 
 ## What you are recovering
 
-You filed 5,395 disputes. You recovered $232K — a 20.9% recovery
+You filed 5,247 disputes. You recovered $232K — a 20.9% recovery
 rate. Industry benchmarks for active dispute management are
 25-35%. At 30% recovery on the addressable waste, you would
 recover ~$285K — meaningful incremental recovery beyond the current
@@ -79,9 +79,9 @@ These three actions address the majority of the addressable total.
 
 ## The bottom line
 
-Your structural trade rate (9.9%) is competitive. Your retailers
+Your structural trade rate (9.2%) is competitive. Your retailers
 are not overcharging you on the rate card. The problem is the
-3-point operational layer above it: $977K per year in avoidable
+1.1-point operational layer above it: $343K per year in avoidable
 charges — $417K of it vague, with no clear basis and 33% lacking
 even a PO reference — that nobody is classifying, nobody is
 contesting, and that Cinderhaven recovers barely a fifth of when
