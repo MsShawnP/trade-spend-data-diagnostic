@@ -268,7 +268,7 @@ def build_methodology(ws: Worksheet, db_path: Path) -> None:
     row = _write_section(ws, row, "5. Recovery Rate & Addressable Improvement")
     row = _write_pair(ws, row, "Current recovery rate",
         f"Total recovered dollars (${n['recovered']:,.0f}) ÷ total disputed dollars (${n['disputed_total']:,.0f}) = {n['recovery_pct']:.1f}%. "
-        "This counts won_full (100% recovery) and won_partial (~49% average recovery) outcomes.")
+        "This counts won (100% recovery) and partial (~49% average recovery) outcomes.")
     row = _write_pair(ws, row, "Target recovery input",
         "Tab 2 cell C41 allows entering a target recovery rate (0–100%). "
         "Recovery at target = operational waste × target rate. "
@@ -295,7 +295,7 @@ def build_methodology(ws: Worksheet, db_path: Path) -> None:
         ("Ghost promo", "A promo_billback deduction referencing a promotion not found in the planned promotions calendar."),
         ("Deduction", "A dollar amount subtracted by the retailer from a remittance payment, with a reason code."),
         ("Dispute", "A formal challenge filed against a deduction, seeking full or partial recovery."),
-        ("Recovery rate", "Percentage of disputed dollars successfully recovered (won_full + won_partial) out of total dollars disputed."),
+        ("Recovery rate", "Percentage of disputed dollars successfully recovered (won + partial) out of total dollars disputed."),
     ]
     for term, definition in terms:
         row = _write_pair(ws, row, term, definition)
