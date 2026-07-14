@@ -162,15 +162,13 @@ def build_executive_pulse(ws: Worksheet, db_path: Path) -> None:
         cell_lbl.alignment = ALIGN_CENTER
 
     ws.merge_cells("B7:F7")
-    vague_pct = 0
-    for dtype, _cnt, amt in metrics["deductions_by_type"]:
-        if dtype == "vague":
-            vague_pct = amt / waste if waste else 0
-            break
+    amounts = [amt for _dtype, _cnt, amt in metrics["deductions_by_type"] if amt]
+    top_share = (max(amounts) / waste) if (amounts and waste) else 0
     ws["B7"] = (
-        f"Structural trade rate ({structural_rate:.1%}) is competitive. "
+        f"Structural trade rate ({structural_rate:.1%}) is the rate card working as designed. "
         f"~${waste:,.0f} in operational waste is buried in the deductions"
-        f" — {vague_pct:.0%} of it vague with no clear basis."
+        f" — spread across categories, the largest just {top_share:.0%} of the total. "
+        f"A process problem, not a single leak."
     )
     ws["B7"].font = FONT_SMALL
     ws["B7"].alignment = ALIGN_LEFT

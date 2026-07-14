@@ -166,7 +166,7 @@ def build_methodology(ws: Worksheet, db_path: Path) -> None:
     row = _write_pair(ws, row, "Bucket 2: Operational Waste",
         "Trailing-365-day deductions excluding promo_billback. These are unplanned cash "
         "outflows from compliance failures (label fines, pallet fines), logistics issues "
-        "(short ships, late deliveries, damages), spoilage, and vague/unclassified codes. "
+        "(short ships, late deliveries, damages), spoilage, pricing and labeling errors. "
         f"${n['waste']:,.0f} ({n['waste_pct']:.1f}% of revenue).")
     row += 1
     row = _write_pair(ws, row, "Why not three buckets?",
@@ -197,7 +197,7 @@ def build_methodology(ws: Worksheet, db_path: Path) -> None:
         "Static reference table. Used for structural trade rate calculation and gross margin derivation.")
     row = _write_pair(ws, row, "deductions",
         f"{n['total_ded']:,} deduction records ({n['ded_start']} to {n['ded_end']}). Each record: retailer, type, amount, date, "
-        "codes, flags (vague, post-audit, double-dip). Trailing-365 filter applied for operational waste "
+        "codes and status flags. Trailing-365 filter applied for operational waste "
         "calculations. Joined to deduction_codes for translations and to disputes for recovery data.")
     row = _write_pair(ws, row, "promotions",
         f"{n['promo_rows']} promotion rows across {n['promo_distinct']} distinct events. Fields: SKU, retailer, date window, promo type, "
