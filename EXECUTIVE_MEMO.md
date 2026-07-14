@@ -52,14 +52,17 @@ contract time, not to dispute at remittance time.
 
 ## Promotions Billed Against No Calendar
 
-1,550 promo billbacks totaling $145,082 across three years of
+521 promo billbacks totaling $50,055 across three years of
 deduction history reference promotions that do not appear in
-Cinderhaven's promotion calendar. In the trailing year the failure
-is complete: all 537 promo billbacks ($51,479) lack a matching
-calendar entry. Either retailers are billing for promotional
-activity that never ran, or the calendar stopped being maintained —
-the data cannot say which. Either way, Cinderhaven currently pays
-every promotional invoice without a document to check it against.
+Cinderhaven's promotion calendar. The remaining 1,029 billbacks
+($95,027) fall inside a promotion window and are accounted for. In
+the trailing year, 513 of 540 promo billbacks ($49,315) lack a
+matching calendar entry — the promotion calendar's last entry ends
+2024-11-03 and no matching window extends past early February 2025.
+Either retailers are billing for promotional activity that never
+ran, or the calendar stopped being maintained — the data cannot say
+which. Either way, Cinderhaven currently pays nearly every recent
+promotional invoice without a document to check it against.
 
 ## Recovery Works — It Is Aimed at Too Little
 
@@ -97,8 +100,8 @@ two-thirds of the waste never enters the process at all.
    written off — 1,406 manual $20 decisions is a payroll problem
    masquerading as a recovery program. And restore the promotion
    calendar as a control document, so next year's promo billbacks
-   ($51,479 this year, none of them matchable) have something to be
-   checked against.
+   ($49,315 this year, nearly all of them unmatchable) have something
+   to be checked against.
 
 ## The Bottom Line
 

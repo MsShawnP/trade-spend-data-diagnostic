@@ -78,7 +78,7 @@ performance separately; the executive framing stays at two buckets.
 
 ### Data sources
 
-Six source types feed the diagnostic, unified into 22 tables in a
+Six source types feed the diagnostic, unified into 21 tables in a
 single SQLite database:
 
 - **SKU cost tables** — 50 products with COGS, wholesale prices by
@@ -170,16 +170,18 @@ and the absence of double-dips could not be stated with confidence
 
 ### Ghost promotions
 
-1,550 promo-billback deductions totaling $145,082 across the
+521 promo-billback deductions totaling $50,055 across the
 three-year deduction history reference promotions that do not
-appear in Cinderhaven's promotion calendar. In the trailing year
-the mismatch is total: all 537 promo billbacks ($51,479) lack a
-matching calendar entry. These "ghost promos" have two possible
-explanations: the promotion existed but was never recorded in the
-calendar, or the retailer billed for promotional activity that did
-not take place. Both explanations indicate a process gap — either
-in promotion planning or in deduction validation (see Tab 3: Promo
-Efficacy; query: `promo_roi/ghost_promo_summary.sql`).
+appear in Cinderhaven's promotion calendar. The remaining 1,029
+billbacks ($95,027) fall inside a promotion window. In the trailing
+year, 513 of 540 promo billbacks ($49,315) lack a matching calendar
+entry — the calendar's last promotion ends 2024-11-03. These "ghost
+promos" have two possible explanations: the promotion existed but
+was never recorded in the calendar, or the retailer billed for
+promotional activity that did not take place. Both explanations
+indicate a process gap — either in promotion planning or in
+deduction validation (see Tab 3: Promo Efficacy; query:
+`promo_roi/ghost_promo_summary.sql`).
 
 ### Retailer margin spread
 

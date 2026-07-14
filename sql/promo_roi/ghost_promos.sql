@@ -10,7 +10,7 @@
 --           promotional activity not found in the promotions
 --           table. This suggests either an incomplete promo
 --           calendar or unauthorized promotional spend.
---           1,550 events, $145,082 total.
+--           Joins on retailer name (d.retailer = p.retailer).
 -- ============================================
 
 SELECT
@@ -22,7 +22,7 @@ FROM deductions d
 WHERE d.deduction_type = 'promo_billback'
   AND NOT EXISTS (
       SELECT 1 FROM promotions p
-      WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
+      WHERE p.retailer = d.retailer
         AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
                                   AND date(p.end_week, '+90 days')
   )

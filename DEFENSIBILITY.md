@@ -168,24 +168,28 @@ not.
 
 ## Ghost promos: a calendar that ends while the billing continues
 
-1,550 promo billbacks totaling $145,082 across the three-year
+521 promo billbacks totaling $50,055 across the three-year
 deduction history have no matching promotion in Cinderhaven's
-calendar (`sql/promo_roi/ghost_promo_summary.sql`). A billback
-matches when the same retailer has a calendar promotion whose window
-— 14 days before start through 90 days after end — covers the
-deduction date. Billbacks carry no promotion ID, so retailer plus
-date window is the only join available.
+calendar (`sql/promo_roi/ghost_promo_summary.sql`). The remaining
+1,029 billbacks ($95,027) match a promotion window and are
+accounted for. A billback matches when the same retailer has a
+calendar promotion whose window — 14 days before start through 90
+days after end — covers the deduction date. Billbacks carry no
+promotion ID, so retailer plus date window is the only join
+available.
 
 **The attack:** the matcher is too strict; widen the window and the
 ghosts disappear. **The answer:** the trailing-year figure does not
 depend on matcher tolerance. The calendar holds 123 promotions and
 its last entry ends 2024-11-03; no matching window extends past
 early February 2025. Billbacks kept arriving through December 2025 —
-all 537 trailing-year billbacks ($51,479) hit a calendar with
-nothing left to match. That is why the memo claims a process failure
-— either the calendar stopped being maintained or retailers billed
-activity that never ran, and the data cannot say which — rather than
-accusing anyone of fraud.
+513 of 540 trailing-year billbacks ($49,315) hit a calendar with
+nothing left to match. The 27 that do match are early-January
+deductions still inside the +90 day window of late-2024 promotions.
+That is why the memo claims a process failure — either the calendar
+stopped being maintained or retailers billed activity that never
+ran, and the data cannot say which — rather than accusing anyone of
+fraud.
 
 ## Double-dips: zero, and the zero is computed
 

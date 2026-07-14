@@ -95,7 +95,7 @@ def _query_promo_data(db_path: Path) -> dict:
         matched_deductions = conn.execute("""
             SELECT p.promo_id, p.sku, p.retailer, SUM(d.amount) as actual_cost
             FROM promotions p
-            JOIN deductions d ON LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
+            JOIN deductions d ON p.retailer = d.retailer
                 AND d.deduction_type = 'promo_billback'
                 AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
                                          AND date(p.end_week, '+90 days')
@@ -111,7 +111,7 @@ def _query_promo_data(db_path: Path) -> dict:
             WHERE d.deduction_type = 'promo_billback'
               AND NOT EXISTS (
                   SELECT 1 FROM promotions p
-                  WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
+                  WHERE p.retailer = d.retailer
                     AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
                                              AND date(p.end_week, '+90 days')
               )
@@ -125,7 +125,7 @@ def _query_promo_data(db_path: Path) -> dict:
             WHERE d.deduction_type = 'promo_billback'
               AND NOT EXISTS (
                   SELECT 1 FROM promotions p
-                  WHERE LOWER(REPLACE(p.retailer, ' ', '_')) = d.retailer_id
+                  WHERE p.retailer = d.retailer
                     AND d.deduction_date BETWEEN date(p.start_week, '-14 days')
                                              AND date(p.end_week, '+90 days')
               )

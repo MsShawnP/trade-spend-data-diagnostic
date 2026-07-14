@@ -121,7 +121,7 @@ For a new analyst walking through the diagnostic narrative:
    the current data)
 6. **promo_performance.sql** — which promotions created value vs.
    destroyed it
-7. **ghost_promo_summary.sql** — $145K in deductions referencing
+7. **ghost_promo_summary.sql** — $50K in deductions referencing
    promotions not in the calendar
 8. **net_net_margin.sql** — true margin by retailer after all trade costs
 9. **recovery_rate.sql** — current dispute recovery performance (41.9%)
@@ -168,5 +168,5 @@ boundary effects.
 | Double-dip events | 0 | double_dip_events.sql |
 | Disputes filed | 5,247 | dispute_summary.sql |
 | Total recovered | $160,161 (41.9% of $382,579 disputed) | recovery_rate.sql |
-| Ghost promos | 1,550 / $145,082 | ghost_promo_summary.sql |
+| Ghost promos | 521 / $50,055 | ghost_promo_summary.sql |
 | Trailing-365 deductions | 5,309 | full_deduction_ledger.sql |
