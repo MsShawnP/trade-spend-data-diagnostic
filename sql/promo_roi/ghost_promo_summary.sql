@@ -7,7 +7,7 @@
 -- Output:   ghost_count, ghost_total_dollars
 -- Params:   None
 -- Notes:    Aggregate companion to ghost_promos.sql.
---           Locked number: 137 events, $95,826.
+--           Locked number: 1,550 events, $145,082.
 -- ============================================
 
 SELECT

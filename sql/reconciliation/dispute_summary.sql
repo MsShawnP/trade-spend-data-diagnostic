@@ -6,8 +6,8 @@
 -- Tables:   disputes
 -- Output:   dispute_count, total_recovered
 -- Params:   None
--- Notes:    Locked numbers: 6,105 disputes (±10 for DB rebuild
---           variance), $987,798 recovered.
+-- Notes:    Locked numbers: 5,247 disputes (±10 for DB rebuild
+--           variance), $160,161 recovered.
 -- ============================================
 
 SELECT

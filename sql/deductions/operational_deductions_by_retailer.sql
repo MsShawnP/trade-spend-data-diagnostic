@@ -7,8 +7,6 @@
 -- Output:   retailer_id, total_amount
 -- Params:   :max_scan — most recent week_ending
 -- Notes:    Feeds Tab 4 (Retailer Risk). Excludes promo_billback.
---           KeHE now has scan revenue (~$2.6M) and its own
---           trade_spend_pct_kehe rate column.
 -- ============================================
 
 SELECT

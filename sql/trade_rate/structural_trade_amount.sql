@@ -10,7 +10,11 @@
 -- Notes:    Gap query — this calculation was done in Python by
 --           pairing revenue_by_retailer results with channel
 --           trade rates. This query does it in pure SQL.
---           Locked number: total structural trade = $5,207,524.
+--           Locked number (workbook): structural trade =
+--           $2,992,224 (9.2% of revenue). Caution: this query maps
+--           Sprouts to the regional rate; the workbook uses the
+--           dedicated trade_spend_pct_sprouts column, so this query
+--           returns a slightly lower total (~$2,914,207).
 --           Channel mapping: Walmart, Costco, Whole Foods, UNFI,
 --           DTC, KeHE each have their own rate column; all other
 --           retailers use trade_spend_pct_regional.

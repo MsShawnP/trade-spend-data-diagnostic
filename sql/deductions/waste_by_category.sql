@@ -10,7 +10,7 @@
 --           trailing-365-day window end)
 -- Notes:    Feeds Tab 2 (Leak Diagnostic). Excludes
 --           promo_billback deductions. Category total should
---           sum to ~$1,967,416 (within DB rebuild tolerance).
+--           sum to ~$343,281 (within DB rebuild tolerance).
 -- ============================================
 
 SELECT

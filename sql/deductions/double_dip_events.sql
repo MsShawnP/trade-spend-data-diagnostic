@@ -10,7 +10,7 @@
 -- Notes:    Feeds Tab 2 (Leak Diagnostic). Double-dip means the
 --           retailer collected both an off-invoice discount and a
 --           promo_billback deduction for the same promotion.
---           Locked number: 3 events, $19,524 total.
+--           Locked number: 0 events in the regenerated DB.
 -- ============================================
 
 SELECT

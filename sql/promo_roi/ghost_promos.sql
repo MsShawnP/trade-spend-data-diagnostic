@@ -10,7 +10,7 @@
 --           promotional activity not found in the promotions
 --           table. This suggests either an incomplete promo
 --           calendar or unauthorized promotional spend.
---           137 events, $95,826 total.
+--           1,550 events, $145,082 total.
 -- ============================================
 
 SELECT

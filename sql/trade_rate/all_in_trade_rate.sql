@@ -11,8 +11,11 @@
 --           trailing-365 window)
 -- Notes:    Gap query — was Python arithmetic combining three
 --           separate query results. Locked numbers: revenue
---           $27,483,467, structural $5,207,524 (18.9%), waste
---           $1,967,416 (7.2%), all-in 26.1%.
+--           $32,472,742, structural $2,992,224 (9.2%), waste
+--           $343,281 (1.1%), all-in 10.3%. Caution: the structural
+--           CTE maps Sprouts to the regional rate (the workbook
+--           uses trade_spend_pct_sprouts), so this query returns
+--           slightly lower structural and all-in figures.
 -- ============================================
 
 WITH revenue AS (

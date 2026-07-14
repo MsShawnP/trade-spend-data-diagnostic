@@ -9,7 +9,7 @@
 -- Notes:    Feeds Tab 4 (Retailer Risk). These are planned
 --           promotional deductions — excluded from operational
 --           waste but included in the all-in trade cost.
---           Total across all retailers: ~$211,513.
+--           Total across all retailers: ~$51,479 (trailing-365).
 -- ============================================
 
 SELECT

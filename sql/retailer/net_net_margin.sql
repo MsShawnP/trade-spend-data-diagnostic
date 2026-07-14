@@ -13,9 +13,7 @@
 --           combining 4 separate queries. Margin waterfall:
 --           gross margin -> minus structural trade rate -> minus
 --           (op deductions + promo billback) / revenue = net-net.
---           KeHE now has scan revenue (~$2.6M) and its own trade
---           rate column. Excludes freight, warehousing, and
---           non-trade SG&A.
+--           Excludes freight, warehousing, and non-trade SG&A.
 -- ============================================
 
 WITH channel_revenue AS (

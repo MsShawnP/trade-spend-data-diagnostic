@@ -2,14 +2,15 @@
 
 Cinderhaven Provisions, a specialty food company with $32.5 million
 in trailing-52-week scan revenue, carries a structural trade rate
-of 9.2% (~$3.0M) — competitive for natural/specialty CPG. All-in
-trade cost including operational deductions is 10.3%. The rate card
-is not the problem. The 1.1-point gap above it is: $343K per year in
-operational waste buried inside the deductions — vague charges with
-no clear basis ($417K, 33% lacking even a PO reference),
-uncontested spoilage and short-ship claims, compliance fines, and
-duplicate payments. Cinderhaven recovers 20.9% of what it
-disputes. The rest expires unclassified.
+of 9.2% (~$3.0M). All-in trade cost including operational
+deductions is 10.3%. The rate card is not the problem. The
+1.1-point gap above it is: $343K per year in operational waste
+buried inside the deductions — spoilage and damage claims, pricing
+errors, pallet and label fines, short-ship charges — spread so
+evenly across eight categories that six of them land within $4,800
+of one another. Cinderhaven recovers 41.9% of the dollars it
+disputes; the trouble is that only about a third of the waste is
+ever disputed at all. The rest expires unverified.
 
 This walkthrough explains how the diagnostic was built, what it
 found, and what each deliverable does. It is written for someone
@@ -38,14 +39,14 @@ they *planned* to spend on trade but not what they *actually* lost
 to operational waste. The planned rate — the channel-by-channel
 allowance in the rate card — is visible because someone negotiated
 it. The unplanned cost — compliance fines, short-ship charges,
-pricing errors, vague deductions with no clear cause — is invisible
+pricing errors, spoilage claims nobody checks — is invisible
 because it arrives as line items on remittance statements that no
 one has time to classify, cross-reference, or dispute before the
 filing window closes.
 
 The waste is measurable, and the measurement is the point of this
 diagnostic. Cinderhaven's numbers are representative of the pattern:
-a 9.2% structural trade rate that is competitive, and $343K per
+a 9.2% structural trade rate that everyone can see, and $343K per
 year in operational waste (1.1% of scan revenue) that did not
 appear in any report until the infrastructure to calculate it was
 built. The all-in trade cost is 10.3% — the 1.1-point delta above
@@ -64,19 +65,16 @@ the rate-card percentage applied to wholesale revenue. It is known
 in advance, budgeted, and largely non-negotiable in the short term.
 **Operational waste** is everything else: deductions taken by
 retailers beyond the rate card, covering compliance fines, logistics
-chargebacks, labeling penalties, spoilage claims, and deductions
-with vague or missing reason codes.
+chargebacks, labeling penalties, spoilage claims, pricing errors,
+and slotting fees.
 
 An earlier version of the analysis attempted a three-bucket model,
 separating promotional trade from structural and operational.
 Investigation revealed that off-invoice allowances — the primary
 promotional funding mechanism in Cinderhaven's contracts — are
 already embedded in the rate card. Treating them as a separate
-bucket double-counts. The promotions table's direct cost ($16,357
-in planned spend) is too small to constitute a meaningful standalone
-category at the executive level. The detail tabs break out
-promotional performance separately; the executive framing stays at
-two buckets.
+bucket double-counts. The detail tabs break out promotional
+performance separately; the executive framing stays at two buckets.
 
 ### Data sources
 
@@ -89,14 +87,14 @@ single SQLite database:
   SKUs per channel), not per-SKU rates. The rate card is negotiated
   at the channel level; per-SKU application introduces false
   precision.
-- **Deduction log** — 5,375 trailing-365-day deductions across 9
+- **Deduction log** — 5,309 trailing-365-day deductions across 6
   retailers, each carrying a retailer-specific code, an amount, and
   a date. These are the raw material for the operational waste
   calculation.
-- **Promotions calendar** — 138 planned promotions across four types
-  (TPR, Feature, Display, BOGO), with planned costs and funding
-  mechanisms.
-- **POS scan data** — weekly point-of-sale records from 9
+- **Promotions calendar** — 123 planned promotions across five types
+  (TPR, BOGO, ad circular, digital coupon, endcap), with planned
+  costs and funding mechanisms.
+- **POS scan data** — weekly point-of-sale records from 6
   retailers, used to measure promotional lift.
 - **Dispute records** — 5,247 filed disputes with outcomes and
   recovery amounts.
@@ -136,53 +134,52 @@ is the story.
 
 ### Where the waste comes from
 
-Nine deduction categories compose the operational waste, led by
-one that accounts for 43% of the total (query:
-`deductions/waste_by_category.sql`):
+Eight deduction categories compose the operational waste, and none
+of them dominates it (query: `deductions/waste_by_category.sql`):
 
 | Category | Count | Amount | Share |
 |----------|------:|-------:|------:|
-| Vague / unclassified | 318 | $416,967 | 42.7% |
-| Spoilage claims | 728 | $153,212 | 15.7% |
-| Label fines | 322 | $105,522 | 10.8% |
-| Short-ship charges | 756 | $96,323 | 9.9% |
-| Damaged goods | 734 | $95,527 | 9.8% |
-| Pallet fines | 252 | $45,440 | 4.6% |
-| Late delivery | 607 | $30,925 | 3.2% |
-| Slotting fees | 6 | $27,680 | 2.8% |
-| Pricing errors | 157 | $5,704 | 0.6% |
+| Spoilage claims | 546 | $53,664 | 15.6% |
+| Pricing errors | 547 | $53,224 | 15.5% |
+| Damaged goods | 543 | $53,169 | 15.5% |
+| Slotting fees | 532 | $51,879 | 15.1% |
+| Pallet fines | 580 | $51,565 | 15.0% |
+| Label fines | 532 | $48,861 | 14.2% |
+| Short-ship charges | 1,406 | $28,053 | 8.2% |
+| Late delivery | 86 | $2,865 | 0.8% |
 
-The dominant category — vague deductions with missing or
-ambiguous reason codes — is $417K. These are deductions where the
-retailer's remittance provides no clear basis for the charge. Of
-the 318 vague deductions in the trailing year, 106 (33%) lack
-even a PO reference, making them untraceable to a specific order.
-The prevalence of vague deductions is itself a diagnostic finding:
-it means the deduction pipeline has no classification layer, so the
-largest category of waste is the least understood (see Tab 2: Leak
-Diagnostic).
+The evenness is itself a diagnostic finding. Six categories land
+between $48,861 and $53,664 — within $4,800 of one another — and
+the largest is 15.6% of the total. There is no single villain, no
+one contract or retailer program to fix. Waste distributed this
+evenly means the deduction pipeline has no verification layer at
+any step: every category leaks at roughly the same rate. Short-ship
+is the frequency outlier — 1,406 events averaging $20, a case for
+automated matching rather than manual dispute — and late delivery,
+at $2,865, is negligible (see Tab 2: Leak Diagnostic).
 
 ### Double-dip detection
 
-Three deduction events totaling $19,062 were identified as
-double-payments: the same promotion received both an off-invoice
-discount on the original invoice and a subsequent promo-billback
-deduction. The dollar amount is not the point. The finding is
-significant because the matching infrastructure to detect
-double-dips — linking deductions back to specific promotions by
-retailer, date window, and amount — did not exist before this
-diagnostic was built (query: `deductions/double_dip_events.sql`).
+The matching infrastructure built for this diagnostic — linking
+deductions back to specific promotions by retailer, date window,
+and amount — found zero double-payment events in the current
+dataset. The check matters even when it returns nothing: without
+it, a duplicate billback is indistinguishable from a legitimate one,
+and the absence of double-dips could not be stated with confidence
+(query: `deductions/double_dip_events.sql`).
 
 ### Ghost promotions
 
-3,258 promo-billback deductions totaling $361K reference promotions
-that do not appear in Cinderhaven's promotion calendar. These "ghost
-promos" have two possible explanations: the promotion existed but
-was never recorded in the calendar, or the retailer billed for
-promotional activity that did not take place. Both explanations
-indicate a process gap — either in promotion planning or in
-deduction validation (see Tab 3: Promo Efficacy; query:
-`promo_roi/ghost_promo_summary.sql`).
+1,550 promo-billback deductions totaling $145,082 across the
+three-year deduction history reference promotions that do not
+appear in Cinderhaven's promotion calendar. In the trailing year
+the mismatch is total: all 537 promo billbacks ($51,479) lack a
+matching calendar entry. These "ghost promos" have two possible
+explanations: the promotion existed but was never recorded in the
+calendar, or the retailer billed for promotional activity that did
+not take place. Both explanations indicate a process gap — either
+in promotion planning or in deduction validation (see Tab 3: Promo
+Efficacy; query: `promo_roi/ghost_promo_summary.sql`).
 
 ### Retailer margin spread
 
@@ -196,10 +193,14 @@ layered on top (see Tab 4: Retailer Risk; query:
 
 ### Dispute recovery
 
-Cinderhaven filed 5,247 disputes against retailer deductions,
-recovering $232K — a 20.9% recovery rate by dollar value.
-An adjustable recovery model in the workbook shows the addressable
-improvement at higher target rates (query:
+Cinderhaven filed 5,247 disputes covering $382,579 in deductions
+and recovered $160,161 — 41.9% of disputed dollars, 49.7% on
+disputes that have closed (1,411 won, 1,478 partial, 1,509 lost,
+849 pending). The recovery rate is respectable; the coverage is
+not. Only $109,726 of the trailing year's $343K in operational
+waste — 32% — was ever disputed, and the average disputed deduction
+is $73. An adjustable recovery model in the workbook shows the
+addressable improvement at higher dispute coverage (query:
 `reconciliation/recovery_rate.sql`).
 
 ### Data quality
@@ -263,7 +264,7 @@ that sell well in the promotion's season and understates it for
 counter-seasonal items.
 
 **Automated deduction classification.** The diagnostic's crosswalk
-covers retailer-specific codes across 9 retailers. A production
+covers retailer-specific codes across 6 retailers. A production
 system would ingest retailer EDI feeds directly, apply ML-based
 code classification for new or ambiguous codes, and maintain the
 crosswalk continuously rather than as a static lookup table.
@@ -275,11 +276,12 @@ and retailer portals (deduction feeds, POS data, compliance
 reports). Integration surfaces double-dips and ghost promos in near
 real-time, not after a year of accumulation.
 
-**Dispute workflow automation.** The current 20.9% recovery rate
-reflects manual, reactive dispute filing. Automated workflows —
-deadline tracking, evidence assembly, escalation rules,
-auto-filing for categories with high win rates — typically push
-recovery into the 25-35% range.
+**Dispute workflow automation.** Cinderhaven already recovers 41.9%
+of disputed dollars; the constraint is that only 32% of the waste
+gets disputed, mostly in $73 increments. Automated workflows —
+deadline tracking, evidence assembly, escalation rules, batch
+filing for small-dollar categories — attack the coverage gap
+rather than the win rate.
 
 **Ongoing monitoring.** The diagnostic answers "where is the money
 going?" once. The engagement answers it every month, with trend

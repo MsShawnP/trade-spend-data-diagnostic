@@ -2,12 +2,13 @@
 
 A trade spend diagnostic for a mid-market natural/specialty CPG company.
 Cinderhaven's structural trade rate (9.2% of scan revenue, ~$3.0M on $32.5M
-trailing-52-week) is competitive. The problem is operational: ~$343K per year
-in avoidable deductions — $417K of it vague, with no clear basis and 33%
-lacking even a PO reference — that nobody is classifying, nobody is
-contesting, and that Cinderhaven recovers barely a fifth of (20.9%) when it
-does dispute. All-in trade cost including waste is 10.3% of revenue; the
-1.1-point delta above the structural rate is where the recoverable money lives.
+trailing-52-week) is the negotiated, budgeted cost of doing business. The
+problem is operational: ~$343K per year in avoidable deductions, spread
+almost evenly across eight categories — six of them between $49K and $54K
+each, so no single fix exists — that nobody classifies or verifies before
+the filing window closes. All-in trade cost including waste is 10.3% of
+revenue; the 1.1-point delta above the structural rate is where the
+recoverable money lives.
 
 ## What it does
 
@@ -17,7 +18,7 @@ retailer-by-retailer P&L showing where the margin erosion concentrates.
 It ships as four deliverables:
 
 - **Excel workbook** — a 7-tab diagnostic built from a trailing-365-day
-  dataset. Tab 1 leads with the finding and an industry benchmark. Tabs 2-4
+  dataset. Tab 1 leads with the finding and a recovery model. Tabs 2-4
   break down waste by category, promo ROI, and retailer risk (with channel
   rollup). Tab 5 is the full deduction ledger; tabs 6-7 are reference.
   Interactive inputs: adjustable recovery rate, promo comparison window,
@@ -40,8 +41,8 @@ CPG companies in the $15M-$30M band are big enough to sell through four or
 five retail channels — each with its own deduction mechanics and code
 taxonomies — but too small to justify $50K+/year trade promotion management
 software. So the controller reconciles trade spend in Excel, and the
-unplanned cost (compliance fines, short-ship charges, pricing errors, vague
-deductions) arrives as remittance line items no one has time to classify or
+unplanned cost (compliance fines, short-ship charges, pricing errors,
+spoilage claims) arrives as remittance line items no one has time to classify or
 dispute before the filing window closes. The result: companies know what they
 *planned* to spend on trade, not what they actually lost. This diagnostic
 makes the loss measurable — here, 1.1% of scan revenue that appeared in no
@@ -84,12 +85,13 @@ Sauces, Pantry Staples, Specialty Condiments, Dried Goods, Snack Bites),
 Regional Group), 3 distributors (UNFI, KeHE, DPI Northwest) + 1 DTC channel
 (Shopify). Source: `CINDERHAVEN_CANONICAL.md` in `cinderhaven-data-platform`.
 
-This diagnostic consumes the **distressed scenario** dataset — baseline
-revenue, structural trade, and chargebacks are unchanged; the deduction and
-dispute layers are regenerated with v1-style operational mess (real vague
-deductions, explicit double-dips, low recovery rates). See
-`CINDERHAVEN_CANONICAL.md` "Distressed Scenario" section for the full
-figure table.
+This diagnostic consumes the bundled SQLite snapshot — baseline revenue,
+structural trade, and chargebacks unchanged from canonical, with regenerated
+deduction and dispute layers (8 deduction categories, 5,247 disputes, no
+vague-deduction or double-dip layer). The submodule's own README still
+describes an older "distressed scenario" with vague deductions and
+double-dips; the current database does not contain those. The validated
+figure pins live in `validate_workbook.py`.
 
 ## Project structure
 

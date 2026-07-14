@@ -9,8 +9,13 @@
 --           lost_count, pending_count
 -- Params:   None
 -- Notes:    Computes recovery rate from data: recovered / disputed
---           dollars. Current DB yields 19.8% (6,105 disputes,
---           $987,798 recovered from $4,989,889 disputed).
+--           dollars. Current DB yields 41.9% (5,247 disputes,
+--           $160,161 recovered from $382,579 disputed). Caution:
+--           the DB's outcome values are 'won', 'partial', 'lost',
+--           'pending' (1,411 / 1,478 / 1,509 / 849), so the
+--           won_full_count and won_partial_count columns below
+--           always return 0 -- the CASE labels predate the
+--           regenerated data.
 -- ============================================
 
 SELECT

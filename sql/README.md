@@ -112,17 +112,19 @@ For a new analyst walking through the diagnostic narrative:
    the oldest and newest dates for use as parameters in later queries
 2. **total_revenue.sql** — the revenue headline ($32.5M)
 3. **all_in_trade_rate.sql** — the punchline: 9.2% structural +
-   1.1% waste = 10.3% all-in (the rate is competitive; the waste
-   magnitude is the story)
-4. **waste_by_category.sql** — where the 1.1% comes from (9 deduction
-   types, vague at $417K is 43% of waste)
-5. **double_dip_events.sql** — the 3 double-payment events ($19K)
+   1.1% waste = 10.3% all-in (the rate card is known and budgeted;
+   the waste magnitude is the story)
+4. **waste_by_category.sql** — where the 1.1% comes from (8 deduction
+   types; six of them within $4,800 of each other, none above 16%
+   of the total)
+5. **double_dip_events.sql** — the double-payment check (0 events in
+   the current data)
 6. **promo_performance.sql** — which promotions created value vs.
    destroyed it
-7. **ghost_promo_summary.sql** — $361K in deductions referencing
+7. **ghost_promo_summary.sql** — $145K in deductions referencing
    promotions not in the calendar
 8. **net_net_margin.sql** — true margin by retailer after all trade costs
-9. **recovery_rate.sql** — current dispute recovery performance (20.9%)
+9. **recovery_rate.sql** — current dispute recovery performance (41.9%)
 10. **addressable_improvement.sql** — how much more could be recovered
     at a 30% target rate
 
@@ -151,19 +153,20 @@ Common parameters:
 
 ## Locked numbers reference
 
-Key verified figures for sanity-checking query output (distressed
-scenario). Minor variance (±$2,000 on dollar amounts, ±2 on counts)
-is expected from trailing-window boundary effects.
+Key verified figures for sanity-checking query output (regenerated
+dataset; pins mirror `validate_workbook.py`). Minor variance (±$2,000
+on dollar amounts, ±2 on counts) is expected from trailing-window
+boundary effects.
 
 | Metric | Locked value | Query to check |
 |--------|-------------|----------------|
 | Trailing-52w scan revenue | $32,472,742 | total_revenue.sql |
-| Structural trade | ~$2,992,224 (9.2%) | structural_trade_amount.sql |
+| Structural trade | ~$2,992,224 (9.2%) | structural_trade_amount.sql (see header caution on the Sprouts rate) |
 | Operational waste | ~$343,281 (1.1%) | waste_by_category.sql |
 | All-in trade cost | ~$3,335,505 (10.3%) | all_in_trade_rate.sql |
-| Vague deductions | 318 / $416,967 (43% of waste) | waste_by_category.sql |
-| Double-dip events | 3 / $19,062 | double_dip_events.sql |
+| Largest waste category | spoilage, $53,664 (15.6% of waste) | waste_by_category.sql |
+| Double-dip events | 0 | double_dip_events.sql |
 | Disputes filed | 5,247 | dispute_summary.sql |
-| Total recovered | $231,758 (20.9%) | dispute_summary.sql |
-| Ghost promos | 3,258 / $361,279 | ghost_promo_summary.sql |
-| Trailing-365 deductions | 5,375 | full_deduction_ledger.sql |
+| Total recovered | $160,161 (41.9% of $382,579 disputed) | recovery_rate.sql |
+| Ghost promos | 1,550 / $145,082 | ghost_promo_summary.sql |
+| Trailing-365 deductions | 5,309 | full_deduction_ledger.sql |
