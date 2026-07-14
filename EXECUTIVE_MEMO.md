@@ -114,4 +114,5 @@ decision.
 ---
 
 *Full methodology, retailer-level detail, and the complete deduction
-ledger are in the accompanying Excel workbook.*
+ledger are in the accompanying Excel workbook. Derivations and
+rebuttal guidance for every headline number are in DEFENSIBILITY.md.*

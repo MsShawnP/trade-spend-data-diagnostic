@@ -88,10 +88,9 @@ Regional Group), 3 distributors (UNFI, KeHE, DPI Northwest) + 1 DTC channel
 This diagnostic consumes the bundled SQLite snapshot — baseline revenue,
 structural trade, and chargebacks unchanged from canonical, with regenerated
 deduction and dispute layers (8 deduction categories, 5,247 disputes, no
-vague-deduction or double-dip layer). The submodule's own README still
-describes an older "distressed scenario" with vague deductions and
-double-dips; the current database does not contain those. The validated
-figure pins live in `validate_workbook.py`.
+vague-deduction or double-dip layer). The submodule's README documents the
+snapshot table by table. The validated figure pins live in
+`validate_workbook.py`.
 
 ## Project structure
 
@@ -104,7 +103,7 @@ validate_workbook.py        Acceptance test suite (59 checks)
 workbook/                   Workbook generation modules (one per tab)
 sql/                        25 standalone diagnostic queries
 scripts/                    Database build/extract helpers
-cinderhaven-data/           Simulated dataset (git submodule, 22 tables)
+cinderhaven-data/           Synthetic dataset (git submodule, 21 tables)
 output/                     Generated workbook
 requirements.txt            Python dependencies
 ```
