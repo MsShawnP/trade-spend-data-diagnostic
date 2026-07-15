@@ -1,0 +1,23 @@
+[project]
+name = "cinderhaven-data"
+version = "0.1.0"
+requires-python = ">=3.10"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = [
+    "SIM108",  # ternary suggestions — if/else is clearer for multi-line assignment
+    "B905",    # zip(strict=) — these zip known-equal-length sequences
+    "B007",    # unused loop vars — common in tuple-unpacking DB rows
+    "E741",    # ambiguous var names — `l` from column unpacking is standard here
+    "SIM102",  # combine nested ifs — nested form is clearer for multi-condition guards
+    "SIM114",  # same family as SIM102
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/10_generate_shipments.py" = ["E501"]  # data table dicts
+

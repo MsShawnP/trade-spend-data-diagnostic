@@ -1,0 +1,7 @@
+# No third-party packages required.
+# The generation pipeline uses only the Python standard library
+# (sqlite3, random, datetime, pathlib, etc.).
+#
+# This file exists so consuming repos can run:
+#   pip install -r data/cinderhaven-data/requirements.txt
+# without special-casing the install step.
