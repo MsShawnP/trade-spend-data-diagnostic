@@ -9,6 +9,18 @@ For things that didn't work, see FAILURES.md.
 
 ---
 
+## 2026-07-24 — Refresh SQLite from prod and update validation assertions
+
+**Started from:** Project in maintenance mode. Validation assertions stale from prior data changes. SQLite needed refresh from prod Postgres.
+
+**Did:** Started flyctl proxy, extracted all 21 tables from prod Postgres into fresh SQLite (1.4M scan rows, 20K deductions, 7.7K disputes). Ran fixup, rebuilt workbook, updated 8 stale assertions in validate_workbook.py (revenue, structural, waste, rates, double-dips). Fixed latent cross-tab bug where category range included the Total row. 59/59 passing. Committed and pushed.
+
+**State:** SQLite refreshed from prod. Workbook rebuilds clean. 59/59 validation passing. No broken or in-progress work. Key figures: $32.8M revenue, 10.5% all-in, 1.2% waste, 0 double-dips.
+
+**Next:** No pending work. Project in maintenance mode. `/improve` review overdue (was due 2026-06-22). Consider running next session.
+
+---
+
 ## 2026-06-02 15:02 — Seed recalibration build complete — 5-line dataset at $24.6M with realistic CPG economics
 
 **What changed:** Recalibrated Cinderhaven seed from 3-line/$33M to 5-line/$24.6M. Updated seed_product_master.sql (added Dried Goods + Snack Bites, broadened active_retailers), 03_generate_costs.py (Kroger/Sprouts columns, DG/SB margin ranges), 05_generate_scan_data.py (VELOCITY_SCALE=0.66, line velocity multipliers, DG/SB seasonality, reduced UNFI/KeHE equivalent doors). Rebuilt entire 17-step pipeline via build_db.py --force.

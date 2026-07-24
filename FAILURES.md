@@ -40,6 +40,12 @@ should handle partial builds gracefully.
 **What we learned:** Before running a destructive regeneration (--force), verify the seed files match the expected state. Specifically: check that seed_product_master.sql has the right product line count and SKU distribution. The seed SQL is the source of truth for build_db.py, not the previously-generated DB.
 **Resolution:** Updated seed_product_master.sql with DG/SB product definitions (UPDATE statements for 20 reassigned SKUs) and broadened active_retailers. Took one extra build cycle to discover and fix.
 
+## [2026-07-24] flyctl proxy: localhost resolves to IPv6, auth fails
+**What happened:** Ran `extract_from_postgres.py` with the correct password from the cinderhaven-data-platform `.env`. Connection failed with "password authentication failed for user postgres." Also tried OPERATOR_PASSWORD and SU_PASSWORD with `postgres`, `operator`, and `flypgadmin` users — all failed.
+**Why it failed:** `localhost` resolved to `::1` (IPv6) but the flyctl proxy only listens on IPv4 `127.0.0.1`. The password was correct the entire time; the error message was misleading (said "password auth failed" when it was really a transport issue).
+**What we learned:** When connecting through flyctl proxy, always use `127.0.0.1` explicitly, not `localhost`. The Postgres error message for IPv6 connection failures is misleading — it reports auth failure, not connection refusal. Read the parenthetical in the error: "localhost (::1)" is the tell.
+**Resolution:** Set `DATABASE_URL` with `127.0.0.1` instead of `localhost`. Original .env password worked immediately.
+
 ## [2026-05-22] "Make everything dynamic" pass missed hardcoded numbers in Section 5
 **What happened:** After making Tab 7 fully dynamic (25+ metrics queried from DB), Section 5 (Recovery Rate) still had `$987,798`, `$4,989,889`, and `19.8%` hardcoded as string literals — leftover from the Postgres era.
 **Why it failed:** The dynamic-numbers refactor focused on Sections 1-2 (the heaviest hardcoding) and the data lineage section, but didn't audit every prose string in the file for embedded dollar figures. Manual review missed it; the 3-agent code review caught it.
