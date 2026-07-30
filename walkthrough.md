@@ -122,7 +122,8 @@ diagnostic-level engagement.
 ### The headline
 
 Cinderhaven's structural trade rate is 9.2% of trailing-52-week
-scan revenue ($32.5M) — ~$3.0M in planned trade. The all-in trade
+retailer scan revenue ($32,323,139.62, CY2025 — verified against
+production 2026-07-29) — ~$3.0M in planned trade. The all-in trade
 cost, including operational deductions, is 10.3% ($3.34M). The
 operational waste layer is $343K trailing-365-day, representing
 1.1% of scan revenue — the 1.1-point gap between the structural

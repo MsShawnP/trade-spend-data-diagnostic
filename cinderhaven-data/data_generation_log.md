@@ -1,3 +1,5 @@
+> **Superseded 2026-07-29.** This directory documents an older, locally generated dataset. The live source of record is `cinderhaven-data-platform` (`reference/canonical_values.yml`, verified against production). Kept as provenance; figures below are historical.
+
 # Data Generation Log — Cinderhaven Product Master
 
 This document describes how the synthetic dataset was constructed and which defects were intentionally introduced to simulate real-world retail product data conditions. Every defect pattern is drawn from observed conditions in actual specialty food product masters.

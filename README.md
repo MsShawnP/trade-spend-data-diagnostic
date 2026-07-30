@@ -1,14 +1,23 @@
 # Trade Spend Diagnostic — finding the $343K of operational waste hiding in Cinderhaven's deductions
 
 A trade spend diagnostic for a mid-market natural/specialty CPG company.
-Cinderhaven's structural trade rate (9.2% of scan revenue, ~$3.0M on $32.5M
-trailing-52-week) is the negotiated, budgeted cost of doing business. The
+Cinderhaven's structural trade rate (9.2% of retailer scan revenue, ~$3.0M on
+$32,323,139.62 trailing-52-week — canonical `revenue.retail_scan.cy2025`,
+verified against production 2026-07-29) is the negotiated, budgeted cost of doing business. The
 problem is operational: ~$343K per year in avoidable deductions, spread
 almost evenly across eight categories — six of them between $49K and $54K
 each, so no single fix exists — that nobody classifies or verifies before
 the filing window closes. All-in trade cost including waste is 10.3% of
 revenue; the 1.1-point delta above the structural rate is where the
 recoverable money lives.
+
+> **Scope note (2026-07-30).** This diagnostic derives its figures live from the
+> retailer dataset: 9.2% structural / 10.3% all-in / ~$343K waste on
+> $32,323,139.62 trailing-52-week scan revenue. The portfolio-level canonical
+> (`CINDERHAVEN_CANONICAL.md` § Trade Economics) publishes 9.8% structural /
+> 11.0% all-in / ~$380K waste, channel-weighted and computed on the pinned
+> pre-drift $32.8M denominator. Different scope and methodology, not drift —
+> reconciling the two is an explicitly deferred owner decision.
 
 ## What it does
 

@@ -137,18 +137,35 @@ class TestCinderhavenCanonicalRegression:
         return abs(actual - expected) / abs(expected) < tol
 
     def test_revenue(self, conn):
-        """Total revenue ~ $32,539,868 (5-line re-export 2026-06-02)."""
+        """Trailing-52w scan revenue vs canonical revenue.retail_scan.cy2025.
+
+        SSOT: reference/canonical_values.json, vendored from
+        MsShawnP/cinderhaven-data-platform@7533264 (VERIFIED-AGAINST-PRODUCTION
+        2026-07-29). Trailing-52w == CY2025 in this dataset. Supersedes the
+        dead $32,539,868 pin (5-line re-export 2026-06-02).
+        """
+        import json as _json
+        canon = _json.loads(
+            (Path(__file__).resolve().parent.parent / "reference" / "canonical_values.json").read_text()
+        )
+        target = canon["revenue"]["retail_scan"]["cy2025"]
         oldest, _ = _trailing_bounds(conn)
         revenue = conn.execute(
             "SELECT SUM(dollars_sold) FROM scan_data WHERE week_ending >= ?",
             (oldest,),
         ).fetchone()[0]
-        assert self._approx(revenue, 32_539_868, self.TOLERANCE), (
-            f"Revenue {revenue:,.2f} outside 0.5% of $32,539,868"
+        assert self._approx(revenue, target, self.TOLERANCE), (
+            f"Revenue {revenue:,.2f} outside 0.5% of canonical ${target:,.2f}"
         )
 
     def test_structural_trade(self, conn):
-        """Structural trade ~ $2,914,207 (understated: Kroger/Sprouts/Regional use regional_rate fallback)."""
+        """Structural trade ~ $2,914,207 (this module's rate_map; understated vs workbook).
+
+        The workbook derives $2,977,954 (9.21%) with full per-retailer rates;
+        canonical §Trade Economics publishes 9.8%/$3.2M channel-weighted on the
+        pinned pre-drift denominator. Three methodologies, three numbers —
+        reconciliation deferred to the owner's denominator decision.
+        """
         oldest, _ = _trailing_bounds(conn)
         structural = _compute_structural_trade(conn, oldest)
         assert self._approx(structural, 2_914_207, self.TOLERANCE), (
@@ -156,7 +173,14 @@ class TestCinderhavenCanonicalRegression:
         )
 
     def test_operational_waste(self, conn):
-        """Operational waste ~ $343,281 (regen 2026-06-30)."""
+        """Operational waste ~ $343,281 (derived, retailer scope, trailing-365).
+
+        Canonical deductions.operational_waste_ex_billback.cy2025 is $344,655
+        (0.4% away — window-boundary difference). The portfolio-level
+        "~$380K/yr" in CINDERHAVEN_CANONICAL.md §Trade Economics is a wider
+        channel scope; this repo is the retailer diagnostic. Do not "fix" one
+        to the other without the owner's methodology decision.
+        """
         _, max_scan = _trailing_bounds(conn)
         waste = conn.execute(
             "SELECT SUM(amount) FROM deductions "

@@ -1,3 +1,5 @@
+> **Superseded 2026-07-29.** This directory documents an older, locally generated dataset. The live source of record is `cinderhaven-data-platform` (`reference/canonical_values.yml`, verified against production). Kept as provenance; figures below are historical.
+
 # cinderhaven-data
 
 > **Snapshot, not source of truth.** The SQLite database in `data/`

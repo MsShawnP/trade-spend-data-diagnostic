@@ -75,6 +75,14 @@ def fixup():
     # --- deductions: add missing columns ---
     cols = [r[1] for r in conn.execute("PRAGMA table_info(deductions)").fetchall()]
 
+    if "retailer" not in cols:
+        conn.execute("ALTER TABLE deductions ADD COLUMN retailer TEXT")
+        for rid, name in RETAILER_MAP.items():
+            conn.execute(
+                "UPDATE deductions SET retailer = ? WHERE retailer_id = ?", (name, rid)
+            )
+        print("  deductions: added 'retailer' column")
+
     if "shipment_id" not in cols:
         conn.execute("ALTER TABLE deductions ADD COLUMN shipment_id TEXT")
         conn.execute("""
