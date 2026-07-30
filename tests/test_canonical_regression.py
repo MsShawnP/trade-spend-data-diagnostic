@@ -162,9 +162,9 @@ class TestCinderhavenCanonicalRegression:
         """Structural trade ~ $2,914,207 (this module's rate_map; understated vs workbook).
 
         The workbook derives $2,977,954 (9.21%) with full per-retailer rates;
-        canonical §Trade Economics publishes 9.8%/$3.2M channel-weighted on the
-        pinned pre-drift denominator. Three methodologies, three numbers —
-        reconciliation deferred to the owner's denominator decision.
+        canonical §Trade Economics publishes 9.8%/$3.18M channel-weighted on the
+        verified denominator (re-rated 2026-07-30, owner decision). The spread
+        is methodology scope, not a denominator problem.
         """
         oldest, _ = _trailing_bounds(conn)
         structural = _compute_structural_trade(conn, oldest)
@@ -177,9 +177,9 @@ class TestCinderhavenCanonicalRegression:
 
         Canonical deductions.operational_waste_ex_billback.cy2025 is $344,655
         (0.4% away — window-boundary difference). The portfolio-level
-        "~$380K/yr" in CINDERHAVEN_CANONICAL.md §Trade Economics is a wider
-        channel scope; this repo is the retailer diagnostic. Do not "fix" one
-        to the other without the owner's methodology decision.
+        "~$380K/yr" ($379,559 measured 2026-07-30) in CINDERHAVEN_CANONICAL.md
+        §Trade Economics is a wider channel scope; this repo is the retailer
+        diagnostic. The two are different scopes by design.
         """
         _, max_scan = _trailing_bounds(conn)
         waste = conn.execute(
