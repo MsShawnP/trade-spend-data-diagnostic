@@ -1,5 +1,10 @@
 # cinderhaven-data
 
+> **Figures below are superseded (2026-07-29).** This is vendored provenance
+> of an older dataset export; its numbers are kept as history and are NOT
+> reconciled. The canonical single source of truth is
+> [`cinderhaven-data-platform/reference/canonical_values.yml`](https://github.com/MsShawnP/cinderhaven-data-platform/blob/main/reference/canonical_values.yml).
+
 > **Snapshot, not source of truth.** The SQLite database in `data/`
 > is an export of **[cinderhaven-data-platform](https://github.com/MsShawnP/cinderhaven-data-platform)**
 > (Fly.io Postgres + dbt), which is the single source of truth for

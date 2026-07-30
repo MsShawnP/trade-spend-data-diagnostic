@@ -10,12 +10,13 @@
 --           :max_scan — most recent week_ending (for deduction
 --           trailing-365 window)
 -- Notes:    Gap query — was Python arithmetic combining three
---           separate query results. Locked numbers: revenue
---           $32,472,742, structural $2,992,224 (9.2%), waste
---           $343,281 (1.1%), all-in 10.3%. Caution: the structural
---           CTE maps Sprouts to the regional rate (the workbook
---           uses trade_spend_pct_sprouts), so this query returns
---           slightly lower structural and all-in figures.
+--           separate query results. Canonical (CINDERHAVEN_CANONICAL.md
+--           § Trade Economics, VERIFIED-AGAINST-PRODUCTION 2026-07-29):
+--           revenue $32,323,139.62 (retail scan, == CY2025), structural
+--           ~$3.2M/yr (9.8%), operational waste ~$380K/yr (1.2%), all-in
+--           ~$3.6M/yr (11.0%). Caution: the structural CTE maps Sprouts
+--           and Kroger to the regional rate, so this query returns
+--           lower structural and all-in figures than canonical.
 -- ============================================
 
 WITH revenue AS (
