@@ -1,14 +1,14 @@
 # Trade Spend Diagnostic — Walkthrough
 
-Cinderhaven Provisions, a specialty food company with $32.5 million
-in trailing-52-week scan revenue, carries a structural trade rate
-of 9.2% (~$3.0M). All-in trade cost including operational
-deductions is 10.3%. The rate card is not the problem. The
-1.1-point gap above it is: $343K per year in operational waste
-buried inside the deductions — spoilage and damage claims, pricing
-errors, pallet and label fines, short-ship charges — spread so
-evenly across eight categories that six of them land within $4,800
-of one another. Cinderhaven recovers 41.9% of the dollars it
+Cinderhaven Provisions, a specialty food company with $32.3 million
+in trailing-52-week retail scan revenue (== CY2025), carries a
+structural trade rate of 9.8% (~$3.2M/yr). All-in trade cost
+including operational deductions is 11.0%. The rate card is not the
+problem. The 1.2-point gap above it is: ~$380K per year in
+operational waste buried inside the deductions — spoilage and damage
+claims, pricing errors, pallet and label fines, short-ship charges —
+spread so evenly across eight categories that no single category
+dominates. Cinderhaven recovers 41.9% of the dollars it
 disputes; the trouble is that only about a third of the waste is
 ever disputed at all. The rest expires unverified.
 
@@ -46,10 +46,10 @@ filing window closes.
 
 The waste is measurable, and the measurement is the point of this
 diagnostic. Cinderhaven's numbers are representative of the pattern:
-a 9.2% structural trade rate that everyone can see, and $343K per
-year in operational waste (1.1% of scan revenue) that did not
+a 9.8% structural trade rate that everyone can see, and ~$380K per
+year in operational waste (1.2% of scan revenue) that did not
 appear in any report until the infrastructure to calculate it was
-built. The all-in trade cost is 10.3% — the 1.1-point delta above
+built. The all-in trade cost is 11.0% — the 1.2-point delta above
 the structural rate is not a rate problem, but a magnitude problem
 hiding in the noise.
 
@@ -121,18 +121,25 @@ diagnostic-level engagement.
 
 ### The headline
 
-Cinderhaven's structural trade rate is 9.2% of trailing-52-week
-scan revenue ($32.5M) — ~$3.0M in planned trade. The all-in trade
-cost, including operational deductions, is 10.3% ($3.34M). The
-operational waste layer is $343K trailing-365-day, representing
-1.1% of scan revenue — the 1.1-point gap between the structural
-rate and the all-in rate (see Tab 1: Executive Pulse).
+Cinderhaven's structural trade rate is 9.8% of trailing-52-week
+retail scan revenue ($32.3M, == CY2025) — ~$3.2M/yr in planned
+trade. The all-in trade cost, including operational deductions, is
+11.0% (~$3.6M/yr). The operational waste layer is ~$380K/yr,
+representing 1.2% of scan revenue — the 1.2-point gap between the
+structural rate and the all-in rate (see Tab 1: Executive Pulse).
 
-The rate is not the story. The magnitude of waste — $343K per
+The rate is not the story. The magnitude of waste — ~$380K per
 year in charges that are avoidable, contestable, or unjustifiable —
 is the story.
 
 ### Where the waste comes from
+
+> **Note:** the per-category, ghost-promo, and dispute breakdowns in this
+> section reflect the superseded 2026-06-02 dataset export (they sum to the
+> old ~$343K retailer waste total). They regenerate from the workbook against
+> current marts; the reconciled headline figures above are the canonical ones
+> (VERIFIED-AGAINST-PRODUCTION 2026-07-29). Category-level detail was not
+> re-derived here.
 
 Eight deduction categories compose the operational waste, and none
 of them dominates it (query: `deductions/waste_by_category.sql`):
@@ -225,8 +232,8 @@ for a different user and a different moment.
 
 **The Excel workbook** (7 tabs) is the static diagnostic. It opens
 cold — no database connection, no setup. Tab 1 (Executive Pulse)
-leads with the waste-magnitude punchline: 9.2% structural,
-1.1% operational waste, $343K trailing-365, 10.3% all-in. Tabs 2 through 4
+leads with the waste-magnitude punchline: 9.8% structural,
+1.2% operational waste, ~$380K/yr, 11.0% all-in. Tabs 2 through 4
 (Leak Diagnostic, Promo Efficacy, Retailer Risk) provide the
 supporting detail with adjustable inputs — a target recovery rate,
 a promo comparison window, and per-retailer what-if trade rates.
@@ -291,6 +298,6 @@ reporting, exception alerts, and threshold triggers that flag new
 patterns — a retailer whose deduction rate is climbing, a promotion
 type whose ROI has turned negative, a compliance category that
 spiked after a warehouse change. The value of the diagnostic is
-proving $343K of recoverable, contestable waste exists where it
+proving ~$380K/yr of recoverable, contestable waste exists where it
 was invisible. The value of the engagement is preventing it from
 reopening.

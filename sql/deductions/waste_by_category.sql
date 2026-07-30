@@ -8,9 +8,12 @@
 --           pct_of_waste, avg_days_to_resolve
 -- Params:   :max_scan — most recent week_ending (defines the
 --           trailing-365-day window end)
--- Notes:    Feeds Tab 2 (Leak Diagnostic). Excludes
---           promo_billback deductions. Category total should
---           sum to ~$343,281 (within DB rebuild tolerance).
+-- Notes:    Feeds Tab 2 (Leak Diagnostic). Excludes promo_billback
+--           deductions. Retailer operational waste, trailing-365 day:
+--           canonical operational_waste_ex_billback.cy2025 = $344,655
+--           (reference/canonical_values.yml; within DB rebuild
+--           tolerance). The published ~$380K/yr headline is the broader
+--           retailer + distributor annualized figure.
 -- ============================================
 
 SELECT

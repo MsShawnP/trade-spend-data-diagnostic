@@ -110,13 +110,13 @@ For a new analyst walking through the diagnostic narrative:
 
 1. **trailing_52_weeks.sql** — establish the analysis window; note
    the oldest and newest dates for use as parameters in later queries
-2. **total_revenue.sql** — the revenue headline ($32.5M)
-3. **all_in_trade_rate.sql** — the punchline: 9.2% structural +
-   1.1% waste = 10.3% all-in (the rate card is known and budgeted;
+2. **total_revenue.sql** — the revenue headline ($32.3M — trailing-52w
+   retail scan, == CY2025)
+3. **all_in_trade_rate.sql** — the punchline: 9.8% structural +
+   1.2% waste = 11.0% all-in (the rate card is known and budgeted;
    the waste magnitude is the story)
-4. **waste_by_category.sql** — where the 1.1% comes from (8 deduction
-   types; six of them within $4,800 of each other, none above 16%
-   of the total)
+4. **waste_by_category.sql** — where the 1.2% comes from (8 deduction
+   types, spread evenly with no single dominant category)
 5. **double_dip_events.sql** — the double-payment check (0 events in
    the current data)
 6. **promo_performance.sql** — which promotions created value vs.
@@ -160,11 +160,11 @@ boundary effects.
 
 | Metric | Locked value | Query to check |
 |--------|-------------|----------------|
-| Trailing-52w scan revenue | $32,472,742 | total_revenue.sql |
-| Structural trade | ~$2,992,224 (9.2%) | structural_trade_amount.sql (see header caution on the Sprouts rate) |
-| Operational waste | ~$343,281 (1.1%) | waste_by_category.sql |
-| All-in trade cost | ~$3,335,505 (10.3%) | all_in_trade_rate.sql |
-| Largest waste category | spoilage, $53,664 (15.6% of waste) | waste_by_category.sql |
+| Trailing-52w scan revenue | $32,323,139.62 (retail scan, == CY2025) | total_revenue.sql |
+| Structural trade | ~$3.2M/yr (9.8%) | structural_trade_amount.sql (see header caution: maps Sprouts/Kroger to regional, returns lower) |
+| Operational waste | ~$380K/yr (1.2%); retailer-only, cy2025 ≈ $344,655 via this query | waste_by_category.sql |
+| All-in trade cost | ~$3.6M/yr (11.0%) | all_in_trade_rate.sql |
+| Largest waste category | no single category dominates (≈ evenly split) | waste_by_category.sql |
 | Double-dip events | 0 | double_dip_events.sql |
 | Disputes filed | 5,247 | dispute_summary.sql |
 | Total recovered | $160,161 (41.9% of $382,579 disputed) | recovery_rate.sql |
