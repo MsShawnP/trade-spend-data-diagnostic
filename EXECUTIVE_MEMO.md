@@ -7,7 +7,7 @@
 ## The Finding
 
 Structural trade — the negotiated rate card — cost $2,992,224 on
-$32,472,742 of trailing-52-week scan revenue: 9.2%. That number is
+$32,323,139.62 of trailing-52-week scan revenue (2025-01-04 to 2025-12-27): 9.2%. That number is
 known, budgeted, and visible to everyone who signed the contracts.
 All-in trade cost is 10.3%. The 1.1-point gap between the two is
 $343,281 a year in operational waste: 4,772 deduction line items,

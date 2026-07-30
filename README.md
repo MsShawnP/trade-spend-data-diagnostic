@@ -14,10 +14,14 @@ recoverable money lives.
 > **Scope note (2026-07-30).** This diagnostic derives its figures live from the
 > retailer dataset: 9.2% structural / 10.3% all-in / ~$343K waste on
 > $32,323,139.62 trailing-52-week scan revenue. The portfolio-level canonical
-> (`CINDERHAVEN_CANONICAL.md` § Trade Economics) publishes 9.8% structural /
-> 11.0% all-in / ~$380K waste, channel-weighted and computed on the pinned
-> pre-drift $32.8M denominator. Different scope and methodology, not drift —
-> reconciling the two is an explicitly deferred owner decision.
+> (`CINDERHAVEN_CANONICAL.md` § Trade Economics) publishes 9.83% structural /
+> 11.00% all-in / ~$380K waste on the same $32,323,139.62 denominator. The
+> ~0.6-0.7pp gap is methodology scope, not data drift: the workbook classifies
+> from the retailer deduction ledger and per-channel rate-card assignments,
+> while canonical measures the full allowance-plus-waste stack across all
+> channels. Canonical is the governing figure for cross-repo claims;
+> reconciling the classification scopes is an explicitly deferred owner
+> decision.
 
 ## What it does
 

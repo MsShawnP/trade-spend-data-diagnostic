@@ -70,7 +70,7 @@ third of the waste, and a promotion calendar that stops in November
 ## Headline figures (verified against this snapshot)
 
 - Trailing-52-week scan revenue (2025-01-04 to 2025-12-27):
-  **$32,472,742**
+  **$32,323,139.62**
 - Structural trade: **$2,992,224 (9.2%)** by the workbook's
   channel-average method; a pure-SQL channel-mapping variant gives
   $2,914,207 (9.0%) — both derivations are documented in the

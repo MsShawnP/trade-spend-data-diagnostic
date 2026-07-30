@@ -32,7 +32,7 @@ carry a stated tolerance (0.5% on most totals, 2% on the waste sum).
 A CFO who asks whether the numerator and denominator cover the same
 year gets a yes with a one-week caveat, not a shrug.
 
-## Revenue: $32,472,742
+## Revenue: $32,323,139.62
 
 `SUM(dollars_sold)` over the trailing-52-week window
 (`sql/trade_rate/total_revenue.sql`).
