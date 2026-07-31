@@ -1,3 +1,11 @@
+-- ============================================================================
+-- SUPERSEDED — bakes the retired 3-product-line dataset (AS/SC/PS; no Dried
+-- Goods or Snack Bites). Do not rebuild from it: `build_db.py --force` seeded
+-- from this file reproduces the dead 3-line bake (see FAILURES.md 2026-06-02).
+-- Regenerate from the 2026-07-30 production extract instead, via the
+-- trade-spend-data-diagnostic repo: scripts/extract_from_postgres.py +
+-- scripts/fixup_extracted_db.py. Canonical universe: 50 SKUs / 5 lines.
+-- ============================================================================
 -- Cinderhaven Provisions product master (50 SKUs)
 -- Extracted from cinderhaven-data-platform on 2026-05-17
 -- Source of truth: platform Postgres → this seed file

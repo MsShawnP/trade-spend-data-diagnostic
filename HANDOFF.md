@@ -15,7 +15,7 @@ For things that didn't work, see FAILURES.md.
 
 **Did:** Started flyctl proxy, extracted all 21 tables from prod Postgres into fresh SQLite (1.4M scan rows, 20K deductions, 7.7K disputes). Ran fixup, rebuilt workbook, updated 8 stale assertions in validate_workbook.py (revenue, structural, waste, rates, double-dips). Fixed latent cross-tab bug where category range included the Total row. 59/59 passing. Committed and pushed.
 
-**State:** SQLite refreshed from prod. Workbook rebuilds clean. 59/59 validation passing. No broken or in-progress work. Key figures: $32.8M revenue, 10.5% all-in, 1.2% waste, 0 double-dips.
+**State:** SQLite refreshed from prod. Workbook rebuilds clean. 59/59 validation passing. No broken or in-progress work. Key figures: $32.8M revenue, 10.5% all-in, 1.2% waste, 0 double-dips. *[SUPERSEDED 2026-07-31: current pins $32,472,742 / 10.3% / 1.06%; dataset now 0 double-dips / $343,281 / 41.9%]*
 
 **Next:** No pending work. Project in maintenance mode. `/improve` review overdue (was due 2026-06-22). Consider running next session.
 

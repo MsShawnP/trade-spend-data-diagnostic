@@ -7,9 +7,10 @@
 > (Fly.io Postgres + dbt), which is the single source of truth for
 > Cinderhaven data. This repo pins the snapshot that the
 > trade-spend diagnostic was built and validated against. The
-> generation scripts in `scripts/` predate the platform — they
-> produce an older 90-SKU dataset — and must not be run to rebuild
-> the current database.
+> generation scripts in `scripts/` predate the platform — the 01-15
+> generators produce an older 90-SKU dataset, and `build_db.py`
+> re-seeds a retired 50-SKU / 3-product-line product master — and
+> must not be run to rebuild the current database.
 
 Cinderhaven Provisions is a **synthetic demonstration dataset**: a
 fictional specialty food brand invented for the

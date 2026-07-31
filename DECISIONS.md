@@ -148,6 +148,9 @@ off-invoice, $4.5M total trade, 42/38/20 category split.~~
 **Superseded 2026-06-05: v2 canonical reconciliation locked new baseline (see remittance-stub-parsing DECISIONS.md), then distressed scenario adopted for this diagnostic.**
 
 ### 2026-06-05 — Diagnostic consumes the distressed scenario dataset (not v2 baseline)
+
+*[SUPERSEDED 2026-07-31: current pins $32,472,742 / 10.3% / 1.06%; dataset now 0 double-dips / $343,281 / 41.9%. The distressed key figures below ($977K waste, 3 double-dips, 20.9% recovery) no longer describe the shipped dataset — the 2026-06-30 regen and 2026-07-24 prod re-export replaced them.]*
+
 - **Why:** The v2 canonical data ($480K/yr waste, 44% recovery, 0 vague, 0 double-dips) makes the diagnostic's exposé narrative impossible — the baseline is too clean. Rather than re-baselining all 11+ portfolio pieces, a named distressed scenario generates an alternate deduction layer consumed only by this diagnostic. Baseline tables (revenue, structural trade, chargebacks) are unchanged.
 - **Scope:** All deliverables in this repo — workbook, walkthrough, EXECUTIVE_MEMO, DEFENSIBILITY, SQL queries
 - **Key figures (distressed):**

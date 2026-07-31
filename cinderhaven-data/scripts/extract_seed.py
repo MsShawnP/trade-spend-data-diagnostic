@@ -1,4 +1,12 @@
-"""Extract current product_master from platform DB as SQL INSERT statements."""
+"""Extract current product_master from platform DB as SQL INSERT statements.
+
+SUPERSEDED — this script (and the seed_product_master.sql it writes) belongs
+to the retired 3-product-line pipeline; its generated header hardcodes
+"3 product lines". Do not rebuild from it. Regenerate from the 2026-07-30
+production extract instead, via the trade-spend-data-diagnostic repo:
+scripts/extract_from_postgres.py + scripts/fixup_extracted_db.py.
+Canonical universe: 50 SKUs / 5 product lines.
+"""
 import sqlite3
 from pathlib import Path
 

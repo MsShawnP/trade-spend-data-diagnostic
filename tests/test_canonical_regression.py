@@ -161,7 +161,7 @@ class TestCinderhavenCanonicalRegression:
     def test_structural_trade(self, conn):
         """Structural trade ~ $2,914,207 (this module's rate_map; understated vs workbook).
 
-        The workbook derives $2,977,954 (9.21%) with full per-retailer rates;
+        The workbook derives $2,992,224 (9.21%) with full per-retailer rates;
         canonical §Trade Economics publishes 9.8%/$3.18M channel-weighted on the
         verified denominator (re-rated 2026-07-30, owner decision). The spread
         is methodology scope, not a denominator problem.
