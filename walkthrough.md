@@ -1,7 +1,7 @@
 # Trade Spend Diagnostic — Walkthrough
 
-Cinderhaven Provisions, a specialty food company with $32.5 million
-in trailing-52-week scan revenue, carries a structural trade rate
+Cinderhaven Provisions, a specialty food company with $32.3 million
+in trailing-52-week scan revenue (CY2025), carries a structural trade rate
 of 9.2% (~$3.0M). All-in trade cost including operational
 deductions is 10.3%. The rate card is not the problem. The
 1.1-point gap above it is: $343K per year in operational waste

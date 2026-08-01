@@ -84,11 +84,11 @@ def main() -> bool:
         ws1 = wb["Executive Pulse"]
 
         revenue = ws1["D11"].value
-        r.check("Revenue ≈ $32,472,742", approx(revenue, 32472742),
+        r.check("Revenue ≈ $32,323,140", approx(revenue, 32323139.62),
                 f"Got ${revenue:,.0f}" if revenue else "Got None")
 
         structural = ws1["D12"].value
-        r.check("Structural trade ≈ $2,992,224", approx(structural, 2992224),
+        r.check("Structural trade ≈ $2,977,954", approx(structural, 2977954),
                 f"Got ${structural:,.0f}" if structural else "Got None")
 
         waste = ws1["D13"].value

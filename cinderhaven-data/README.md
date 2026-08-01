@@ -16,7 +16,7 @@ Cinderhaven Provisions is a **synthetic demonstration dataset**: a
 fictional specialty food brand invented for the
 [Lailara portfolio](https://github.com/MsShawnP). It is not a real
 company, not a client, and not any real company's data — every row
-is generated. The scenario: a brand doing $32.5M in trailing-52-week
+is generated. The scenario: a brand doing $32.3M in trailing-52-week
 scan revenue across 50 SKUs in five product lines (Artisan Sauces,
 Pantry Staples, Specialty Condiments, Dried Goods, Snack Bites),
 selling through six retailers — Walmart, Costco, Whole Foods,
