@@ -1,0 +1,9 @@
+# Legitimate uses of otherwise-retired tokens. Format:
+#   path/glob                 -> skip the whole file
+#   TOKEN @ path/glob         -> skip only TOKEN in matching files
+# History/decision/audit docs are auto-excluded by basename; list only the
+# genuine live-surface exceptions here.
+
+# Wegmans is a REAL retailer; these are deduction-practice research notes about
+# the actual company, not a claim that Cinderhaven sells through Wegmans.
+Wegmans @ cinderhaven-data/research/*
