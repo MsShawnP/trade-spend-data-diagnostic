@@ -46,6 +46,7 @@ EXCLUDE_BASENAMES = {
     "data_generation_log.md",
     "check_canonical_drift.py",
     "refresh_canonical.py",
+    ".canonical-allowlist",
 }
 EXCLUDE_BASENAME_GLOBS = [
     "AUDIT*.md", "*-AUDIT*.md", "TRIAGE*.md", "RE-AUDIT*.md", "FIX-LOG*.md",
