@@ -131,25 +131,40 @@ def run(config_path: str, out_dir: str, *, final: bool = False) -> dict:
         return {"status": "blocked", "blocked_files": list(blocked), "readiness_reports": written}
 
     # Trailing-52-week scan revenue (basis = scan_basis), from the validated frame.
+    # When fewer than 52 weeks are present the window clamps to what exists — and
+    # every window LABEL below reports the ACTUAL coverage, never a hardcoded
+    # "52 weeks" / "365d" over a shorter span (that would misstate the window a
+    # money figure is quoted against).
     weeks = sorted(scan_frame["week_ending"].dropna().unique())
-    oldest = weeks[-52] if len(weeks) >= 52 else weeks[0]
+    n_weeks = min(52, len(weeks))
+    oldest = weeks[-n_weeks]
     max_week = weeks[-1]
+    max_ts = pd.Timestamp(max_week)
     in_window = scan_frame[scan_frame["week_ending"] >= oldest]
     revenue = round(float(in_window["dollars_sold"].sum()), 2)
 
-    # Operational waste: trailing-365d deductions, excluding promo billback.
+    # Operational waste: trailing-365d deductions, excluding promo billback. The
+    # cutoff is unchanged (every deduction inside the trailing year is counted);
+    # only the LABEL clamps to the actual span when < 1 year of data exists.
     ded = pos.to_frame(ded_read, ded_report, _deductions_spec())
-    cutoff = pd.Timestamp(max_week) - pd.Timedelta(days=365)
-    dwin = ded[(ded["deduction_date"] > cutoff) & (ded["deduction_date"] <= pd.Timestamp(max_week))
+    cutoff = max_ts - pd.Timedelta(days=365)
+    dwin = ded[(ded["deduction_date"] > cutoff) & (ded["deduction_date"] <= max_ts)
                & (ded["deduction_type"].str.lower() != "promo_billback")]
     waste = round(float(dwin["amount"].sum()), 2)
     waste_rate = round(waste / revenue, 4) if revenue else 0.0
+    waste_days = 365 if len(weeks) >= 52 else min(365, (max_ts - pd.Timestamp(oldest)).days)
 
-    window_label = (f"trailing 52 weeks {pd.Timestamp(oldest).strftime('%b %d, %Y')} – "
-                    f"{pd.Timestamp(max_week).strftime('%b %d, %Y')}")
+    # Truthful, clamped window label. An explicit basis.window_label declared in
+    # the engagement config is honored verbatim when present; otherwise the label
+    # is computed from the actual weeks in the window.
+    computed_window = (f"trailing {n_weeks} weeks {pd.Timestamp(oldest).strftime('%b %d, %Y')} – "
+                       f"{max_ts.strftime('%b %d, %Y')}")
+    declared_window = ((config.raw.get("basis") or {}).get("window_label") or "").strip()
+    window_label = declared_window or computed_window
 
     summary = {"revenue": revenue, "waste": waste, "waste_rate": waste_rate,
-               "basis": basis_word, "window": window_label}
+               "basis": basis_word, "window": window_label,
+               "n_weeks": n_weeks, "waste_days": waste_days}
     html_path = out / "warehouse-trade-spend-readiness.html"
     html_path.write_text(_render(config, summary, provenance, draft=not final), encoding="utf-8")
     return {"status": "ok", **summary, "report": str(html_path),
@@ -183,8 +198,8 @@ def _render(config, s, provenance: Provenance, *, draft: bool) -> str:
 <section class=ll-section>
   <h2 class=ll-h2>Headline</h2>
   <table class=ll-table>
-    <tr><td>Trailing-52-week revenue ({esc(s['basis'])})</td><td class=num>{_fmt_dollars(s['revenue'])}</td></tr>
-    <tr><td>Operational waste (ex promo billback, trailing 365d)</td><td class=num>{_fmt_dollars(s['waste'])}</td></tr>
+    <tr><td>Trailing-{s['n_weeks']}-week revenue ({esc(s['basis'])})</td><td class=num>{_fmt_dollars(s['revenue'])}</td></tr>
+    <tr><td>Operational waste (ex promo billback, trailing {s['waste_days']}d)</td><td class=num>{_fmt_dollars(s['waste'])}</td></tr>
     <tr><td>Waste rate</td><td class=num>{s['waste_rate']*100:.2f}%</td></tr>
   </table>
   <p class=ll-note>Structural trade and promo efficacy run on the same warehouse

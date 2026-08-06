@@ -39,15 +39,34 @@ def _build_warehouse(path: Path):
     conn.commit(); conn.close()
 
 
-def _cfg(d: Path, db: Path, *, scan_cols=None):
+def _build_warehouse_nweeks(path: Path, n: int, as_of: str = "2025-12-27"):
+    """Warehouse with n consecutive weekly scans (Saturday grid) + one deduction."""
+    conn = sqlite3.connect(path)
+    conn.execute("CREATE TABLE client_scans (Loc TEXT, Item TEXT, WeekEnd TEXT, U REAL, ScanUSD REAL)")
+    conn.execute("CREATE TABLE client_deds (DedID TEXT, DedType TEXT, Amt REAL, DedDate TEXT)")
+    asof = pd.Timestamp(as_of)
+    for k in range(n):
+        w = (asof - timedelta(weeks=k)).strftime("%Y-%m-%d")
+        conn.executemany("INSERT INTO client_scans VALUES (?,?,?,?,?)",
+                         [("0012", "CHP-AS-001", w, 4, 100.0), ("0034", "CHP-AS-001", w, 4, 100.0)])
+    conn.executemany("INSERT INTO client_deds VALUES (?,?,?,?)", [
+        ("DED-1", "spoilage", 50.0, (asof - timedelta(weeks=1)).strftime("%Y-%m-%d")),
+    ])
+    conn.commit(); conn.close()
+
+
+def _cfg(d: Path, db: Path, *, scan_cols=None, window_label=None):
     import yaml
     scan_cols = scan_cols or {"store_id": "Loc", "sku": "Item", "week_ending": "WeekEnd",
                               "units_sold": "U", "dollars_sold": "ScanUSD"}
+    basis = {"week_convention": "week_ending_saturday", "scan_basis": "retail_scan"}
+    if window_label is not None:
+        basis["window_label"] = window_label
     p = d / "engagement.warehouse.yml"
     p.write_text(yaml.safe_dump({
         "client": {"name": "Cinderhaven Provisions (demo)"}, "engagement": {"id": "T-1"},
         "as_of_date": "2025-12-27", "demo": True,
-        "basis": {"week_convention": "week_ending_saturday", "scan_basis": "retail_scan"},
+        "basis": basis,
         "warehouse": {"kind": "sqlite", "path": str(db),
                       "tables": {"scans": "client_scans", "deductions": "client_deds"},
                       "columns": {"scans": scan_cols,
@@ -82,6 +101,49 @@ def test_bad_schema_map_blocks_with_readiness_report(tmp_path):
     res = warehouse_adapter.run(str(cfg), str(tmp_path / "out"))
     assert res["status"] == "blocked"
     assert "scans" in res["blocked_files"]
+
+
+def test_window_label_clamps_below_52_weeks(tmp_path):
+    """< 52 weeks of data must NOT be labeled 'trailing 52 weeks' / 'trailing 365d'.
+
+    Regression for the Meridian dry run: 26 weeks of scans were quoted as
+    'trailing 52 weeks' over a 26-week span. The label must report actual coverage.
+    """
+    db = tmp_path / "wh.db"; _build_warehouse(db)   # 3 weeks
+    cfg = _cfg(tmp_path, db)
+    res = warehouse_adapter.run(str(cfg), str(tmp_path / "out"))
+    assert res["status"] == "ok"
+    assert res["n_weeks"] == 3
+    assert res["waste_days"] < 365
+    html = Path(res["report"]).read_text(encoding="utf-8")
+    assert "Trailing-3-week revenue" in html
+    assert "Trailing-52-week" not in html            # the hardcoded lie is gone
+    assert "trailing 52 weeks" not in html.lower()
+    assert "trailing 365d" not in html               # span is weeks, not a year
+
+
+def test_full_year_labels_stay_52_weeks_and_365d(tmp_path):
+    """>= 52 weeks still reads 'Trailing-52-week' / 'trailing 365d' — clamp must not over-fire."""
+    db = tmp_path / "wh.db"; _build_warehouse_nweeks(db, 60)
+    cfg = _cfg(tmp_path, db)
+    res = warehouse_adapter.run(str(cfg), str(tmp_path / "out"))
+    assert res["status"] == "ok"
+    assert res["n_weeks"] == 52
+    assert res["waste_days"] == 365
+    html = Path(res["report"]).read_text(encoding="utf-8")
+    assert "Trailing-52-week revenue" in html
+    assert "trailing 365d" in html
+
+
+def test_declared_window_label_is_honored(tmp_path):
+    """An explicit basis.window_label in the engagement config is used verbatim in the banner."""
+    db = tmp_path / "wh.db"; _build_warehouse(db)
+    cfg = _cfg(tmp_path, db, window_label="trailing 26 weeks (Jan 3 – Jun 27, 2026)")
+    res = warehouse_adapter.run(str(cfg), str(tmp_path / "out"))
+    assert res["status"] == "ok"
+    assert res["window"] == "trailing 26 weeks (Jan 3 – Jun 27, 2026)"
+    html = Path(res["report"]).read_text(encoding="utf-8")
+    assert "trailing 26 weeks (Jan 3" in html
 
 
 def test_missing_week_convention_declaration_errors(tmp_path):
