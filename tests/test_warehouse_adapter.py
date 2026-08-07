@@ -86,6 +86,8 @@ def test_adapter_pulls_maps_validates_and_computes(tmp_path):
     assert res["basis"] == "retail scan"
     html = Path(res["report"]).read_text(encoding="utf-8")
     assert "retail scan revenue" in html
+    assert "Basis: retail scan dollars" in html   # Fix 4: basis label + units, no duplicated 'scan'
+    assert "scan scan" not in html
     assert "no table names hardcoded" in html
     assert "Source" in html and "warehouse" in html  # provenance
     assert "DRAFT" in html

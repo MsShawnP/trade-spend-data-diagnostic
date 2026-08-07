@@ -192,7 +192,7 @@ def _render(config, s, provenance: Provenance, *, draft: bool) -> str:
 <section class=ll-banner>
   <div class=ll-score>{_fmt_dollars(s['revenue'])} {esc(s['basis'])} revenue</div>
   <div>operational waste {_fmt_dollars(s['waste'])} · {s['waste_rate']*100:.2f}% of revenue</div>
-  <div class=ll-basis>Basis: {esc(s['basis'])} scan dollars · Window: {esc(s['window'])}<br>
+  <div class=ll-basis>Basis: {esc(s['basis'])} dollars · Window: {esc(s['window'])}<br>
        Pulled live from the client warehouse via config-mapped schema — no table names hardcoded.</div>
 </section>
 <section class=ll-section>
